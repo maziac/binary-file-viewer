@@ -58,3 +58,4 @@ Z.B,
 - In den Preferences kann man dann file extensions damit verbinden. Oder besser über den filenamen (Convention). Oder noch besser im File selbst.
 In 'resolveCustomEditor' wird dann geprüft, ob es eine config für das file gibt.
 - Ich müsste parallel die files auch im extension code laden, um syntax Fehler zu finden.
+- Besser: nicht nur file extensions sondern glob pattern und auch Teil-dekodierung des Headers zulassen um richtigen Parser zu finden.

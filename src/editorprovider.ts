@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {EditorDocument} from './editordocument';
 import {ParserSelect} from './parserselect';
+import {scopeLessFunctionCall} from './scopelessfunctioncall';
 
 
 export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
@@ -106,3 +107,9 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 		return mainHtml;
 	}
 }
+
+
+
+scopeLessFunctionCall('console.log("a+b=", a+b);', {a: 1, b: 2, console});
+
+console.log('-end');
