@@ -4,7 +4,8 @@ declare var window: Window & typeof globalThis;
 declare var navigator: Navigator;
 declare var ImageConvert: any;
 declare var UlaScreen: any;
-declare function requireFromString(code: string, fileName ?: string): any;
+declare function requireFromString(code: string, fileName?: string): any;
+declare function customParser(sandbox: any): void;
 
 const vscode = acquireVsCodeApi();
 
@@ -64,21 +65,10 @@ function assert(condition: boolean) {
 
 
 /**
- * Register an parser function for an extension.
- * It is possible to register more than one function to one extension.
- * @param fileExtension E.g. "obj" or "bin". Not used.
+ * Register the parser function to use.
  * @param func The function to use for the file extension.
  */
-function registerParser(fileExtension: string, func: () => void) {
-	/*
-	let funcArr = fileExtParserMap.get(fileExtension);
-	if (!funcArr) {
-		// First function. Create a new array.
-		funcArr = [];
-		fileExtParserMap.set(fileExtension, funcArr);
-	}
-	funcArr.push(func);
-	*/
+function registerParser(func: () => void) {
 	parseFunc = func;
 }
 
@@ -502,7 +492,8 @@ function parseStart() {
 	// Parse
 	//const config = require('parsers/obj.js');
 	//config.parse();
-	parseFunc();
+	customParser({});
+	parseFunc(); // Funktioniert noch nicht
 }
 
 

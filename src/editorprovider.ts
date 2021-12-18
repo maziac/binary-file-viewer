@@ -107,9 +107,3 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 		return mainHtml;
 	}
 }
-
-
-
-scopeLessFunctionCall('console.log("a+b=", a+b);', {a: 1, b: 2, console});
-
-console.log('-end');

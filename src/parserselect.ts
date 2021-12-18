@@ -1,5 +1,9 @@
 import * as fs from 'fs';
+import {ActionType} from 'nsfw';
 import * as path from 'path';
+//import * as nfsw from 'nsfw';
+const nsfw = require('nsfw');
+//import nfsw as Nsfw 'nsfw';
 
 
 /**
@@ -10,6 +14,9 @@ export class ParserSelect {
 	// A map which associates file extensions with parser functions.
 	protected static fileExtParserMap = new Map<string, string[]>();
 
+	// Filename -> contents association for the parser files.
+	protected static fileParserMap = new Map<string, string>();
+
 	// Custom parser js file absolute path.
 	protected static customParserPath: string;
 
@@ -19,6 +26,79 @@ export class ParserSelect {
 	 */
 	public static init(extensionPath: string) {
 		this.customParserPath = path.join(extensionPath, 'out', 'html', 'customparser.js');
+		// Setup a file watcher on the 'parsers' directory
+		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
+		const parsersFolder = path.join(extensionPath, 'parsers');
+		nsfw(parsersFolder,
+			function (events: any) {
+				console.log(events);
+				// Loop array of events
+				for (const event of events) {
+					ParserSelect.fileChanged(event);
+				}
+			}
+		)
+			.then(function (watcher: any) {
+				return watcher.start();
+			});
+
+		// Read files initially.
+		this.readAllFiles(parsersFolder);
+	}
+
+
+	/**
+	 * Called for every single file change.
+	 */
+	protected static fileChanged(event: any) {
+		try {
+			// Check type of change
+			if (event.action == ActionType.CREATED || event.action == ActionType.MODIFIED) {
+				// Read the file
+				const filePath = path.join(event.directory, event.file);
+				this.readFile(filePath);
+			}
+
+			// TODO: Handle renamed, deleted
+		}
+		catch (e) {
+			console.log(e);
+		}
+	}
+
+
+	/**
+	 * Reads all files in the given path.
+	 * @param folderPath The folder to use.
+	 */
+	protected static readAllFiles(folderPath: string) {
+		try {
+			const files = fs.readdirSync(folderPath, {withFileTypes: true});
+			for (const file of files) {
+				const fullPath = path.join(folderPath, file.name);
+				if (file.isDirectory()) {
+					// Dig recursively
+					this.readAllFiles(fullPath);
+				}
+				else {
+					// Read file
+					this.readFile(fullPath);
+				}
+			}
+		}
+		catch (e) {
+			console.log(e);
+		}
+	}
+
+
+	/**
+	 * Reads the contents of a single file and adds it to the map.
+	 * @param filePath The full file path of the parser file to read.
+	 */
+	protected static readFile(filePath: string) {
+		const fileContents = fs.readFileSync(filePath).toString();
+		this.fileParserMap.set(filePath, fileContents);
 	}
 
 
