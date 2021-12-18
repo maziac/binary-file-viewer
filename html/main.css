@@ -1,0 +1,141 @@
+* {
+    font-family: var(--vscode-editor-font-family);
+    font-weight: var(--vscode-editor-font-weight);
+    font-size: var(--vscode-editor-font-size);
+}
+
+title {
+	font-weight: bold;
+}
+
+a.tip {
+	font-weight: bold;
+}
+
+/* Makes content gray. */
+.gray {
+    color: var(--vscode-editorLineNumber-foreground);
+}
+
+
+/* class attached to errors for highlighting. */
+.error {
+	color: red;
+	font-weight: bold;
+}
+
+
+
+
+/* The class for detailed content. I.e. when expanded. */
+.content {
+	display: table-row;
+}
+
+/* Class for the divs inside the details. */
+.content div {
+	display: table-cell;
+	padding: 0.25em;
+}
+
+
+
+/* Indent */
+.indent {
+	padding-left: 2em;
+}
+
+/* Class for the offset */
+.offset {
+	min-width: 2em;
+}
+
+/* Class for the size */
+.size {
+	min-width: 2em;
+}
+
+/* Class for the name */
+.name {
+	min-width: 9em;
+	font-weight: bold;
+}
+
+/* Class for the value */
+.value {
+	font-weight: bold;
+    min-width: 3em;
+}
+
+/* Class for the description */
+.description {
+	padding-left: 1.5em;
+	width: auto;
+}
+
+
+/* Expanded content of a memroy dump. */
+.mem_dump {
+	display: table-row;
+}
+
+/* The offset inside a memory dump. */
+.mem_offset {
+	color: var(--vscode-editorLineNumber-foreground);
+}
+
+/* The relative offset. */
+.mem_rel_offset {
+	color: var(--vscode-editorLineNumber-foreground);
+	display: table-cell;
+	padding-left: 0.25em;
+}
+
+/* One mem dump byte. */
+.mem_byte {
+	display: table-cell;
+	padding-left: 0.25em;
+}
+
+
+/* Align all summary elements. */
+summary {
+  display: flex;
+  align-items: top;
+}
+summary > div {
+	padding: 0.25em;
+	padding-left: 0;
+	padding-right: 0.5em;
+}
+summary::-webkit-details-marker {
+	padding-top: 0.5em;
+	padding-left: 0;
+    color: var(--vscode-editorLineNumber-foreground);
+}
+
+/* Hides the details marker. */
+.nomarker summary::-webkit-details-marker {
+	color: transparent;
+}
+
+
+/* Width/height for the loading screens. */
+.load_screen {
+	width: 512px;
+}
+.load_screen_hires {
+	width: 512px;
+	height: 384px;
+}
+.load_screen_layer2_320_640 {
+	width: 640px;
+	height: 512px;
+}
+
+
+/* Decoded copper commands. */
+.copper_cmd {
+	font-weight: bold;
+}
+

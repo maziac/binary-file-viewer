@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+	<title>Binary File Viewer</title>
+	<meta charset="utf-8">
+	<base href="${vscodeResPath}/">
+	<link rel="stylesheet" href="html/main.css">
+</head>
+
+<body>
+	<div id="div_root">
+	</div>
+</body>
+
+<!-- "import" Gif Writer: import * as gw from "gif-writer" -->
+<script>
+	var exports = {};
+</script>
+<script src="node_modules/gif-writer/GifWriter.js"></script>
+<script>
+	// Access Gif Writer via gw
+	var gw = exports;
+</script>
+<!-- end of "import" -->
+
+<!-- Load main parser -->
+<script src="out/html/parser.js"></script>
+
+<!-- Load the custom parser -->
+<script src="out/html/customparser.js"></script>
+
+</html>
