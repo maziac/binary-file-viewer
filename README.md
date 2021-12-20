@@ -28,15 +28,16 @@ The extension is called "Binary File Viewer".
 Just click on a file with the *.* extension.
 The file is opened and shown in the text editor area.
 
-![](assets/usage.gif)
+![](assets/icon.png)
+
 
 Alternatively you can open a binary file via "Open With...":
 
-![](assets/usage-open-with.gif)
+![](assets/icon.png)
 
 When hovering over a value or register name you will get additional info like the offset or the value in decimal:
 
-![](assets/hovering.gif)
+![](assets/icon.png)
 
 
 # TODO

@@ -1,5 +1,4 @@
-
-
+import * as vm from 'vm';
 
 
 /**
@@ -20,11 +19,14 @@
  * possible to these parameters. E.g. {a: 1, b: 2} to pass 'a' and 'b' with the given values.
  * @returns The value the given function would return.
  */
-export function scopeLessFunctionCall(funcBodyString: string, parameters: any): any {
+export function scopeLessFunctionCall(funcBodyString: string, parameters = {}): any {
+//	console.time('scopeLessFunctionCall');
 	const sandboxedFuncStr = 'with (sandbox) {\n' + funcBodyString + '\n}';
 	const code = new Function('sandbox', sandboxedFuncStr);
 	const sandboxProxy = new Proxy(parameters, {has, get});
-	return code(sandboxProxy);
+	const result = code(sandboxProxy);
+//	console.timeEnd('scopeLessFunctionCall');
+	return result;
 }
 
 
@@ -37,5 +39,34 @@ function get(target: any, key: any) {
 	if (key === Symbol.unscopables)
 		return undefined;
 	return target[key]
+}
+
+
+/**
+ * Similar to scopeLessFunctionCall this runs a function in a safe environment.
+ * In contrast it uses the vm for execution.
+ * The advantage is that in case of errors the line numbers are returned.
+ * Drawback is that it is slower than scopeLessFunctionCall. But that is neglectable.
+ * From my measurements scopeLessFunctionCall takes 1.5ms and vmRunInNewContext varies a bit around 2ms.
+ *
+ * Example 1:
+ * vmRunInNewContext({a: 1, b: 2}, 'return a+b;');
+ * Returns 3.
+ *
+ * If you want to pass a global value use e.g.:
+ * vmRunInNewContext('console.log("a+b=", a+b);', {a: 1, b: 2, console});
+ * This prints: "a+b 3"
+ *
+ * @param funcBodyString The string with the function body.
+ * @param parameters The parameters to pass to the function. Direct access is only
+ * possible to these parameters. E.g. {a: 1, b: 2} to pass 'a' and 'b' with the given values.
+ * @param filePath Optional. Used as path for shown in case of errors.
+ * @returns The value the given function would return.
+ */
+export function vmRunInNewContext(funcBodyString: string, parameters = {}, filePath?: string): any {
+//	console.time('vmRunInNewContext');
+	const result = vm.runInNewContext(funcBodyString, parameters, filePath);
+//	console.timeEnd('vmRunInNewContext');
+	return result;
 }
 

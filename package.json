@@ -41,7 +41,7 @@
                 "displayName": "Binary File Viewer",
                 "selector": [
                     {
-                        "filenamePattern": "*.*"
+                        "filenamePattern": "*.obj"
                     }
                 ],
                 "priority": "default"
@@ -55,7 +55,7 @@
     },
     "devDependencies": {
         "@types/node": "^17.0.0",
-        "@types/vscode": "^1.63.1"
+        "@types/vscode": "^1.63.0"
     },
     "dependencies": {
         "gif-writer": "^0.9.4",

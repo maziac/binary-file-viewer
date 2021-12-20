@@ -1,18 +1,34 @@
+import * as vscode from 'vscode';
 import * as fs from 'fs';
 import {ActionType} from 'nsfw';
 import * as path from 'path';
+import {scopeLessFunctionCall, vmRunInNewContext} from './scopelessfunctioncall';
 //import * as nfsw from 'nsfw';
 const nsfw = require('nsfw');
 //import nfsw as Nsfw 'nsfw';
 
 
 /**
- * Select the right parser by the file extension.
+ * Select the right parser by the file extension and other means.
+ * The custom parser calls the function register file type (normally one
+ * time, but could be more).
+ * Here it installs a function (by calling 'registerFileType') that
+ * checks the given file. This can be by
+ * - file extension
+ * - file name (e.g. glob pattern) or
+ * - by the byte contents of the file itself.
+ * If the byte pattern is used the file is lazy loaded.
+ * I.e. normally just the file extension is checked in that case no data from
+ * the file is read at all.
+ *
  */
 export class ParserSelect {
 
+	// The diagnostics collection.
+	protected static diagnosticsCollection: vscode.DiagnosticCollection;
+
 	// A map which associates file extensions with parser functions.
-	protected static fileExtParserMap = new Map<string, string[]>();
+	protected static fileExtParserMap = new Map<string, string[]>(); // TODO : Remove
 
 	// Filename -> contents association for the parser files.
 	protected static fileParserMap = new Map<string, string>();
@@ -24,15 +40,19 @@ export class ParserSelect {
 	/**
 	 * Initializes the path.
 	 */
-	public static init(extensionPath: string) {
-		this.customParserPath = path.join(extensionPath, 'out', 'html', 'customparser.js');
+	public static init(parsersFolder: string): vscode.DiagnosticCollection {
+		// Prepare diagnostics
+		this.diagnosticsCollection = vscode.languages.createDiagnosticCollection("Binary File Viewer");
+
+		// Paths
+		this.customParserPath = path.join(parsersFolder, 'out', 'html', 'customparser.js');
 		// Setup a file watcher on the 'parsers' directory
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
-		const parsersFolder = path.join(extensionPath, 'parsers');
 		nsfw(parsersFolder,
 			function (events: any) {
 				console.log(events);
 				// Loop array of events
+				ParserSelect.clearDiagnostics();
 				for (const event of events) {
 					ParserSelect.fileChanged(event);
 				}
@@ -44,6 +64,33 @@ export class ParserSelect {
 
 		// Read files initially.
 		this.readAllFiles(parsersFolder);
+
+		// Return to register the diagnostics
+		return this.diagnosticsCollection;
+	}
+
+
+	/**
+	 * Clears all diagnostics messages.
+	 */
+	public static clearDiagnostics() {
+		this.diagnosticsCollection.clear();
+	}
+
+
+	/**
+	 * Adds a diagnostics message for a file.
+	 * @param message The shown message.
+	 * @param filepath Absolute path to the file.
+	 * @param line The line number. Starts at 0.
+	 * @param columnStart The start column number. Starts at 1 (?).
+	 * @param columnWidth The width of the selection.
+	 */
+	public static addDiagnosticsMessage(message: string, filepath: string, line: number, columnStart = 0, columnWidth = 1000) {
+		const uri = vscode.Uri.file(filepath);
+		const range = new vscode.Range(line, columnStart, line, columnStart + columnWidth);
+		const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
+		this.diagnosticsCollection.set(uri, [diagnostic]);
 	}
 
 
@@ -72,6 +119,7 @@ export class ParserSelect {
 	 * @param folderPath The folder to use.
 	 */
 	protected static readAllFiles(folderPath: string) {
+		this.clearDiagnostics();
 		try {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			for (const file of files) {
@@ -88,6 +136,8 @@ export class ParserSelect {
 		}
 		catch (e) {
 			console.log(e);
+			// Output to vscode's PROBLEM area.
+			this.addDiagnosticsMessage('Error: ' + e, '', 0);
 		}
 	}
 
@@ -97,9 +147,57 @@ export class ParserSelect {
 	 * @param filePath The full file path of the parser file to read.
 	 */
 	protected static readFile(filePath: string) {
+		// Read file contents
 		const fileContents = fs.readFileSync(filePath).toString();
+
+		// Covert into function to check for errors
+		// b) run it to run 'registerFileType' and then the registered function
+		try {
+			vmRunInNewContext(fileContents, {
+				registerFileType: (func: (fileExt: string, filePath: string, data: any) => string) => {
+					// Does nothing here.
+					let res = func('', '', undefined);
+					console.log(res);
+				},
+				registerParser: (func: () => void) => {
+					// Does nothing here.
+				}
+			},
+			filePath);
+		}
+		catch (err) {
+			console.log(err);
+			// Parse line number
+			const stacks = err.stack.split('\n');
+			const matchLine = /.*:(\d+)/.exec(stacks[0]);
+			const lineNr = parseInt(matchLine[1]);
+			// Get column number
+			const colNr = stacks[2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
+			const colWidth = stacks[2].replace(/[^\^]/g, '').length;
+			// Output to vscode's PROBLEM area.
+			this.addDiagnosticsMessage(stacks[4], filePath, lineNr - 1, colNr, colWidth);
+			return;
+		}
+
+		// If everything is fine, add to map
 		this.fileParserMap.set(filePath, fileContents);
 	}
+
+
+	/*
+
+			// b) run it to run 'registerFileType' and then the registered function
+			scopeLessFunctionCall(fileContents, {
+				registerParser: (func: () => void) => {},	// Unused here.
+				registerFileType: (func: (fileExt: string, filePath: string, data: any) => void) => {
+					let fileExt = path.extname(filePath);
+					if (fileExt.startsWith('.'))
+						fileExt = fileExt.substring(1);
+					const selected = func(filePath, fileExt, undefined);	// TODO: data
+					return selected;
+				}
+			});
+			*/
 
 
 	/**
@@ -148,7 +246,7 @@ export class ParserSelect {
 			return false;
 		try {
 			// Copy file (overwrite any existing file)
-			fs.copyFileSync(parserFile, this.customParserPath);
+		//	fs.copyFileSync(parserFile, this.customParserPath);
 			return true;
 		}
 		catch (e) {

@@ -12,16 +12,10 @@ export function activate(context: vscode.ExtensionContext) {
     console.log(context.extension.id + ' folder: ' + context.extensionPath);
 
     // Init
-    ParserSelect.init(context.extensionPath);
+    const diagnosticsCollection = ParserSelect.init('/Volumes/SDDPCIE2TB/Projects/Z80/vscode/binary-file-viewer-examples/parsers');
+    context.subscriptions.push(diagnosticsCollection);
 
-    // Read configuration
-    configure(context);
-
-    // Check for every change.
-    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
-        configure(context, event);
-    }));
-
+    /*
     // Register commands.
     context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.new", () => {
         // Get name and create new file.
@@ -42,10 +36,21 @@ export function activate(context: vscode.ExtensionContext) {
         // Import (adds) all configs from a zip.
     }));
 
+*/
+
 
     // Register custom readonly editor provider
     const viewProvider = new EditorProvider();
     vscode.window.registerCustomEditorProvider('binary-file-viewer.viewer', viewProvider, {webviewOptions: {enableFindWidget: true, retainContextWhenHidden: true}});
+
+
+    // Read configuration
+    configure(context);
+
+    // Check for every change.
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
+        configure(context, event);
+    }));
 }
 
 
@@ -53,6 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
  * Reads the configuration.
  */
 function configure(context: vscode.ExtensionContext, event?: vscode.ConfigurationChangeEvent) {
+    // TODO: DO I need this?
     /*
     const settings = vscode.workspace.getConfiguration('z80-instruction-set');
 
