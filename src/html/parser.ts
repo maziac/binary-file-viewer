@@ -202,12 +202,15 @@ function addDelayedDetailsParsing(func: () => void) {
 	detailsNode.setAttribute('data-index', lastOffset.toString());
 	// Install listener
 	if (func) {
+		const baklastNode = lastContentNode;
 		detailsNode.addEventListener("toggle", function handler(this: any, event: any) {
 			// Get parse node and index
 			lastNode = event.target;
 			const indexString = lastNode.getAttribute('data-index');
 			lastOffset = parseInt(indexString);
 			lastSize = 0;
+			lastNode = baklastNode;
+			//lastContentNode = lastNode; Seems not required
 			func();
 			this.removeEventListener("toggle", handler);
 		});
