@@ -48,10 +48,6 @@ var lastDescriptionNode: any;
 // The last node used for the long description.
 var lastLongDescriptionNode: any;
 
-// A map which associates file extensions with parser functions.
-var fileExtParserMap = new Map < string, Array<() => void>> ();	// TODO: not required
-var parseFunc: () => void;
-
 
 /**
  * Call to check a value.
@@ -66,15 +62,6 @@ function assert(condition: boolean) {
 
 
 /**
- * Register the parser function to use.
- * @param func The function to use for the file extension.
- */
-function registerParser(func: () => void) {
-	parseFunc = func;
-}
-
-
-/**
  * Convert array to base 64 string.
  */
 function arrayBufferToBase64(buffer: any) {
@@ -82,6 +69,16 @@ function arrayBufferToBase64(buffer: any) {
 	var bytes = [].slice.call(new Uint8Array(buffer));
 	bytes.forEach((b: any) => binary += String.fromCharCode(b));
 	return window.btoa(binary);
+}
+
+
+/**
+ * Can be called by the custom parser to create the standard header.
+ * I.e. showing the size.
+ */
+function createStandardHeader() {
+	let html = `<div><b>Size: ${dataBuffer.length}</b><br>`;
+	lastNode.innerHTML = html;
 }
 
 
@@ -501,7 +498,13 @@ function parseStart() {
 				// Once the function registers it can be executed.
 				// I.e. custom parsing is started:
 				func();
-			}
+			},
+			createStandardHeader,
+			read,
+			createNode,
+			addDetailsParsing,
+			addHoverValue,
+			hex0xValue
 		});
 	}
 	catch (e) {
