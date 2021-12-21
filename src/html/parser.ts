@@ -506,6 +506,8 @@ function parseStart() {
 			addHoverValue,
 			hex0xValue,
 			getValue,
+			hexValue,
+			decimalValue,
 			getHexString,
 			createSimpleRow,
 			createMemDump,

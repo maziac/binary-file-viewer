@@ -6,11 +6,6 @@ import {ParserSelect} from './parserselect';
 
 export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 
-	// Have a weak map to trace all open webviews.
-	// Used to update the webview in case the parser changed.
-	protected static webViewMap = new WeakMap<EditorDocument, boolean>();
-
-
 	/**
 	 * Called by vscode when a file is opened.
 	 * Create document
@@ -30,8 +25,6 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 			const doc = new EditorDocument();
 			doc.uri = uri;
 			doc.parser = parser;
-			// Remember teh document
-			EditorProvider.webViewMap.set(doc, true);
 			// Return a document
 			return doc;
 		}

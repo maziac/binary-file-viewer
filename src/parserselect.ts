@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import {ActionType} from 'nsfw';
 import * as path from 'path';
-import {scopeLessFunctionCall, vmRunInNewContext} from './scopelessfunctioncall';
+import {vmRunInNewContext} from './scopelessfunctioncall';
+import {EditorDocument} from './editordocument';
 //import * as nfsw from 'nsfw';
 const nsfw = require('nsfw');
 //import nfsw as Nsfw 'nsfw';
@@ -181,6 +182,8 @@ export class ParserSelect {
 
 		// If everything is fine, add to map
 		this.fileParserMap.set(filePath, fileContents);
+		// And update any existing document
+		EditorDocument.updateDocumentsFor(filePath, fileContents);
 	}
 
 

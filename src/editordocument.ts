@@ -14,9 +14,34 @@ export class EditorDocument implements vscode.CustomDocument {
 	// The used parser file.
 	public parser: {contents: string, filePath: string};
 
-	public dispose(): void {
-		//
+	// Remember the webviewPanel for sending updates.
+	public webviewPanel: vscode.WebviewPanel;
+
+
+	// Keeps the list of open documents. Used in case a parser is updated.
+	protected static documentList = new Set<EditorDocument>();
+
+
+	/**
+	 * Updates all editors which use the given parser.
+	 * @param parserFilePath The custom parser's path.
+	 */
+	public static updateDocumentsFor(parserFilePath: string, parserContents: string) {
+		for (const doc of this.documentList) {
+			if (doc.parser.filePath == parserFilePath) {
+				doc.updateParser(parserContents);
+			}
+		}
 	}
+
+
+	/**
+	 * Remove from list.
+	 */
+	public dispose(): void {
+		EditorDocument.documentList.delete(this);
+	}
+
 
 
 	/**
@@ -26,6 +51,10 @@ export class EditorDocument implements vscode.CustomDocument {
 	 */
 	public init(webviewPanel: vscode.WebviewPanel) {
 		try {
+			// Remember
+			EditorDocument.documentList.add(this);
+			this.webviewPanel = webviewPanel;
+
 			// Allow js
 			webviewPanel.webview.options = {
 				enableScripts: true
@@ -117,4 +146,13 @@ export class EditorDocument implements vscode.CustomDocument {
 
 		return mainHtml;
 	}
+
+	/**
+	 * Update the parser.
+	 */
+	public updateParser(parserContents: string) {
+		this.parser.contents = parserContents;
+		this.sendParserToWebView(parserContents, this.webviewPanel);
+	}
+
 }
