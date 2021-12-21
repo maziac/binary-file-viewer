@@ -47,24 +47,29 @@ a.tip {
 
 /* Class for the offset */
 .offset {
-	min-width: 2em;
+	/*min-width: 2em;*/
+	width: 5%;
+	text-align: right;	/* does not work */
 }
 
 /* Class for the size */
 .size {
-	min-width: 2em;
+	/*min-width: 2em;*/
+	width: 5%;
 }
 
 /* Class for the name */
 .name {
-	min-width: 9em;
+	/*min-width: 9em;*/
+	width: 20%;
 	font-weight: bold;
 }
 
 /* Class for the value */
 .value {
 	font-weight: bold;
-    min-width: 3em;
+    /*min-width: 3em;*/
+	width: 20%;
 }
 
 /* Class for the description */
@@ -74,7 +79,7 @@ a.tip {
 }
 
 
-/* Expanded content of a memroy dump. */
+/* Expanded content of a memory dump. */
 .mem_dump {
 	display: table-row;
 }
@@ -99,6 +104,22 @@ a.tip {
 
 
 /* Align all summary elements. */
+details summary {
+  cursor: pointer;
+}
+
+details summary > * {
+  display: inline-flex;
+}
+/* Hides the details marker and the cursor pointer. */
+.nomarker > summary {
+  	list-style: none;
+ 	cursor: default;
+}
+.nomarker > summary::marker {
+	 display: none;
+}
+/*
 summary {
   display: flex;
   align-items: top;
@@ -113,29 +134,15 @@ summary::-webkit-details-marker {
 	padding-left: 0;
     color: var(--vscode-editorLineNumber-foreground);
 }
-
-/* Hides the details marker. */
-.nomarker summary::-webkit-details-marker {
-	color: transparent;
+*/
+/*
+details > summary {
+  list-style: none;
 }
-
-
-/* Width/height for the loading screens. */
-.load_screen {
-	width: 512px;
+details > summary::marker {
+	 display:none;
 }
-.load_screen_hires {
-	width: 512px;
-	height: 384px;
-}
-.load_screen_layer2_320_640 {
-	width: 640px;
-	height: 512px;
-}
+*/
 
 
-/* Decoded copper commands. */
-.copper_cmd {
-	font-weight: bold;
-}
 

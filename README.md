@@ -42,6 +42,14 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
+- Functions:
+	- Read until certain byte value
+	- Read string (until 0)
+	- Functions for customizing
+		- colors
+		- indentation
+	- Reading bits
+
 - How to customize the file extensions? I.e. that the binary-file-viewer reacts only on certain (customized) file extensions.
 - Ich sollte dabei bleiben, das erst lazy auf webview Seite zu dekodieren.
 Da, wenn ich mal den chart view einbaue, dass coh eine nicht unerhebliche Zeit dauern könnte bis der alles fertig gerendert hätte.

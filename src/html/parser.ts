@@ -195,7 +195,7 @@ function addDetailsParsing(func: () => void) {
  * @param func The function to call to parse/decode the data.
  */
 function addDelayedDetailsParsing(func: () => void) {
-	// Get nodex
+	// Get node
 	const detailsNode = lastNode.lastChild;
 	detailsNode.classList.remove("nomarker");
 	// Attach attribute
@@ -504,7 +504,16 @@ function parseStart() {
 			createNode,
 			addDetailsParsing,
 			addHoverValue,
-			hex0xValue
+			hex0xValue,
+			getValue,
+			getHexString,
+			createSimpleRow,
+			createMemDump,
+			addDelayedDetailsParsing,
+			addDescription,
+
+			//keyNode.classList.add("indent");
+			//keyNode.classList.add("gray");
 		});
 	}
 	catch (e) {
