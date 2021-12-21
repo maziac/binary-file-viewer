@@ -51,7 +51,18 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 						const dataFs = fs.readFileSync(filePath);
 						const data = Uint8Array.from(dataFs);
 						// Send data
-						this.sendDataToWebView(parser, data, webviewPanel);
+						this.sendDataToWebView(parser.contents, data, webviewPanel);
+						break;
+					case 'customParserError':
+						// An error occurred during execution of the custom parser
+						const stacks = message.text.split('\n');
+						const match = /.*>:(\d+)/.exec(stacks[1]);
+						let line = 0;
+						if (match) {
+							line = parseInt(match[1]);
+							line -= 4;	// The reported number is too high, don't know why.
+						}
+						ParserSelect.addDiagnosticsMessage(stacks[0], parser.filePath, line);
 						break;
 				}
 			});

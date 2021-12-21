@@ -239,9 +239,9 @@ export class ParserSelect {
 	 * @param fileExt E.g. "obj"
 	 * @param filePath The full (absolute) file path.
 	 * @param data The file data object.
-	 * @returns the parser contents on success. Otherwise undefined.
+	 * @returns the parser contents and its file path on success. Otherwise undefined.
 	 */
-	public static selectParserFile(fileExt: string, filePath: string, data: any): string {
+	public static selectParserFile(fileExt: string, filePath: string, data: any): {contents: string, filePath: string} {
 		// Loop through all parsers
 		let found = false;
 		for (const [parserFilePath, parser] of this.fileParserMap) {
@@ -258,7 +258,7 @@ export class ParserSelect {
 				parserFilePath);
 			if (found) {
 				// If one is found stop here: // TODO: allow a selection
-				return parser;
+				return {contents: parser, filePath: parserFilePath};
 			}
 		}
 

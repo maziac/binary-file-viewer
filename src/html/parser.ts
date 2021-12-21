@@ -4,8 +4,6 @@ declare var window: Window & typeof globalThis;
 declare var navigator: Navigator;
 declare var ImageConvert: any;
 declare var UlaScreen: any;
-declare function requireFromString(code: string, fileName?: string): any;
-declare function customParser(sandbox: any): void;
 
 const vscode = acquireVsCodeApi();
 
@@ -21,7 +19,10 @@ const vscode = acquireVsCodeApi();
 
 
 // The data to parse.
-var dataBuffer: number[];
+var dataBuffer: Uint8Array;
+
+// The custom parser (js program as a string).
+var customParser: string;
 
 // Index into snaData
 var lastOffset: number;
@@ -489,11 +490,27 @@ function parseStart() {
 	lastOffset = 0;
 	lastSize = 0;
 	lastNode = document.getElementById("div_root");
-	// Parse
-	//const config = require('parsers/obj.js');
-	//config.parse();
-	customParser({});
-	parseFunc(); // Funktioniert noch nicht
+
+	try {
+		// Get parser and execute
+		scopeLessFunctionCall(customParser, {
+			registerFileType: (func: (fileExt: string, filePath: string, data: any) => boolean) => {
+				// Does nothing here.
+			},
+			registerParser: (func: () => void) => {
+				// Once the function registers it can be executed.
+				// I.e. custom parsing is started:
+				func();
+			}
+		});
+	}
+	catch (e) {
+		// Return error
+		vscode.postMessage({
+			command: 'customParserError',
+			text: e.stack
+		});
+	}
 }
 
 
@@ -514,6 +531,7 @@ window.addEventListener('message', event => {	// NOSONAR
 			{
 				// Store in global variable
 				dataBuffer = message.data;
+				customParser = message.parser
 				// Parse
 				parseStart();
 			} break;
@@ -528,58 +546,43 @@ vscode.postMessage({
 
 
 
-
 /**
- * Does a 'require' but on a string.
- * If an error occurs it parses the output for the line number.
- * 'line' and 'column' is added to the thrown error.
- * @param code The js file as a string.
- * @param fileName Optional filename to use.
+ * Runs a function given as string (the body only) in a safe environment.
+ * I.e. the function is not able to access any global scope or block scope.
+ * Any value has to be passed through the parameters.
+ *
+ * Example 1:
+ * scopeLessFunction({a: 1, b: 2}, 'return a+b;');
+ * Returns 3.
+ *
+ * If you want to pass a global value use e.g.:
+ * scopeLessFunction('console.log("a+b=", a+b);', {a: 1, b: 2, console});
+ * This prints: "a+b= 3"
+ *
+ * @param funcBodyString The string with the function body.
+ * @param parameters The parameters to pass to the function. Direct access is only
+ * possible to these parameters. E.g. {a: 1, b: 2} to pass 'a' and 'b' with the given values.
+ * @returns The value the given function would return.
+ * @throws An exception if the code cannot be compiled.
  */
-function requireString(code: string, fileName?: string): any {
-	try {
-		return requireFromString(code, fileName);
-	}
-	catch (e) {
-		// e.stack contains the error location with the line number.
-		// e.stack contains the error location with the line number.
-		// Remove windows \r
-		const stackWo = e.stack.replace(/\r/g, '');
-		const stack = stackWo.split('\n');
-		if (stack.length > 1) {
-			// Try this pattern:
-			// 'ReferenceError: xsuite is not defined\n\tat Object.<anonymous> (/Volumes/SDDPCIE2TB/Projects/Z80/vscode/DeZog/src/firsttests2.ut.jsm:20:1)\n...'
-			const firstAt = stack[1];
-			const match = /.*?:(\d+):(\d+)/.exec(firstAt);
-			if (match) {
-				// Add line/column to error.
-				// Extract line number.
-				const line = parseInt(match[1]) - 1;
-				// Extract column number.
-				const column = parseInt(match[2]) - 1;
-				// Return
-				e.position = {line, column};
-			}
-			else {
-				// Try this pattern:
-				// ':192\n\tawait dezogExecAddr(address, sp, a, f, bc, de, hl);\n\t^^^^^\n\nSyntaxError: await is only valid in async functions and the top level bodies of modules\n\tat wrapSafe (internal/modules/cjs/loader.js:1033:16)\n...'
-				const line0 = stack[0];
-				const match2 = /^:(\d+)$/.exec(line0);
-				if (match2) {
-					// Add line/column to error.
-					// Extract line number.
-					const line = parseInt(match2[1]) - 1;
-					// Return
-					e.position = {line, column: 0};
-				}
-			}
-		}
+export function scopeLessFunctionCall(funcBodyString: string, parameters = {}): any {
+	//	console.time('scopeLessFunctionCall');
+	const sandboxedFuncStr = 'with (sandbox) {\n' + funcBodyString + '\n}';
+	const code = new Function('sandbox', sandboxedFuncStr);
+	const sandboxProxy = new Proxy(parameters, {has, get});
+	const result = code(sandboxProxy);
+	//	console.timeEnd('scopeLessFunctionCall');
+	return result;
+}
 
-		// Re-throw
-		throw e;
 
-		/*
-		'ReferenceError: xsuite is not defined\n\tat Object.<anonymous> (/Volumes/SDDPCIE2TB/Projects/Z80/vscode/DeZog/src/firsttests2.ut.jsm:20:1)\n\tat Module._compile (internal/modules/cjs/loader.js:1125:30)\n\tat Object..js (internal/modules/cjs/loader.js:1155:10)\n\tat Module.load (internal/modules/cjs/loader.js:982:32)\n\tat internal/modules/cjs/loader.js:823:14\n\tat Function.<anonymous> (electron/js2c/asar_bundle.js:5:12913)\n\tat Function.<anonymous> (/Volumes/SDDPCIE2TB/Applications/Visual Studio Code.app/C…ostProcess.js:90:14919)\n\tat Function._callActivate (/Volumes/SDDPCIE2TB/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:90:14592)\n\tat /Volumes/SDDPCIE2TB/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:90:12789\n\tat processTicksAndRejections (internal/process/task_queues.js:93:5)\n\tat async Promise.all (index 14)\n\tat async Promise.all (index 0)'
-		*/
-	}
+// These traps intercepts 'in' operations on sandboxProxy.
+// This is to prohibit access to the global object.
+function has(target: any, key: any) {
+	return true;
+}
+function get(target: any, key: any) {
+	if (key === Symbol.unscopables)
+		return undefined;
+	return target[key]
 }
