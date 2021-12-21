@@ -1,16 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
 import {EditorDocument} from './editordocument';
 import {ParserSelect} from './parserselect';
-import {scopeLessFunctionCall} from './scopelessfunctioncall';
 
 
 export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 
 	// Have a weak map to trace all open webviews.
 	// Used to update the webview in case the parser changed.
-	protected static webViewMap = new WeakMap<EditorDocument, string>();
+	protected static webViewMap = new WeakMap<EditorDocument, boolean>();
 
 
 	/**
@@ -28,10 +26,13 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 			if (!parser)
 				return undefined;	// Nothing found
 
-			// Return a document
+			// Create a document
 			const doc = new EditorDocument();
 			doc.uri = uri;
 			doc.parser = parser;
+			// Remember teh document
+			EditorProvider.webViewMap.set(doc, true);
+			// Return a document
 			return doc;
 		}
 		catch (e) {
@@ -47,82 +48,7 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 	 */
 	public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
 		const doc = document as EditorDocument;
-		const filePath = doc.uri.fsPath;
-		const parser = doc.parser;
-
-		// Allow js
-		webviewPanel.webview.options = {
-			enableScripts: true
-		};
-
-		try {
-			// Handle 'ready' message from the webview
-			webviewPanel.webview.onDidReceiveMessage(message => {
-				switch (message.command) {
-					case 'ready':
-						// Read file
-						const dataFs = fs.readFileSync(filePath);
-						const data = Uint8Array.from(dataFs);
-						// Send data
-						this.sendDataToWebView(parser.contents, data, webviewPanel);
-						break;
-					case 'customParserError':
-						// An error occurred during execution of the custom parser
-						const stacks = message.text.split('\n');
-						const match = /.*>:(\d+)/.exec(stacks[1]);
-						let line = 0;
-						if (match) {
-							line = parseInt(match[1]);
-							line -= 4;	// The reported number is too high, don't know why.
-						}
-						ParserSelect.addDiagnosticsMessage(stacks[0], parser.filePath, line);
-						break;
-				}
-			});
-
-			// Create html code
-			const html = this.getMainHtml(webviewPanel);
-			webviewPanel.webview.html = html;
-		}
-		catch (e) {
-			console.error('Error: ', e);
-		}
+		doc.init(webviewPanel);
 	}
 
-
-	/**
-	 * Reads the file and sends the data to the webview.
-	 * @param parser The parser (js code) as a string
-	 * @param data The file data to decode
-	 * @param webviewPanel The webview to send the data to.
-	 */
-	protected sendDataToWebView(parser: string, data: Uint8Array, webviewPanel: vscode.WebviewPanel) {
-		// Send file data to webview
-		const message = {
-			command: 'setData',
-			parser,
-			data
-		};
-		webviewPanel.webview.postMessage(message);
-	}
-
-
-	/**
-	 * Returns the html code to display the text.
-	 */
-	protected getMainHtml(webviewPanel: any) {
-		// Add the html styles etc.
-		const extPath = vscode.extensions.getExtension("maziac.binary-file-viewer")!.extensionPath;
-		const mainHtmlFile = path.join(extPath, 'html/main.html');
-		let mainHtml = fs.readFileSync(mainHtmlFile).toString();
-		// Exchange local path
-		const resourcePath = vscode.Uri.file(extPath);
-		const vscodeResPath = webviewPanel.webview.asWebviewUri(resourcePath).toString();
-		mainHtml = mainHtml.replace('${vscodeResPath}', vscodeResPath);
-
-		// Add a Reload and Copy button for debugging
-		//mainHtml = mainHtml.replace('<body>', '<body><button onclick="parseStart()">Reload</button><button onclick="copyHtmlToClipboard()">Copy HTML to clipboard</button>');
-
-		return mainHtml;
-	}
 }

@@ -543,6 +543,10 @@ window.addEventListener('message', event => {	// NOSONAR
 			{
 				// Store in global variable
 				dataBuffer = message.data;
+			} break;
+		case 'setParser':
+			{
+				// Store in global variable
 				customParser = message.parser
 				// Parse
 				parseStart();
