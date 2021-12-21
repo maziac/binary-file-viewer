@@ -35,29 +35,23 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 		try {
 			// Copy the parser file
 		//	const extFolder = vscode.extensions.getExtension(extName).extensionPath;
-			const fileExt = path.extname(doc.uri.fsPath);
-			if (!ParserSelect.selectParserFile(fileExt))
-				return;
-
-			// Read the file
 			const filePath = doc.uri.fsPath;
+			let fileExt = path.extname(filePath);
+			if (fileExt.length >= 1)
+				fileExt = fileExt.slice(1); 	// Remove the '.'
+			const parser = ParserSelect.selectParserFile(fileExt, filePath, undefined);
+			if (!parser)
+				return;	// Nothing found
 
 			// Handle 'ready' message from the webview
 			webviewPanel.webview.onDidReceiveMessage(message => {
 				switch (message.command) {
 					case 'ready':
+						// Read file
+						const dataFs = fs.readFileSync(filePath);
+						const data = Uint8Array.from(dataFs);
 						// Send data
-						this.sendDataToWebView(filePath, webviewPanel);
-						// Establish file watcher to check for changes
-						const fsWatcher = vscode.workspace.createFileSystemWatcher(filePath, true, false, true);
-						fsWatcher.onDidChange(() => {
-							// Re-read data
-							this.sendDataToWebView(filePath, webviewPanel);
-						});
-						// Cleanup
-						webviewPanel.onDidDispose(() => {
-							fsWatcher.dispose();
-						});
+						this.sendDataToWebView(parser, data, webviewPanel);
 						break;
 				}
 			});
@@ -74,15 +68,16 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 
 	/**
 	 * Reads the file and sends the data to the webview.
-	 * @param filePath The file name.
+	 * @param parser The parser (js code) as a string
+	 * @param data The file data to decode
 	 * @param webviewPanel The webview to send the data to.
 	 */
-	protected sendDataToWebView(filePath: string, webviewPanel: vscode.WebviewPanel) {
+	protected sendDataToWebView(parser: string, data: Uint8Array, webviewPanel: vscode.WebviewPanel) {
 		// Send file data to webview
-		const doc = fs.readFileSync(filePath);
 		const message = {
 			command: 'setData',
-			data: [...doc]
+			parser,
+			data
 		};
 		webviewPanel.webview.postMessage(message);
 	}

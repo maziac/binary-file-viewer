@@ -156,7 +156,7 @@ export class ParserSelect {
 			vmRunInNewContext(fileContents, {
 				registerFileType: (func: (fileExt: string, filePath: string, data: any) => string) => {
 					// Does nothing here.
-					let res = func('', '', undefined);
+					let res = func('', '', undefined);	// TODO: not required to test for errors
 					console.log(res);
 				},
 				registerParser: (func: () => void) => {
@@ -237,23 +237,33 @@ export class ParserSelect {
 	 * Select the right parser file (depending on the given file extension
 	 * and copies it to the extension dir ('out/html').
 	 * @param fileExt E.g. "obj"
-	 * @returns true on success. false on failure, i.e. no parser file associated
-	 * with extension.
+	 * @param filePath The full (absolute) file path.
+	 * @param data The file data object.
+	 * @returns the parser contents on success. Otherwise undefined.
 	 */
-	public static selectParserFile(fileExt: string): boolean {
-		const parserFile = this.getFileForExt(fileExt);
-		if (!parserFile)
-			return false;
-		try {
-			// Copy file (overwrite any existing file)
-		//	fs.copyFileSync(parserFile, this.customParserPath);
-			return true;
-		}
-		catch (e) {
-			console.error('Error: ', e);
-			return false;
+	public static selectParserFile(fileExt: string, filePath: string, data: any): string {
+		// Loop through all parsers
+		let found = false;
+		for (const [parserFilePath, parser] of this.fileParserMap) {
+			// Run each parser 'registerFileType'
+			vmRunInNewContext(parser, {
+				registerFileType: (func: (fileExt: string, filePath: string, data: any) => boolean) => {
+					// Evaluate custom function
+					found = func(fileExt, filePath, data);
+				},
+				registerParser: (func: () => void) => {
+					// Does nothing here.
+				}
+			},
+				parserFilePath);
+			if (found) {
+				// If one is found stop here: // TODO: allow a selection
+				return parser;
+			}
 		}
 
+		// Not found
+		return undefined;
 	}
 }
 
