@@ -2,8 +2,6 @@ declare var acquireVsCodeApi: any;
 declare var document: Document;
 declare var window: Window & typeof globalThis;
 declare var navigator: Navigator;
-declare var ImageConvert: any;
-declare var UlaScreen: any;
 
 const vscode = acquireVsCodeApi();
 
@@ -516,6 +514,7 @@ function parseStart() {
 			createMemDump,
 			addDelayedDetailsParsing,
 			addDescription,
+			createChartNode
 
 			//keyNode.classList.add("indent");
 			//keyNode.classList.add("gray");

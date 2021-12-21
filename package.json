@@ -58,6 +58,7 @@
         "@types/vscode": "^1.63.0"
     },
     "dependencies": {
+        "chart.js": "^3.6.2",
         "gif-writer": "^0.9.4",
         "nsfw": "^2.1.2",
         "path": "^0.12.7"
