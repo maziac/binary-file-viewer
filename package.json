@@ -41,7 +41,7 @@
                 "displayName": "Binary File Viewer",
                 "selector": [
                     {
-                        "filenamePattern": "*.obj"
+                        "filenamePattern": "*.obj*"
                     }
                 ],
                 "priority": "default"

@@ -8,15 +8,36 @@ import {scopeLessFunctionCall} from './scopelessfunctioncall';
 
 export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 
+	// Have a weak map to trace all open webviews.
+	// Used to update the webview in case the parser changed.
+	protected static webViewMap = new WeakMap<EditorDocument, string>();
+
+
 	/**
 	 * Called by vscode when a file is opened.
 	 * Create document
 	 */
 	public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
-		// Return a document
-		const doc = new EditorDocument();
-		doc.uri = uri;
-		return doc;
+		try {
+			// Get the parser contents
+			const filePath = uri.fsPath;
+			let fileExt = path.extname(filePath);
+			if (fileExt.length >= 1)
+				fileExt = fileExt.slice(1); 	// Remove the '.'
+			const parser = ParserSelect.selectParserFile(fileExt, filePath, undefined);
+			if (!parser)
+				return undefined;	// Nothing found
+
+			// Return a document
+			const doc = new EditorDocument();
+			doc.uri = uri;
+			doc.parser = parser;
+			return doc;
+		}
+		catch (e) {
+			console.log(e);
+			return undefined;
+		}
 	}
 
 
@@ -26,6 +47,8 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 	 */
 	public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
 		const doc = document as EditorDocument;
+		const filePath = doc.uri.fsPath;
+		const parser = doc.parser;
 
 		// Allow js
 		webviewPanel.webview.options = {
@@ -33,16 +56,6 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 		};
 
 		try {
-			// Copy the parser file
-		//	const extFolder = vscode.extensions.getExtension(extName).extensionPath;
-			const filePath = doc.uri.fsPath;
-			let fileExt = path.extname(filePath);
-			if (fileExt.length >= 1)
-				fileExt = fileExt.slice(1); 	// Remove the '.'
-			const parser = ParserSelect.selectParserFile(fileExt, filePath, undefined);
-			if (!parser)
-				return;	// Nothing found
-
 			// Handle 'ready' message from the webview
 			webviewPanel.webview.onDidReceiveMessage(message => {
 				switch (message.command) {
@@ -108,7 +121,7 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 		mainHtml = mainHtml.replace('${vscodeResPath}', vscodeResPath);
 
 		// Add a Reload and Copy button for debugging
-		mainHtml = mainHtml.replace('<body>', '<body><button onclick="parseStart()">Reload</button><button onclick="copyHtmlToClipboard()">Copy HTML to clipboard</button>');
+		//mainHtml = mainHtml.replace('<body>', '<body><button onclick="parseStart()">Reload</button><button onclick="copyHtmlToClipboard()">Copy HTML to clipboard</button>');
 
 		return mainHtml;
 	}
