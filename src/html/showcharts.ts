@@ -13,6 +13,19 @@ declare var createNode: any;
 declare var Chart: any;
 
 
+/**
+ * Default colors used.
+ */
+const defaultColors = [
+	'darkgreen',
+	'cornflowerblue',
+	'yellow',
+	'crimson',
+	'chocolate',
+	'dimgray',
+	'darkorange'
+];
+
 
 /**
  * Sub-structure passed to createChartNode.
@@ -30,7 +43,7 @@ interface ChartConfig {
 	// The chart type:
 	type: 'line' | 'bar';
 	// The data series.
-	series: Series[]
+	series: (Series|number[])[]
 }
 
 
@@ -53,8 +66,11 @@ function createChartNode(config: ChartConfig, name: string, valString = '', shor
 	// Get the max length data series
 	let maxLength = 0;
 	for (const series of cfg.series) {
-		if (series.samples.length > maxLength)
-			maxLength = series.samples.length;
+		let samples = (series as Series).samples;
+		if (!samples)
+			samples = series as number[];
+		if (samples.length > maxLength)
+			maxLength = samples.length;
 	}
 
 	const node = createNode(name, valString, shortDescription);
@@ -68,17 +84,32 @@ function createChartNode(config: ChartConfig, name: string, valString = '', shor
 	// Create the datasets.
 	let legendDisplay = false;
 	const datasets = [];
+	let colIndex = 0;
 	for (const series of cfg.series) {
-		if (series.label)
+		// Check series type
+		let samples = (series as Series).samples;
+		if (!samples)
+			samples = series as number[];
+		// Check defaults
+		const label = (series as Series).label;
+		if(label)
 			legendDisplay = true;
+		let color = (series as Series).color;
+		if (!color) {
+			// Use default color
+			color = defaultColors[colIndex++];
+			if (colIndex >= defaultColors.length)
+				colIndex = 0;
+		}
+		// Store
 		datasets.push({
-			label: series.label,
-			backgroundColor: series.color,	// point color/bar color
-			borderColor: series.color,	// line color
+			label: label,
+			backgroundColor: color,	// point color/bar color
+			borderColor: color,	// line color
 			borderWidth: 1,	// line width
 			pointRadius: 1,
 			pointHoverRadius: 10,
-			data: series.samples
+			data: samples
 		});
 	}
 
