@@ -301,11 +301,47 @@ function getHexString(value: number, size: number): string {
 /**
  * Advances the offset (from previous call) and
  * stores the size for reading.
- * @param size The number of bytes to read.
+ * @param size The number of bytes to read. // TODO: allow undfined to read everything till end of file.
  */
 function read(size: number) {
-	lastOffset += lastSize;
+	lastOffset += lastSize;	// TODO: Check if bigger than file size. Then limit to file size.
 	lastSize = size;
+}
+
+
+
+/**
+ * Reads in a chunk of data. E.g. to display later in Charts.
+ * @param sampleSize The size of each data value (sample) in bytes.
+ * @param offset The starting offset in bytes.
+ * @param format 'u'=unsigned, 'i'=signed
+ * @param skip The number of bytes to skip after each read sample.
+ */
+function getData(sampleSize: number, offset: number, format: string, skip: number): number[] {
+	const data: number[] = [];
+	const step = sampleSize + skip;
+	const signed = (format == 'i');
+	const max = 0x01 << (sampleSize * 8);
+	const maxHalf = max / 2;
+	const totalOffset = lastOffset + offset;
+	const end = lastOffset + lastSize;
+	for (let i = totalOffset; i < end; i += step) {
+		// Read all bytes of sample
+		let value = dataBuffer[i];
+		let factor = 1;
+		for (let k = 1; k < sampleSize; k++) {
+			factor *= 256;
+			value += factor * dataBuffer[i + k];
+		}
+		// Convert to signed, if necessary
+		if (signed) {
+			if (value >= maxHalf)
+				value -= max;
+		}
+		// Store
+		data.push(value);
+	}
+	return data;
 }
 
 
@@ -510,11 +546,14 @@ function parseStart() {
 			hexValue,
 			decimalValue,
 			getHexString,
-			createSimpleRow,
+			stringValue,
+			createSimpleRow,	// TODO: Really an api function?
 			createMemDump,
 			addDelayedDetailsParsing,
 			addDescription,
-			createChartNode
+			createChartNode,
+			getData,
+			createSeries
 
 			//keyNode.classList.add("indent");
 			//keyNode.classList.add("gray");

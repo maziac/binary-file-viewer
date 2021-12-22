@@ -49,6 +49,7 @@ When hovering over a value or register name you will get additional info like th
 		- colors
 		- indentation
 	- Reading bits
+	- createMemDump: mit ASCII chars Ausgabe
 
 - How to customize the file extensions? I.e. that the binary-file-viewer reacts only on certain (customized) file extensions.
 - Ich sollte dabei bleiben, das erst lazy auf webview Seite zu dekodieren.

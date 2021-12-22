@@ -42,6 +42,9 @@
                 "selector": [
                     {
                         "filenamePattern": "*.obj*"
+                    },
+                    {
+                        "filenamePattern": "*.wav"
                     }
                 ],
                 "priority": "default"
