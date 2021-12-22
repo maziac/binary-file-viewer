@@ -511,8 +511,12 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 		html += '<div class="error indent">Error while parsing.</div>';
 	}
 
-	// Append
-	lastNode.innerHTML += html;
+	const node = document.createElement("DIV") as HTMLDivElement;
+	node.classList.add("nomarker");
+	node.innerHTML = html;
+
+	// Append it
+	lastNode.appendChild(node);
 }
 
 
@@ -540,6 +544,7 @@ function parseStart() {
 			read,
 			createNode,
 			addDetailsParsing,
+			addDelayedDetailsParsing,
 			addHoverValue,
 			hex0xValue,
 			getValue,
@@ -549,7 +554,6 @@ function parseStart() {
 			stringValue,
 			createSimpleRow,	// TODO: Really an api function?
 			createMemDump,
-			addDelayedDetailsParsing,
 			addDescription,
 			createChartNode,
 			getData,
