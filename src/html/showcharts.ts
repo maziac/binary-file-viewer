@@ -120,7 +120,7 @@ function createChartNode(config: ChartConfig, name: string, valString = '', shor
 
 	// Add the chart to it
 	const chartCfg = {
-		type: 'line',
+		type: cfg.type,
 		data: {
 			labels: xValues,
 			datasets
