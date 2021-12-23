@@ -48,31 +48,43 @@ td {
 	padding: 0.25em;
 }
 
+/* Class for the embedded table */
+.embeddedtable {
+	background-color: var(--vscode-editorWidget-background)
+}
+
+/* Class for the collapse icon */
+.collapse {
+	min-width: 1em;
+	text-align: right;
+	color: var(--vscode-terminal-ansiYellow)
+}
+
 /* Class for the offset */
 .offset {
-	/*min-width: 2em;*/
+	min-width: 3em;
 	text-align: right;
 	color: var(--vscode-terminal-ansiYellow)
 }
 
 /* Class for the size */
 .size {
-	/*min-width: 2em;*/
+	min-width: 3em;
 	text-align: right;
 	color: var(--vscode-terminal-ansiMagenta)
 }
 
 /* Class for the name */
 .name {
-	/*min-width: 9em;*/
+	min-width: 3em;
 	font-weight: bold;
 	color: var(--vscode-terminal-ansiBrightBlue)
 }
 
 /* Class for the value */
 .value {
+	min-width: 4em;
 	font-weight: bold;
-    /*min-width: 3em;*/
 	color: var(--vscode-terminal-ansiGreen)
 }
 
