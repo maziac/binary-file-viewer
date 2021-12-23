@@ -48,20 +48,20 @@ interface ChartConfig {
 
 
 /**
- * Creates a node and appends it to lastNode.
+ * Creates a chart.
  * @param name The name of the value. E.g. "SP".
  * @param valString The value to show.
  * @param shortDescription A short description of the entry.
  */
-function createChartNode(config: ChartConfig, name: string, valString = '', shortDescription = ''): HTMLDetailsElement {
+function createChart(config: ChartConfig, name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
 	// Check the config
 	const cfg = {...config};
 	if (cfg.type == undefined)
 		cfg.type = 'line';
 	if (cfg.type != 'line' && cfg.type != 'bar')
-		throw new Error("createChartNode: Expecting type 'line' or 'bar', not '"+cfg.type+"'");
+		throw new Error("createChart: Expecting type 'line' or 'bar', not '"+cfg.type+"'");
 	if (cfg.series == undefined)
-		throw new Error("createChartNode: No 'series' defined");
+		throw new Error("createChart: No 'series' defined");
 
 	// Get the max length data series
 	let maxLength = 0;
@@ -73,10 +73,11 @@ function createChartNode(config: ChartConfig, name: string, valString = '', shor
 			maxLength = samples.length;
 	}
 
-	// Call main node function
-	const node = createNode(name, valString, shortDescription);
-	// Add details marker
-	node.classList.remove("nomarker");
+	// Create new row
+	const node = document.createElement("TR") as HTMLTableRowElement;
+	lastNode.appendChild(node);
+	node.innerHTML = '<td colspan="100"></td>';
+	const tdNode = node.cells[0];
 
 	// Get the data
 	// 0..N-1
@@ -117,7 +118,7 @@ function createChartNode(config: ChartConfig, name: string, valString = '', shor
 	// Add chart:
 	// Add a canvas
 	const canvas = document.createElement('canvas'); // as HTMLCanvasElement;
-	lastContentNode.append(canvas);
+	tdNode.appendChild(canvas);
 
 	// Add the chart to it
 	const chartCfg = {

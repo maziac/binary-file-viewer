@@ -417,7 +417,7 @@ function parseStart() {
 			stringValue,
 			createMemDump,
 			addDescription,
-			createChartNode,
+			createChart,
 			getData,
 			createSeries
 
