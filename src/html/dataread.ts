@@ -4,6 +4,8 @@
  * This js script file collects functions to read the data form the file.
  */
 
+//import {UpdateMode} from "chart.js";
+
 
 // The data to parse.
 var dataBuffer: Uint8Array;
@@ -14,6 +16,17 @@ var lastOffset: number;
 // The last retrieved data size.
 var lastSize: number;
 
+// The startOffset for relative indices (detailsParsing.)
+// Is used only for displaying.
+var startOffset: number;
+
+
+/**
+ * Returns the relative index used for displaying inside collapsed sections.
+ */
+function getRelOffset(): number {
+	return lastOffset - startOffset;
+}
 
 
 /**

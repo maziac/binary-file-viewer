@@ -48,11 +48,6 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
-- AddDetailParser: Nur eine Version und die immer delayed. Aber zusätzlich ein Parameter, ob sofort dargestellt werden soll. Das wäre dann nicht-delayed.
-
-- Offsets:
- Nach addDetails: Die offsets mit 0 darstellen, hover aber auch mit absoluten offsets.
-
 - Help/Suggestions
   - Alle Funktionen uter einer Klasse, z.B. "Html". Dann können nach Eingabe von "HTML." sofort suggestions angezeigt werden.
   Anzeige der Hilfe zur Funktion (bei Eingabe der ersten Klammer) aber noch unklar.

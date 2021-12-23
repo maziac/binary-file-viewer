@@ -24,9 +24,6 @@ var customParser: string;
 // The root node for parsing. New objects are appended here.
 var lastNode: any;
 
-// The correspondent node for the details.
-var lastContentNode: any;
-
 // The current row's cell that contains the collapsible icon (+)
 var lastCollapsibleNode: HTMLTableCellElement;
 
@@ -78,11 +75,18 @@ function createStandardHeader() {
 function createNode(name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
-	const lastOffsetHex = getHexString(lastOffset, 4);
+	const relOffset = getRelOffset();
+	const relOffsetHex = getHexString(relOffset, 4);
 	const lastSizeHex = getHexString(lastSize, 4);
+	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
+	if (startOffset) {
+		// Is a relative index, so show also the absolute index.
+		const lastOffsetHex = getHexString(lastOffset, 4);
+		hoverOffset += `\nAbsolute:\nDec: ${lastOffset}, Hex: ${lastOffsetHex}`;
+	}
 	const html = `
 	<td class="collapse"></td>
-	<td class="offset" title="Offset\nHex: ${lastOffsetHex}">${lastOffset}</td>
+	<td class="offset" title="${hoverOffset}">${relOffset}</td>
 	<td class="size" title="Size\nHex: ${lastSizeHex}">${lastSize}</td>
 	<td class="name">${name}</td>
 	<td class="value">${valString}</td>
@@ -167,10 +171,7 @@ function beginDetails(opened: boolean) {
 	// Span over all cells and create table
 	row.innerHTML = '<td></td><td colspan="100"><table width="100%"></table></td>';
 
-	// Create another table inside the row.
-	//const detailsTable = document.createElement("TABLE") as HTMLTableElement;
-	//row.appendChild(detailsTable);
-//row.cells[0].style.padding = '0em';
+	// Give the table a dark color.
 	const detailsTable = row.cells[1].children[0];
 	detailsTable.classList.add('embeddedtable');
 
@@ -207,10 +208,13 @@ function addDetailsParsing(func: () => void, opened = false) {
 		// Call function immediately
 		const bakLastOffset = lastOffset;
 		const bakLastSize = lastSize;
+		const bakStartOffset = startOffset;
 		lastSize = 0;
+		startOffset = lastOffset;
 		func();
 		lastOffset = bakLastOffset;
 		lastSize = bakLastSize;
+		startOffset = bakStartOffset;
 	}
 	else {
 		// Open/parse delayed
@@ -219,9 +223,8 @@ function addDetailsParsing(func: () => void, opened = false) {
 		lastCollapsibleNode.addEventListener("expand", function handler(this: any, event: any) {
 			// Get parse node and index
 			lastNode = event.target;
-			//const indexString = lastNode.getAttribute('data-index');	// TODO: Brauch ich data-index?
-			//lastOffset = parseInt(indexString);
 			lastOffset = bakLastOffset;
+			startOffset = lastOffset;
 			lastSize = 0;
 			lastNode = baklastNode;
 			func();
@@ -263,10 +266,9 @@ function addHoverValue(hoverValueString: string) {
 /**
  * Is called if the user opens the details of an item.
  * Decodes the data.
- * @param displayOffset The displayOffset is added to the index before displaying.
- * @param hoverRelativeOffset You can replace the default relative Offset hover text.
+ * @param displayOffset The displayOffset is added to the index before displaying. // TODO: Is this required?
  */
-function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset') {
+function createMemDump(displayOffset = 0) {
 	let html = '';
 	let asciiHtml = '';
 	let prevClose = '';
@@ -282,7 +284,7 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 			const iOffset = lastOffset + i;	// For indexing
 			const iRelOffset = displayOffset + i;	// For display
 			const val = dataBuffer[iOffset];
-			const valString = getHexString(val, 2);
+			const valHexString = getHexString(val, 2);
 			const valIntString = val.toString();
 			const iRelOffsetHex = getHexString(iRelOffset, 4);
 
@@ -321,14 +323,22 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 					html += '<tr>';
 					html += '<span class="indent mem_offset" title="' + hoverTextOffset + '">' + iOffset + '-' + (lastOffset + i) + '</span>';
 					html += '<td colspan="100" class="mem_offset" title="' + hoverTextRelOffset + '"> (0x' + iRelOffsetHex + '-0x' + iRelOffsetHexEnd + '): ';
-					html += '<span title="Value (dec): ' + valIntString + '"> contain all ' + valString + '</span>';
+					html += '<span title="Value (dec): ' + valIntString + '"> contain all ' + valHexString + '</span>';
 					continue;
 				}
 
+				// Hover texts for the offset
+				const iHex = getHexString(i, 4);
+				let hoverOffset = `Offset:\nHex: ${iHex}`;
+				if (startOffset) {
+					// Is a relative index, so show also the absolute index.
+					const iOffsetHex = getHexString(iOffset, 4);
+					hoverOffset += `\nAbsolute:\nDec: ${iOffset}, Hex: ${iOffsetHex}`;
+				}
+
 				// Afterwards proceed normal
-				const iOffsetHex = getHexString(iOffset, 4);
 				html += `<td class="collapse"></td>
-					<td class="offset" title="Offset\nHex: ${iOffsetHex}">${iOffset}</td>
+					<td class="offset" title="${hoverOffset}">${i}</td>
 					<td class="size" title="Size\nHex: 0x${LINECOUNT.toString(16)}">${LINECOUNT}</td>
 					<td class="value" colspan="100">
 				`;
@@ -337,10 +347,12 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 			}
 
 			// Convert to html
-			const hoverText = 'Offset (hex): ' + getHexString(iOffset, 4) + '\nOffset (dec): ' + iOffset + '\nRelative offset (hex): ' + iRelOffsetHex + '\nRelative offset (dec): ' + iRelOffset + '\nValue (dec): ' + valIntString;
-			html += '<span class="mem_byte" title="' + hoverText + '">' + valString + '</span>';
+			const iOffsetHex = getHexString(iOffset, 4);
+			let hoverText = `Offset:\nDec: ${iRelOffset}, Hex: ${iRelOffsetHex}\nAbsolute offset:\nDec: ${iOffset}, Hex: ${iOffsetHex}\nValue:\nDec: ${valIntString}`;
+			html += '<span class="mem_byte" title="' + hoverText + '">' + valHexString + '</span>';
 
 			// Convert to ASCII
+			hoverText+=`, Hex: ${valHexString}`;
 			const txt = (val < 32) ? '.' : String.fromCharCode(val);
 			asciiHtml += '<span class="description mem_ascii" title="' + hoverText + '">' + txt + '</span>';
 		}
@@ -366,6 +378,7 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 function parseStart() {
 	// Reset
 	lastOffset = 0;
+	startOffset = lastOffset;
 	lastSize = 0;
 	lastNode = document.getElementById("div_root");
 	lastNode.innerHTML = '';	// Remove any previous data
