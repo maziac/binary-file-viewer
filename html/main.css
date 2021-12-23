@@ -94,10 +94,16 @@ td {
 	color: var(--vscode-terminal-ansiWhite)
 }
 
+/* To achieve fixed char sizes  for the ASCII text. */
+.mem_ascii {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
 
 /* Expanded content of a memory dump. */
 .mem_dump {
-	display: table-row;
 }
 
 /* The offset inside a memory dump. */
@@ -108,14 +114,16 @@ td {
 /* The relative offset. */
 .mem_rel_offset {
 	color: var(--vscode-editorLineNumber-foreground);
-	display: table-cell;
 	padding-left: 0.25em;
 }
 
 /* One mem dump byte. */
 .mem_byte {
-	display: table-cell;
-	padding-left: 0.25em;
+  	display: inline-block;
+  	width: 1.5em;
+  	text-align: center;
+	padding: 0;
+	/*padding-left: 0.25em;*/
 }
 
 

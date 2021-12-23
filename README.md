@@ -48,8 +48,8 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
-- Table  statt divs.
-	- Auch Table beenden/neu anfangen um Größenverhältnisse neu zu erlauben.
+- Offsets:
+ Nach addDetails: Die offsets mit 0 darstellen, hover aber auch mit absoluten offsets.
 
 - Help/Suggestions
   - Alle Funktionen uter einer Klasse, z.B. "Html". Dann können nach Eingabe von "HTML." sofort suggestions angezeigt werden.

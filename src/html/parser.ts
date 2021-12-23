@@ -274,13 +274,16 @@ function addHoverValue(hoverValueString: string) {
  */
 function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset') {
 	let html = '';
+	let asciiHtml = '';
 	let prevClose = '';
+	let prevNode;
+	const LINECOUNT = 16;
 
 	// In case of an error, show at least what has been parsed so far.
 	try {
 		// Loop given size
 		for (let i = 0; i < lastSize; i++) {
-			const k = i % 16;
+			const k = i % LINECOUNT;
 			// Get value
 			const iOffset = lastOffset + i;	// For indexing
 			const iRelOffset = displayOffset + i;	// For display
@@ -292,8 +295,14 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 			// Start of row?
 			if (k == 0) {
 				// Close previous
-				html += prevClose;
-				prevClose = '</div>';
+				if(prevNode)
+					prevNode.innerHTML = html + asciiHtml + '</td>';
+
+				// Create new row
+				prevNode = document.createElement("TR") as HTMLTableRowElement;
+				lastNode.appendChild(prevNode);
+				html = '';
+				asciiHtml = '<span class="mem_ascii"></span> ';	// Start with some space
 
 				// Check for same values
 				let l = i + 1
@@ -301,8 +310,8 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 					if (val != dataBuffer[lastOffset + l])
 						break;
 				}
-				const l16 = l - (l % 16);
-				if (l16 > i + 16) {
+				const l16 = l - (l % LINECOUNT);
+				if (l16 > i + LINECOUNT) {
 					// At least 2 complete rows contains same values
 					if (l == lastSize)
 						i = lastSize - 1;	// end
@@ -314,41 +323,46 @@ function createMemDump(displayOffset = 0, hoverRelativeOffset = 'Relative Offset
 
 					const hoverTextRelOffset = 'Relative offset (dec): ' + iRelOffset + '-' + (displayOffset + i) + '\nValue (dec): ' + valIntString;
 
-					html += '<div>';
+					// TODO: Does not work yet:
+					html += '<tr>';
 					html += '<span class="indent mem_offset" title="' + hoverTextOffset + '">' + iOffset + '-' + (lastOffset + i) + '</span>';
-					html += '<span class="mem_offset" title="' + hoverTextRelOffset + '"> (0x' + iRelOffsetHex + '-0x' + iRelOffsetHexEnd + '): </span>';
+					html += '<td colspan="100" class="mem_offset" title="' + hoverTextRelOffset + '"> (0x' + iRelOffsetHex + '-0x' + iRelOffsetHexEnd + '): ';
 					html += '<span title="Value (dec): ' + valIntString + '"> contain all ' + valString + '</span>';
 					continue;
 				}
 
 				// Afterwards proceed normal
 				const iOffsetHex = getHexString(iOffset, 4);
-				html += `<div class="mem_dump">
-					<div class="indent mem_offset" title = "Offset\nHex: ${iOffsetHex}">${iOffset}</div>
-				<div class="mem_rel_offset" title="${hoverRelativeOffset}\nDec: ${iRelOffset}">(0x${iRelOffsetHex})</div>
+				html += `<td class="collapse"></td>
+					<td class="offset" title="Offset\nHex: ${iOffsetHex}">${iOffset}</td>
+					<td class="size" title="Size\nHex: 0x${LINECOUNT.toString(16)}">${LINECOUNT}</td>
+					<td class="value" colspan="100">
 				`;
+				// <td colspan="2" title = "Offset\nHex: ${iOffsetHex}" > ${iOffset}
+				// <td title="${hoverRelativeOffset}\nDec: ${iRelOffset}" > (0x${iRelOffsetHex})</td>
 			}
 
 			// Convert to html
 			const hoverText = 'Offset (hex): ' + getHexString(iOffset, 4) + '\nOffset (dec): ' + iOffset + '\nRelative offset (hex): ' + iRelOffsetHex + '\nRelative offset (dec): ' + iRelOffset + '\nValue (dec): ' + valIntString;
-			html += '<div class="mem_byte" title="' + hoverText + '">' + valString + '&nbsp;</div>';
+			html += '<span class="mem_byte" title="' + hoverText + '">' + valString + '</span>';
+
+			// Convert to ASCII
+			const txt = (val < 32) ? '.' : String.fromCharCode(val);
+			asciiHtml += '<span class="description mem_ascii" title="' + hoverText + '">' + txt + '</span>';
 		}
-		// Close
-		html += prevClose;
 	}
 	catch (e) {
-		// Close
-		html += prevClose;
+		// Close previous
+		if (prevNode)
+			prevNode.innerHTML = html + asciiHtml + '</td>';
 		// Error while parsing
-		html += '<div class="error indent">Error while parsing.</div>';
+		throw new Error("Error in createMemDump: " + e);
+
 	}
 
-	const node = document.createElement("DIV") as HTMLDivElement;
-	node.classList.add("nomarker");
-	node.innerHTML = html;
-
-	// Append it
-	lastNode.appendChild(node);
+	// Close previous
+	if (prevNode)
+		prevNode.innerHTML = html + asciiHtml + '</td>';
 }
 
 
