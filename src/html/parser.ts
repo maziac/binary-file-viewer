@@ -58,8 +58,11 @@ function assert(condition: boolean) {
  * I.e. showing the size.
  */
 function createStandardHeader() {
+	// TODO: Because of table this needs to be done differently
+/*
 	let html = `<div><b>Size: ${dataBuffer.length}</b><br>`;
 	lastNode.innerHTML = html;
+	*/
 }
 
 
@@ -69,37 +72,34 @@ function createStandardHeader() {
  * @param valString The value to show.
  * @param shortDescription A short description of the entry.
  */
-function createNode(name: string, valString = '', shortDescription = ''): HTMLDetailsElement {
+function createNode(name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
 	// Create new node
-	const node = document.createElement("DETAILS") as HTMLDetailsElement;
-	node.classList.add("nomarker");
-	//node.classList.add("basenode");
+	const node = document.createElement("TR") as HTMLTableRowElement;
 	const lastOffsetHex = getHexString(lastOffset, 4);
 	const lastSizeHex = getHexString(lastSize, 4);
 	const html = `
-<summary>
-	<div class="offset" title="Offset\nHex: ${lastOffsetHex}">${lastOffset}</div>v
-	<div class="size" title="Size\nHex: ${lastSizeHex}">${lastSize}</div>
-	<div class="name">${name}</div>
-	<div class="value">${valString}</div>
-	<div class="description">${shortDescription}</div>
-</summary>
-<div class="indent"></div>
+	<td class="collapse"></td>
+	<td class="offset" title="Offset\nHex: ${lastOffsetHex}">${lastOffset}</td>
+	<td class="size" title="Size\nHex: ${lastSizeHex}">${lastSize}</td>
+	<td class="name">${name}</td>
+	<td class="value">${valString}</td>
+	<td class="description">${shortDescription}</td>
 `;
 	node.innerHTML = html;
 
 	// Get child objects
-	const childrenNode = node.childNodes;
-	lastContentNode = childrenNode[3];
-	const summary = childrenNode[1];
-	const children = summary.childNodes;
-	lastNameNode = children[5];
-	lastValueNode = children[7];
-	lastDescriptionNode = children[9];
-	const descriptionChildren = lastDescriptionNode.childNodes;
-	lastLongDescriptionNode = descriptionChildren[3];
+	const cells = node.cells;
+//	const childrenNode = node.childNodes;
+//	lastContentNode = childrenNode[3];
+//	const summary = childrenNode[1];
+//	const children = summary.childNodes;
+	lastNameNode = cells[2];
+	lastValueNode = cells[3];
+	lastDescriptionNode = cells[4];
+//	const descriptionChildren = lastDescriptionNode.childNodes;
+//	lastLongDescriptionNode = descriptionChildren[3];	// TODO: Support long description
 
-	// Append it
+	// Append it / Insert new row
 	lastNode.appendChild(node);
 
 	// Return
@@ -217,49 +217,6 @@ function createDescription(descr: string) {
 
 
 /**
- * Creates an element with a number of columns.
- * Without any index and size columns.
- * @param name The name of the value. E.g. "SP".
- * @param valString The value to show.
- * @param shortDescription A short description of the entry.
- */
-// TODO: Remove
-function createSimpleRow(name: string, valString = '', shortDescription = '') {
-	// Create new node
-	const node = document.createElement("DETAILS");
-	node.classList.add("nomarker");
-	const html = `
-<summary>
-	<div class="offset"></div>
-	<div class="size"></div>
-	<div class="name">${name}</div>
-	<div class="value">${valString}</div>
-	<div class="description">${shortDescription}</div>
-</summary>
-<div class="indent"></div>
-`;
-	node.innerHTML = html;
-
-	// Get child objects
-	const childrenNode = node.childNodes;
-	lastContentNode = childrenNode[3];
-	const summary = childrenNode[1];
-	const children = summary.childNodes;
-	lastNameNode = children[5];
-	lastValueNode = children[7];
-	lastDescriptionNode = children[9];
-	const descriptionChildren = lastDescriptionNode.childNodes;
-	lastLongDescriptionNode = descriptionChildren[3];
-
-	// Append it
-	lastNode.appendChild(node);
-
-	// Return
-	return node;
-}
-
-
-/**
  * Adds a hover text to lastValueNode.
  * @param hoverValueString String to show on hover for the title. Can be undefined.
  */
@@ -362,6 +319,29 @@ function parseStart() {
 	lastOffset = 0;
 	lastSize = 0;
 	lastNode = document.getElementById("div_root");
+	lastNode.innerHTML = '';	// Remove any previous data
+
+	// Create table with header row
+	lastNode.innerHTML = `
+	<table>
+		<tr>
+			<th class="collapse"></td>
+			<th class="offset">Offset</th>
+			<th class="size">Size</th>
+			<th class="name">Name</th>
+			<th class="value">Value</th>
+			<th class="description">Description</th>
+		</tr>
+	</table>`;
+//	const childrenNodes = lastNode.childNodes;
+//	const mainTableNode = childrenNodes[3];	// table node
+//const lastRow = mainTableNode.lastNode;
+	//lastNode = lastRow;
+	// Append it
+//	lastNode.appendChild(node);
+	// Use table
+	lastNode = lastNode.children[0];
+
 
 	try {
 		// Get parser and execute
@@ -386,7 +366,6 @@ function parseStart() {
 			decimalValue,
 			getHexString,
 			stringValue,
-			createSimpleRow,	// TODO: Really an api function?
 			createMemDump,
 			addDescription,
 			createChartNode,
