@@ -27,6 +27,9 @@ var lastNode: any;
 // The correspondent node for the details.
 var lastContentNode: any;
 
+// The current row's cell that contains the collapsible icon (+)
+var lastCollapsibleNode: HTMLTableCellElement;
+
 // The last node used for the title.
 var lastNameNode: any;
 
@@ -89,10 +92,7 @@ function createNode(name: string, valString = '', shortDescription = ''): HTMLTa
 
 	// Get child objects
 	const cells = node.cells;
-//	const childrenNode = node.childNodes;
-//	lastContentNode = childrenNode[3];
-//	const summary = childrenNode[1];
-//	const children = summary.childNodes;
+	lastCollapsibleNode = cells[0];
 	lastNameNode = cells[2];
 	lastValueNode = cells[3];
 	lastDescriptionNode = cells[4];
@@ -113,7 +113,7 @@ function createNode(name: string, valString = '', shortDescription = ''): HTMLTa
  */
 function addDescription(longDescription: string) {
 	//lastLongDescriptionNode.innerHTML = longDescription;
-	beginDetails();
+	beginDetails(false);
 	createDescription(convertLineBreaks(longDescription));
 	endDetails();
 }
@@ -128,24 +128,64 @@ function convertLineBreaks(s: string) {
 
 
 /**
- * Sets lastNode to it's last child.
- * This begins a details sections.
- * Indents.
+ * Is called by 'onClick'.
+ * Collapses and expands the following row.
  */
-function beginDetails() {
-	const node = lastNode.lastChild;
-	node.classList.remove("nomarker");
-	lastNode = lastContentNode;
+function collapse(cell: HTMLTableCellElement) {
+	const row = cell.parentElement as HTMLTableRowElement;
+	// Use next row as target.
+	const target_row = row.parentElement.children[row.rowIndex + 1] as HTMLTableRowElement;
+	if (target_row.style.display == 'table-row') {
+		cell.innerHTML = '+';
+		target_row.style.display = 'none';
+	} else {
+		cell.innerHTML = '-';
+		target_row.style.display = 'table-row';
+	}
+}
+
+
+/**
+ * Adds a collapsible icon (+) and function to the current row.
+ * This begins a details sections.
+ * @param opened true=the details are directly shown, false=the details are initially hidden.
+ */
+function beginDetails(opened: boolean) {
+	// Add collapsible icon (+)
+	lastCollapsibleNode.innerHTML = (opened) ? '-' : '+';
+	// Add function
+	lastCollapsibleNode.setAttribute('onclick', 'collapse(this)');
+
+	// Add row for the details
+	const row = document.createElement("TR") as HTMLTableRowElement;
+	row.style.display = (opened) ? 'table-row' : 'none';
+	// Append it / Insert new row
+	lastNode.appendChild(row);
+
+	// Span over all cells and create table
+	row.innerHTML = '<td></td><td colspan="100"><table width="100%"></table></td>';
+
+	// Create another table inside the row.
+	//const detailsTable = document.createElement("TABLE") as HTMLTableElement;
+	//row.appendChild(detailsTable);
+//row.cells[0].style.padding = '0em';
+	const detailsTable = row.cells[1].children[0];
+	detailsTable.classList.add('embeddedtable');
+
+	// Use new table
+	lastNode = detailsTable;
+
+	// Return
+	return detailsTable;
 }
 
 
 /**
  * Ends a details sections.
  * Sets lastNode to it's parent.
- * Indents.
  */
 function endDetails() {
-	lastNode = lastNode.parentNode.parentNode;
+	lastNode = lastNode.parentNode.parentNode.parentNode;
 }
 
 
@@ -154,10 +194,11 @@ function endDetails() {
  * Parsing is done immediately.
  * Uses begin/endDetails.
  * @param func The function to call to parse/decode the data.
+ * @param opened true=the details are opened on initial parsing.
  */
-function addDetailsParsing(func: () => void) {
+function addDetailsParsing(func: () => void, opened = false) {
 	// "Indent"
-	beginDetails();
+	beginDetails(opened);
 	// Call function
 	const bakLastOffset = lastOffset;
 	const bakLastSize = lastSize;
@@ -333,12 +374,6 @@ function parseStart() {
 			<th class="description">Description</th>
 		</tr>
 	</table>`;
-//	const childrenNodes = lastNode.childNodes;
-//	const mainTableNode = childrenNodes[3];	// table node
-//const lastRow = mainTableNode.lastNode;
-	//lastNode = lastRow;
-	// Append it
-//	lastNode.appendChild(node);
 	// Use table
 	lastNode = lastNode.children[0];
 
