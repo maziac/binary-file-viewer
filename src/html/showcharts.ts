@@ -73,6 +73,7 @@ function createChartNode(config: ChartConfig, name: string, valString = '', shor
 			maxLength = samples.length;
 	}
 
+	// Call main node function
 	const node = createNode(name, valString, shortDescription);
 	// Add details marker
 	node.classList.remove("nomarker");
