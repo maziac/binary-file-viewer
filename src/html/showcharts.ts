@@ -115,8 +115,7 @@ function createChart(config: ChartConfig, name: string, valString = '', shortDes
 		});
 	}
 
-	// Add chart:
-	// Add a canvas
+	// Add canvas for chart
 	const canvas = document.createElement('canvas'); // as HTMLCanvasElement;
 	tdNode.appendChild(canvas);
 

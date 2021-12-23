@@ -141,6 +141,8 @@ function collapse(cell: HTMLTableCellElement) {
 	} else {
 		cell.innerHTML = '-';
 		target_row.style.display = 'table-row';
+		const event = new CustomEvent('expand');
+		cell.dispatchEvent(event);
 	}
 }
 
@@ -195,48 +197,40 @@ function endDetails() {
  * Uses begin/endDetails.
  * @param func The function to call to parse/decode the data.
  * @param opened true=the details are opened on initial parsing.
+ * false=The parsing is not done immediately but is postponed until the
+ * section is expanded.
  */
 function addDetailsParsing(func: () => void, opened = false) {
 	// "Indent"
 	beginDetails(opened);
-	// Call function
-	const bakLastOffset = lastOffset;
-	const bakLastSize = lastSize;
-	lastSize = 0;
-	func();
-	lastOffset = bakLastOffset;
-	lastSize = bakLastSize;
-	// Close/leave
-	endDetails();
-}
-
-
-/**
- * Installs a listener for the toggle event.
- * The parsing of the data is delayed until toggling.
- * @param func The function to call to parse/decode the data.
- */
-function addDelayedDetailsParsing(func: () => void) {
-	// Get node
-	const detailsNode = lastNode.lastChild;
-	detailsNode.classList.remove("nomarker");
-	// Attach attribute
-	detailsNode.setAttribute('data-index', lastOffset.toString());
-	// Install listener
-	if (func) {
-		const baklastNode = lastContentNode;
-		detailsNode.addEventListener("toggle", function handler(this: any, event: any) {
+	if (opened) {
+		// Call function immediately
+		const bakLastOffset = lastOffset;
+		const bakLastSize = lastSize;
+		lastSize = 0;
+		func();
+		lastOffset = bakLastOffset;
+		lastSize = bakLastSize;
+	}
+	else {
+		// Open/parse delayed
+		const bakLastOffset = lastOffset;
+		const baklastNode = lastNode;
+		lastCollapsibleNode.addEventListener("expand", function handler(this: any, event: any) {
 			// Get parse node and index
 			lastNode = event.target;
-			const indexString = lastNode.getAttribute('data-index');
-			lastOffset = parseInt(indexString);
+			//const indexString = lastNode.getAttribute('data-index');	// TODO: Brauch ich data-index?
+			//lastOffset = parseInt(indexString);
+			lastOffset = bakLastOffset;
 			lastSize = 0;
 			lastNode = baklastNode;
-			//lastContentNode = lastNode; Seems not required
 			func();
-			this.removeEventListener("toggle", handler);
+			this.removeEventListener("expand", handler);
 		});
+
 	}
+	// Close/leave
+	endDetails();
 }
 
 
@@ -407,7 +401,6 @@ function parseStart() {
 			read,
 			createNode,
 			addDetailsParsing,
-			addDelayedDetailsParsing,
 			addHoverValue,
 			hex0xValue,
 			getValue,
