@@ -24,6 +24,13 @@ a.tip {
 	font-weight: bold;
 }
 
+/* Alternating colors for table rows. */
+tr:nth-child(even) {
+    background-color: var(--vscode-editorIndentGuide-background);
+}
+tr:nth-child(odd) {
+    background-color: var(--vscode-badge-background);
+}
 
 /* Left align table headers. */
 th {
@@ -31,9 +38,10 @@ th {
 	vertical-align: top;
 	padding: 0.25em;
 	font-weight: bold;
-	background-color: var(--vscode-button-secondaryBackground);
+	background-color: var(--vscode-badge-background);
 }
 
+/* Table cells */
 td {
 	text-align: left;
 	vertical-align: top;
