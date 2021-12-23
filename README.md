@@ -1,3 +1,9 @@
+# Important
+
+Project is not usable yet.
+Under construction !
+
+
 # Support
 
 If you like the "Binary File Viewer" please consider supporting it.

@@ -1,6 +1,6 @@
 //declare function getHexString(value: number, size: number): string;
-declare var lastOffset: any;
-declare var lastSize: any;
+declare var lastOffset: number;
+declare var lastSize: number;
 declare var lastContentNode: any;
 declare var lastNameNode: any;
 declare var lastValueNode: any;
@@ -8,7 +8,7 @@ declare var lastDescriptionNode: any;
 declare var lastLongDescriptionNode: any;
 declare var lastNode: any;
 declare var dataBuffer: Uint8Array;
-declare var getHexString: any;
+//declare var getHexString: any;
 declare var createNode: any;
 declare var Chart: any;
 

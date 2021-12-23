@@ -43,3 +43,12 @@ The function registered by registerFileType is executed by the extension.
 The function registered by registerParser is executed by the webView.
 
 
+# Creation of the DOM
+
+Each invocation of 'addRow' adds another node to the Dom object.
+In fact everything is a large table and 'addRow' adds another row to it.
+Some of the last set cells are remembered until the next row so that the user can add more contents.
+I.e. hover information.
+When 'addDetails' is called this also adds another row.
+The previous row is made collapsible.
+
