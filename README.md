@@ -48,12 +48,11 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
+- Chart.js: add zoom plugin
+
 - Help/Suggestions
   - Alle Funktionen uter einer Klasse, z.B. "Html". Dann können nach Eingabe von "HTML." sofort suggestions angezeigt werden.
   Anzeige der Hilfe zur Funktion (bei Eingabe der ersten Klammer) aber noch unklar.
-
-- WAV:
-	- Auch dekodierung ovn Stereo Funktion: 2 wavs
 
 - Functions:
 	- Read until certain byte value

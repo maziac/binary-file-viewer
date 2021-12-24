@@ -78,6 +78,7 @@ td {
 .name {
 	min-width: 3em;
 	font-weight: bold;
+	/* color: var(--vscode-terminal-ansiBrightWhite) */
 	color: var(--vscode-terminal-ansiBrightBlue)
 }
 
