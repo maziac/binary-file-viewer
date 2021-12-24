@@ -78,6 +78,7 @@ function createNode(name: string, valString = '', shortDescription = ''): HTMLTa
 	const relOffset = getRelOffset();
 	const relOffsetHex = getHexString(relOffset, 4);
 	const lastSizeHex = getHexString(lastSize, 4);
+	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
 	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
 	if (startOffset) {
 		// Is a relative index, so show also the absolute index.
@@ -86,7 +87,7 @@ function createNode(name: string, valString = '', shortDescription = ''): HTMLTa
 	}
 	const html = `
 	<td class="collapse"></td>
-	<td class="offset" title="${hoverOffset}">${relOffset}</td>
+	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
 	<td class="size" title="Size\nHex: ${lastSizeHex}">${lastSize}</td>
 	<td class="name">${name}</td>
 	<td class="value">${valString}</td>
