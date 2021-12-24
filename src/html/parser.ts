@@ -266,14 +266,17 @@ function addHoverValue(hoverValueString: string) {
 /**
  * Is called if the user opens the details of an item.
  * Decodes the data.
- * @param displayOffset The displayOffset is added to the index before displaying. // TODO: Is this required?
  */
-function createMemDump(displayOffset = 0) {
+function createMemDump() {
 	let html = '';
 	let asciiHtml = '';
 	let prevClose = '';
 	let prevNode;
 	const LINECOUNT = 16;
+	const lineCountHex = LINECOUNT.toString(16);
+	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
+	let relOffset = getRelOffset();
+	let absOffset = lastOffset;
 
 	// In case of an error, show at least what has been parsed so far.
 	try {
@@ -281,12 +284,11 @@ function createMemDump(displayOffset = 0) {
 		for (let i = 0; i < lastSize; i++) {
 			const k = i % LINECOUNT;
 			// Get value
-			const iOffset = lastOffset + i;	// For indexing
-			const iRelOffset = displayOffset + i;	// For display
-			const val = dataBuffer[iOffset];
+			const val = dataBuffer[absOffset];
 			const valHexString = getHexString(val, 2);
 			const valIntString = val.toString();
-			const iRelOffsetHex = getHexString(iRelOffset, 4);
+			const relOffsetHex = getHexString(relOffset, 4);
+			const absOffsetHex = getHexString(absOffset, 4);
 
 			// Start of row?
 			if (k == 0) {
@@ -300,61 +302,38 @@ function createMemDump(displayOffset = 0) {
 				html = '';
 				asciiHtml = '<span class="mem_ascii"></span> ';	// Start with some space
 
-				// Check for same values
-				let l = i + 1
-				for (; l < lastSize; l++) {
-					if (val != dataBuffer[lastOffset + l])
-						break;
-				}
-				const l16 = l - (l % LINECOUNT);
-				if (l16 > i + LINECOUNT) {
-					// At least 2 complete rows contains same values
-					if (l == lastSize)
-						i = lastSize - 1;	// end
-					else
-						i = l16 - 1;
-					const iRelOffsetHexEnd = getHexString(displayOffset + i, 4);
-
-					const hoverTextOffset = 'Offset (hex): ' + getHexString(iOffset, 4) + '-' + getHexString(lastOffset + i, 4) + '\nValue (dec): ' + valIntString;
-
-					const hoverTextRelOffset = 'Relative offset (dec): ' + iRelOffset + '-' + (displayOffset + i) + '\nValue (dec): ' + valIntString;
-
-					// TODO: Does not work yet:
-					html += '<tr>';
-					html += '<span class="indent mem_offset" title="' + hoverTextOffset + '">' + iOffset + '-' + (lastOffset + i) + '</span>';
-					html += '<td colspan="100" class="mem_offset" title="' + hoverTextRelOffset + '"> (0x' + iRelOffsetHex + '-0x' + iRelOffsetHexEnd + '): ';
-					html += '<span title="Value (dec): ' + valIntString + '"> contain all ' + valHexString + '</span>';
-					continue;
-				}
-
 				// Hover texts for the offset
-				const iHex = getHexString(i, 4);
-				let hoverOffset = `Offset:\nHex: ${iHex}`;
+				let hoverOffset = `Offset:\nDec: ${relOffset}, Hex: ${relOffsetHex}`;
 				if (startOffset) {
 					// Is a relative index, so show also the absolute index.
-					const iOffsetHex = getHexString(iOffset, 4);
-					hoverOffset += `\nAbsolute:\nDec: ${iOffset}, Hex: ${iOffsetHex}`;
+					hoverOffset += `\nAbsolute:\nDec: ${absOffset}, Hex: ${absOffsetHex}`;
 				}
 
 				// Afterwards proceed normal
 				html += `<td class="collapse"></td>
-					<td class="offset" title="${hoverOffset}">${i}</td>
-					<td class="size" title="Size\nHex: 0x${LINECOUNT.toString(16)}">${LINECOUNT}</td>
+					<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
+					<td class="size" title="Size:\Dec: ${LINECOUNT}Hex: ${lineCountHex}">${LINECOUNT}</td>
 					<td class="value" colspan="100">
 				`;
 				// <td colspan="2" title = "Offset\nHex: ${iOffsetHex}" > ${iOffset}
 				// <td title="${hoverRelativeOffset}\nDec: ${iRelOffset}" > (0x${iRelOffsetHex})</td>
 			}
 
-			// Convert to html
-			const iOffsetHex = getHexString(iOffset, 4);
-			let hoverText = `Offset:\nDec: ${iRelOffset}, Hex: ${iRelOffsetHex}\nAbsolute offset:\nDec: ${iOffset}, Hex: ${iOffsetHex}\nValue:\nDec: ${valIntString}`;
+			// Convert each byte to html
+			let hoverText = `Absolute offset:\nDec: ${absOffset}, Hex: ${absOffsetHex}\nValue:\nDec: ${valIntString}, Hex: ${valHexString}`;
+			if (startOffset) {
+				// Add relative offset text
+				hoverText = `Offset:\nDec: ${relOffset}, Hex: ${relOffsetHex}\n` + hoverText;
+			}
 			html += '<span class="mem_byte" title="' + hoverText + '">' + valHexString + '</span>';
 
 			// Convert to ASCII
-			hoverText+=`, Hex: ${valHexString}`;
 			const txt = (val < 32) ? '.' : String.fromCharCode(val);
 			asciiHtml += '<span class="description mem_ascii" title="' + hoverText + '">' + txt + '</span>';
+
+			// Next
+			relOffset++;
+			absOffset++;
 		}
 	}
 	catch (e) {
