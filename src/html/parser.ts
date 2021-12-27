@@ -55,8 +55,7 @@ function assert(condition: boolean) {
 
 
 /**
- * Can be called by the custom parser to create the standard header.
- * I.e. showing the size.
+ * Add a standard header, i.e. the size of the file.
  */
 function addStandardHeader() {
 	// TODO: Because of table this needs to be done differently
@@ -68,10 +67,10 @@ function addStandardHeader() {
 
 
 /**
- * Creates a node and appends it to lastNode.
- * @param name The name of the value. E.g. "SP".
- * @param valString The value to show.
- * @param shortDescription A short description of the entry.
+ * Creates a new row for the table.
+ * @param name The name of the value.
+ * @param valString (Optional) The value to show as a string.
+ * @param shortDescription (Optional) A short description of the entry.
  */
 function addRow(name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
 	// Create new node
@@ -196,10 +195,11 @@ function endDetails() {
 
 /**
  * Parses the details of an object.
- * Uses begin/endDetails.
+ * Parsing starts where the last 'read' started.
+ * Parsing is done either immediately or delayed, i.e. on opening the section.
  * @param func The function to call to parse/decode the data.
  * @param opened true=the details are opened on initial parsing.
- * false=The parsing is not done immediately but is postponed until the
+ * false (default)=The parsing is not done immediately but is postponed until the
  * section is expanded.
  */
 function addDetails(func: () => void, opened = false) {
@@ -222,14 +222,23 @@ function addDetails(func: () => void, opened = false) {
 		const bakLastOffset = lastOffset;
 		const baklastNode = lastNode;
 		lastCollapsibleNode.addEventListener("expand", function handler(this: any, event: any) {
+			this.removeEventListener("expand", handler);
 			// Get parse node and index
 			lastNode = event.target;
 			lastOffset = bakLastOffset;
 			startOffset = lastOffset;
 			lastSize = 0;
 			lastNode = baklastNode;
-			func();
-			this.removeEventListener("expand", handler);
+			try {
+				func();
+			}
+			catch (e) {
+				// Return error
+				vscode.postMessage({
+					command: 'customParserError',
+					text: e.stack
+				});
+			}
 		});
 
 	}
@@ -265,8 +274,7 @@ function addHoverValue(hoverValueString: string) {
 
 
 /**
- * Is called if the user opens the details of an item.
- * Decodes the data.
+ * Adds a memory dump (hex and ASCII) for the data from the dataBuffer.
  */
 function addMemDump() {
 	let html = '';
@@ -390,7 +398,22 @@ function parseStart() {
 				// I.e. custom parsing is started:
 				func();
 			},
-			Bfv
+			addStandardHeader,
+			read,
+			addRow,
+			addDetails,
+			addHoverValue,
+			getHex0xValue,
+			getNumberValue,
+			getHexValue,
+			getDecimalValue,
+			convertToHexString,
+			getStringValue,
+			addMemDump,
+			addDescription,
+			addChart,
+			getData,
+			createSeries
 		});
 	}
 	catch (e) {
