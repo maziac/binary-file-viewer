@@ -156,8 +156,11 @@ function addChart(config: ChartConfig, name: string): HTMLTableRowElement {
 			datasets
 		},
 		options: {
-			title: name,
 			plugins: {
+				title: {
+					display: true,
+					text: name
+				},
 				legend: {
 					display: legendDisplay	// Display a labels?
 				},
