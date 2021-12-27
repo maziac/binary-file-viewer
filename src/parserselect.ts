@@ -149,7 +149,7 @@ export class ParserSelect {
 	 */
 	protected static readFile(filePath: string) {
 		// Read file contents
-		const fileContents = fs.readFileSync(filePath).toString();
+		const fileContents = '() => ' + fs.readFileSync(filePath).toString();
 
 		// Covert into function to check for errors
 		// b) run it to run 'registerFileType' and then the registered function

@@ -39,7 +39,7 @@ function arrayBufferToBase64(buffer: any) {
 
 
 /**
- * Returns a hex string.
+ * Converts the given number value into a hex string.
  * @param value The value to convert.
  * @param size The number of digits (e.g. 2 or 4)
  * @returns E.g. "0Fh" or "12FAh"
@@ -55,13 +55,12 @@ function convertToHexString(value: number, size: number): string {
 /**
  * Advances the offset (from previous call) and
  * stores the size for reading.
- * @param size The number of bytes to read. // TODO: allow undfined to read everything till end of file.
+ * @param size The number of bytes to read. // TODO: allow undefined to read everything till end of file.
  */
 function read(size: number) {
 	lastOffset += lastSize;	// TODO: Check if bigger than file size. Then limit to file size.
 	lastSize = size;
 }
-
 
 
 /**
@@ -175,9 +174,9 @@ function bitsValue(): string {
 	return convertBitsToString(val, lastSize);
 }
 
+
 /**
- * Reads a text of given size.
- * @returns The data as string.
+ * @returns The data from the dataBuffer as string.
  */
 function getStringValue(): string {
 	let s = '';
