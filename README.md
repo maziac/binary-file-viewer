@@ -48,9 +48,6 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
-- Chart.js: add zoom plugin. Funktioniert zwar. Aber nur zoom, nicht pan. Ausserdem kann man nicht resetten oder in die andere Richtung zoomen.
-Angeblich: doubleclick zum reset. Beispiel lesen. Vielleicht braucht man gar  kein plugin installieren (?)
-
 
 - Help/Suggestions
   - Alle Funktionen uter einer Klasse, z.B. "Html". Dann können nach Eingabe von "HTML." sofort suggestions angezeigt werden.
@@ -83,3 +80,6 @@ Z.B,
 In 'resolveCustomEditor' wird dann geprüft, ob es eine config für das file gibt.
 - Ich müsste parallel die files auch im extension code laden, um syntax Fehler zu finden.
 - Besser: nicht nur file extensions sondern glob pattern und auch Teil-dekodierung des Headers zulassen um richtigen Parser zu finden.
+
+
+- number-plotter: Vielleicht auch zoom/pan implementieren.

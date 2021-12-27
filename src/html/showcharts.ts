@@ -32,7 +32,7 @@ const defaultColors = [
 
 
 /**
- * Sub-structure passed to createChartNode.
+ * Sub-structure passed to addChart.
  */
 interface Series {
 	samples: number[],
@@ -41,7 +41,7 @@ interface Series {
 }
 
 /**
- * Structure passed to createChartNode.
+ * Structure passed to addChart.
  */
 interface ChartConfig {
 	// The chart type:
@@ -62,20 +62,27 @@ function resetZoom(button: HTMLButtonElement) {
 
 
 /**
- * Creates a chart.
- * @param name The name of the value. E.g. "SP".
- * @param valString The value to show.
- * @param shortDescription A short description of the entry.
+ * Creates a chart. E.g. a line chart or a bar chart.
+ * Use this to visualize series data.
+ * @param config The chart configuration:
+ * type: 'line' | 'bar'
+ * series: An array which contains either number arrays (obtained by 'getData')
+ * or 'Series' structures if you need more control.
+ * A Series structure contains:
+ * samples: The data number array.
+ * label: A name for the data series.
+ * color: The color of the data series, e.g. 'green'.
+ * @param name The name of the chart.
  */
-function createChart(config: ChartConfig, name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
+function addChart(config: ChartConfig, name: string): HTMLTableRowElement {
 	// Check the config
 	const cfg = {...config};
 	if (cfg.type == undefined)
 		cfg.type = 'line';
 	if (cfg.type != 'line' && cfg.type != 'bar')
-		throw new Error("createChart: Expecting type 'line' or 'bar', not '"+cfg.type+"'");
+		throw new Error("addChart: Expecting type 'line' or 'bar', not '"+cfg.type+"'");
 	if (cfg.series == undefined)
-		throw new Error("createChart: No 'series' defined");
+		throw new Error("addChart: No 'series' defined");
 
 	// Get the max length data series
 	let maxLength = 0;
@@ -149,6 +156,7 @@ function createChart(config: ChartConfig, name: string, valString = '', shortDes
 			datasets
 		},
 		options: {
+			title: name,
 			plugins: {
 				legend: {
 					display: legendDisplay	// Display a labels?

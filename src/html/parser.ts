@@ -3,6 +3,7 @@ declare var document: Document;
 declare var window: Window & typeof globalThis;
 declare var navigator: Navigator;
 declare var dataBuffer: Uint8Array;
+declare var Bfv: any;
 
 const vscode = acquireVsCodeApi();
 
@@ -57,7 +58,7 @@ function assert(condition: boolean) {
  * Can be called by the custom parser to create the standard header.
  * I.e. showing the size.
  */
-function createStandardHeader() {
+function addStandardHeader() {
 	// TODO: Because of table this needs to be done differently
 /*
 	let html = `<div><b>Size: ${dataBuffer.length}</b><br>`;
@@ -72,17 +73,17 @@ function createStandardHeader() {
  * @param valString The value to show.
  * @param shortDescription A short description of the entry.
  */
-function createNode(name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
+function addRow(name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
-	const relOffsetHex = getHexString(relOffset, 4);
-	const lastSizeHex = getHexString(lastSize, 4);
+	const relOffsetHex = convertToHexString(relOffset, 4);
+	const lastSizeHex = convertToHexString(lastSize, 4);
 	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
 	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
 	if (startOffset) {
 		// Is a relative index, so show also the absolute index.
-		const lastOffsetHex = getHexString(lastOffset, 4);
+		const lastOffsetHex = convertToHexString(lastOffset, 4);
 		hoverOffset += `\nAbsolute:\nDec: ${lastOffset}, Hex: ${lastOffsetHex}`;
 	}
 	const html = `
@@ -195,14 +196,13 @@ function endDetails() {
 
 /**
  * Parses the details of an object.
- * Parsing is done immediately.
  * Uses begin/endDetails.
  * @param func The function to call to parse/decode the data.
  * @param opened true=the details are opened on initial parsing.
  * false=The parsing is not done immediately but is postponed until the
  * section is expanded.
  */
-function addDetailsParsing(func: () => void, opened = false) {
+function addDetails(func: () => void, opened = false) {
 	// "Indent"
 	beginDetails(opened);
 	if (opened) {
@@ -268,7 +268,7 @@ function addHoverValue(hoverValueString: string) {
  * Is called if the user opens the details of an item.
  * Decodes the data.
  */
-function createMemDump() {
+function addMemDump() {
 	let html = '';
 	let asciiHtml = '';
 	let prevClose = '';
@@ -286,10 +286,10 @@ function createMemDump() {
 			const k = i % LINECOUNT;
 			// Get value
 			const val = dataBuffer[absOffset];
-			const valHexString = getHexString(val, 2);
+			const valHexString = convertToHexString(val, 2);
 			const valIntString = val.toString();
-			const relOffsetHex = getHexString(relOffset, 4);
-			const absOffsetHex = getHexString(absOffset, 4);
+			const relOffsetHex = convertToHexString(relOffset, 4);
+			const absOffsetHex = convertToHexString(absOffset, 4);
 
 			// Start of row?
 			if (k == 0) {
@@ -390,25 +390,7 @@ function parseStart() {
 				// I.e. custom parsing is started:
 				func();
 			},
-			createStandardHeader,
-			read,
-			createNode,
-			addDetailsParsing,
-			addHoverValue,
-			hex0xValue,
-			getValue,
-			hexValue,
-			decimalValue,
-			getHexString,
-			stringValue,
-			createMemDump,
-			addDescription,
-			createChart,
-			getData,
-			createSeries
-
-			//keyNode.classList.add("indent");
-			//keyNode.classList.add("gray");
+			Bfv
 		});
 	}
 	catch (e) {

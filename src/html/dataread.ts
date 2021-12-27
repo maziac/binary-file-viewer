@@ -4,8 +4,6 @@
  * This js script file collects functions to read the data form the file.
  */
 
-//import {UpdateMode} from "chart.js";
-
 
 // The data to parse.
 var dataBuffer: Uint8Array;
@@ -46,7 +44,7 @@ function arrayBufferToBase64(buffer: any) {
  * @param size The number of digits (e.g. 2 or 4)
  * @returns E.g. "0Fh" or "12FAh"
  */
-function getHexString(value: number, size: number): string {
+function convertToHexString(value: number, size: number): string {
 	if (value == undefined)
 		return "".padStart(size, '?');
 	const s = value.toString(16).toUpperCase().padStart(size, '0');
@@ -104,7 +102,7 @@ function getData(sampleSize: number, offset: number, format: string, skip: numbe
 /**
  * Reads the value from the buffer.
  */
-function getValue(): number {
+function getNumberValue(): number {
 	let value = dataBuffer[lastOffset];
 	let factor = 1;
 	for (let i = 1; i < lastSize; i++) {
@@ -118,8 +116,8 @@ function getValue(): number {
 /**
  * @returns The value from the dataBuffer as decimal string.
  */
-function decimalValue(): string {
-	const val = getValue();
+function getDecimalValue(): string {
+	const val = getNumberValue();
 	return val.toString();
 }
 
@@ -127,18 +125,19 @@ function decimalValue(): string {
 /**
  * @returns The value from the dataBuffer as hex string.
  */
-function hexValue(): string {
-	const val = getValue();
+function getHexValue(): string {
+	const val = getNumberValue();
 	let s = val.toString(16).toUpperCase();
 	s = s.padStart(lastSize * 2, '0');
 	return s;
 }
 
+
 /**
  * @returns The value from the dataBuffer as hex string + "0x" in front.
  */
-function hex0xValue(): string {
-	return '0x' + hexValue();
+function getHex0xValue(): string {
+	return '0x' + getHexValue();
 }
 
 
@@ -147,7 +146,7 @@ function hex0xValue(): string {
  * @returns The bit value (0 or 1) from the dataBuffer as string.
  */
 function bitValue(bit: number): string {
-	const val = getValue();
+	const val = getNumberValue();
 	const result = (val & (1 << bit)) ? '1' : '0';
 	return result;
 }
@@ -172,7 +171,7 @@ function convertBitsToString(value: number, size: number): string {
  * @returns The value from the dataBuffer as bit string. e.g. "0011_0101"
  */
 function bitsValue(): string {
-	const val = getValue();
+	const val = getNumberValue();
 	return convertBitsToString(val, lastSize);
 }
 
@@ -180,7 +179,7 @@ function bitsValue(): string {
  * Reads a text of given size.
  * @returns The data as string.
  */
-function stringValue(): string {
+function getStringValue(): string {
 	let s = '';
 	for (let i = 0; i < lastSize; i++) {
 		const c = dataBuffer[lastOffset + i];
