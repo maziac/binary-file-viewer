@@ -48,7 +48,9 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
-- Chart.js: add zoom plugin
+- Chart.js: add zoom plugin. Funktioniert zwar. Aber nur zoom, nicht pan. Ausserdem kann man nicht resetten oder in die andere Richtung zoomen.
+Angeblich: doubleclick zum reset. Beispiel lesen. Vielleicht braucht man gar  kein plugin installieren (?)
+
 
 - Help/Suggestions
   - Alle Funktionen uter einer Klasse, z.B. "Html". Dann können nach Eingabe von "HTML." sofort suggestions angezeigt werden.

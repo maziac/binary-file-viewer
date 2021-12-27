@@ -133,7 +133,7 @@ function convertLineBreaks(s: string) {
 
 
 /**
- * Is called by 'onClick'.
+ * Is called by 'onclick'.
  * Collapses and expands the following row.
  */
 function collapse(cell: HTMLTableCellElement) {

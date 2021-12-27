@@ -13,6 +13,10 @@ declare var createNode: any;
 declare var Chart: any;
 
 
+// Register zoom plugin.
+
+
+
 /**
  * Default colors used.
  */
@@ -44,6 +48,16 @@ interface ChartConfig {
 	type: 'line' | 'bar';
 	// The data series.
 	series: (Series|number[])[]
+}
+
+
+/**
+ * Called to reset the zoom via the chartjs-plugin-zoom.
+ * @param button The button that was clicked. HAs a link to the chart.
+ */
+function resetZoom(button: HTMLButtonElement) {
+	const chart = (button as any)._chart;
+	chart.resetZoom();
 }
 
 
@@ -115,9 +129,17 @@ function createChart(config: ChartConfig, name: string, valString = '', shortDes
 		});
 	}
 
+	// DIV to add some text
+	const div = document.createElement('div');
+	tdNode.appendChild(div);
+	div.innerHTML = `
+	<span>pan=ALT-mouse, zoom=mouse</span>
+	<button style="float: right;" onclick="resetZoom(this)">Reset Pan/Zoom</button>
+	`;
+	const button = div.lastElementChild as HTMLButtonElement;
 	// Add canvas for chart
 	const canvas = document.createElement('canvas'); // as HTMLCanvasElement;
-	tdNode.appendChild(canvas);
+	div.appendChild(canvas);
 
 	// Add the chart to it
 	const chartCfg = {
@@ -130,12 +152,24 @@ function createChart(config: ChartConfig, name: string, valString = '', shortDes
 			plugins: {
 				legend: {
 					display: legendDisplay	// Display a labels?
+				},
+				zoom: {
+					pan: {
+						enabled: true,
+						modifierKey: 'alt'
+					},
+					zoom: {
+						drag: {
+							enabled: true,
+						},
+						mode: 'xy',
+					}
 				}
 			}
 		}
 	};
-	new Chart(canvas, chartCfg);	// NOSONAR
-
+	const chart = new Chart(canvas, chartCfg);	// NOSONAR
+	(button as any)._chart = chart;
 
 	// Return
 	return node;
