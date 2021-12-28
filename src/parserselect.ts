@@ -52,25 +52,32 @@ export class ParserSelect {
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
 		this.clearDiagnostics();
 		for (const folder of parserFolders) {
-			nsfw(folder,
-				function (events: any) {
-					console.log(events);
-					// Loop array of events
-					ParserSelect.clearDiagnostics();
-					for (const event of events) {
-						ParserSelect.fileChanged(event);
+			try {
+				nsfw(folder,
+					function (events: any) {
+						console.log(events);
+						// Loop array of events
+						ParserSelect.clearDiagnostics();
+						for (const event of events) {
+							ParserSelect.fileChanged(event);
+						}
 					}
-				}
-			)
-				.then(function (watcher: any) {
-					// Remember
-					ParserSelect.fileWatchers.push(watcher);
-					// And start watching
-					return watcher.start();
-				});
+				)
+					.then(function (watcher: any) {
+						// Remember
+						ParserSelect.fileWatchers.push(watcher);
+						// And start watching
+						return watcher.start();
+					});
 
-			// Read files initially.
-			this.readAllFiles(folder);
+				// Read files initially.
+				this.readAllFiles(folder);
+			}
+			catch (e) {
+				console.log(e);
+				// Output to vscode's PROBLEM area.
+				this.addDiagnosticsMessage('' + e, folder + '/', 0);
+			}
 		}
 	}
 
@@ -126,23 +133,32 @@ export class ParserSelect {
 	protected static readAllFiles(folderPath: string) {
 		try {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
-			for (const file of files) {
-				const fullPath = path.join(folderPath, file.name);
-				if (file.isDirectory()) {
-					// Dig recursively
-					this.readAllFiles(fullPath);
+			let fullPath;
+			try {
+				for (const file of files) {
+					fullPath = path.join(folderPath, file.name);
+					if (file.isDirectory()) {
+						// Dig recursively
+						this.readAllFiles(fullPath);
+					}
+					else {
+						// Read file
+						this.readFile(fullPath);
+					}
 				}
-				else {
-					// Read file
-					this.readFile(fullPath);
-				}
+			}
+			catch (e) {
+				console.log(e);
+				// Output to vscode's PROBLEM area.
+				this.addDiagnosticsMessage('' + e, fullPath, 0);
 			}
 		}
 		catch (e) {
 			console.log(e);
 			// Output to vscode's PROBLEM area.
-			this.addDiagnosticsMessage('Error: ' + e, '', 0);
+			this.addDiagnosticsMessage('' + e, folderPath + '/', 0);
 		}
+
 	}
 
 

@@ -60,8 +60,7 @@ When hovering over a value or register name you will get additional info like th
 
 - How to customize the file extensions? I.e. that the binary-file-viewer reacts only on certain (customized) file extensions.
 
-- In den Preferences kann man dann file extensions damit verbinden. Oder besser über den filenamen (Convention). Oder noch besser im File selbst.
-In 'resolveCustomEditor' wird dann geprüft, ob es eine config für das file gibt.
+- file in completion etc überprüfen, ob path passt.
 - Besser: nicht nur file extensions sondern glob pattern und auch Teil-dekodierung des Headers zulassen um richtigen Parser zu finden.
 
 
