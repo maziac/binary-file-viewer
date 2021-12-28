@@ -8,17 +8,7 @@ import {FunctionDocumentation} from './functiondocs';
 export class CompletionProvider implements vscode.CompletionItemProvider {
 
     // The glob patterns to use.
-    protected globPatterns: string[];
-
-
-    /**
-     * Constructor.
-     * @param globPatterns The glob patterns to use.
-     */
-    constructor(globPatterns: string[]) {
-        // Store
-        this.globPatterns = globPatterns;
-    }
+    public globPatterns: string[] = [];
 
 
     /**
@@ -29,10 +19,19 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
      */
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>> {
         // First check for right path
-        const docPath = document.uri.fsPath;
-        // TODO: check glob pattern
+        let globMatch = false;
+        for (const pattern of this.globPatterns) {
+            const docFilter: vscode.DocumentFilter = {pattern};
+            if (vscode.languages.match(docFilter, document) > 0) {
+                globMatch = true;
+                break;
+            }
+        }
+        if (!globMatch)
+            return undefined;
 
-
+        // Then get text
+        //const docPath = document.uri.fsPath;
         const line = document.lineAt(position).text;
         const lineTrimmed = line.substring(0, position.character);
         //console.log('CompletionProvider : provideCompletionItems : lineTrimmed', lineTrimmed);

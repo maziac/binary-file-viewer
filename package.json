@@ -49,7 +49,22 @@
                 ],
                 "priority": "default"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "binary-file-viewerbiary configuration",
+            "properties": {
+                "binary-file-viewer.parserGlobPatterns": {
+                    "scope": "window",
+                    "type": "array",
+                    "default": [],
+                    "markdownDescription": "Add here the path(s) to your parser files. You can not only add a path but a full glob pattern. The Binary-File-Viewer will observe these locations. If a file is changed (on disk) it is automatically used for parsing. normally you need to add absolute paths. You can do so e.g. by right-click on the folder in vscode, copy the path and paste it here. Complete it with the globbing, e.g. '/*.js'. E.g. '/Volumes/binary-file-viewer-examples/parsers/*.js'",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
     },
     "scripts": {
         "test-compile": "tsc -p ./",

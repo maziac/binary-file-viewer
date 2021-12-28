@@ -7,6 +7,10 @@ import {SignatureProvider} from './signatureprovider';
 //import {PackageInfo} from './packageinfo';
 
 
+// Declare the providers to cahnge them on preferences change.
+let completionsProvider: CompletionProvider;
+
+
 export function activate(context: vscode.ExtensionContext) {
     // Init package info
     //PackageInfo.Init(context); // TODO : remove
@@ -18,29 +22,9 @@ export function activate(context: vscode.ExtensionContext) {
     const diagnosticsCollection = ParserSelect.init('/Volumes/SDDPCIE2TB/Projects/Z80/vscode/binary-file-viewer-examples/parsers');
     context.subscriptions.push(diagnosticsCollection);
 
-    /*
-    // Register commands.
-    context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.new", () => {
-        // Get name and create new file.
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.list", () => {
-        // Lists all configurations
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.edit", () => {
-        // Opens one configuration file for edit
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.clear", () => {
-        // Clears all configs.
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.export", () => {
-        //Exports all configs in a zip file.
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand("binary-file-viewer.config.import", () => {
-        // Import (adds) all configs from a zip.
-    }));
-
-*/
-
+    // Get settings
+    const settings = vscode.workspace.getConfiguration('binary-file-viewer');
+    const parserGlobPatterns = settings.get<string[]>('parserGlobPatterns');
 
     // Register custom readonly editor provider
     const viewProvider = new EditorProvider();
@@ -57,8 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     // Register completion provider
-    const completionsProvider = vscode.languages.registerCompletionItemProvider('javascript', new CompletionProvider(undefined));
-    context.subscriptions.push(completionsProvider);
+    completionsProvider = new CompletionProvider();
+    completionsProvider.globPatterns = parserGlobPatterns;
+    const regCompletionsProvider = vscode.languages.registerCompletionItemProvider('javascript', completionsProvider);
+    context.subscriptions.push(regCompletionsProvider);
 
     // Register hover provider
     const hoverProvider = vscode.languages.registerHoverProvider('javascript', new HoverProvider(undefined));
@@ -78,29 +64,15 @@ export function activate(context: vscode.ExtensionContext) {
  * Reads the configuration.
  */
 function configure(context: vscode.ExtensionContext, event?: vscode.ConfigurationChangeEvent) {
-    // TODO: DO I need this?
-    /*
-    const settings = vscode.workspace.getConfiguration('z80-instruction-set');
+    const settings = vscode.workspace.getConfiguration('binary-file-viewer');
 
-    // Note: don't add 'language' property, otherwise other extension with similar file pattern may not work.
-    // If the identifier is missing it also don't help to define it in package.json. And if "id" would be used it clashes again with other extensions.
-    const asmFiles: vscode.DocumentSelector = { scheme: "file", pattern: settings.files};
-
-     // Enable/disable hovering
-    if(settings.enableHovering) {
-        if(!regHoverProvider) {
-            // Register
-            regHoverProvider = vscode.languages.registerHoverProvider(asmFiles, new HoverProvider());
-            context.subscriptions.push(regHoverProvider);
+    if (event) {
+        if (event.affectsConfiguration('binary-file-viewer.parserGlobPatterns')) {
+            // Reconfigure all providers
+            const parserGlobPatterns = settings.get<string[]>('parserGlobPatterns');
+            console.log('configure : parserGlobPatterns', parserGlobPatterns);
+            completionsProvider.globPatterns = parserGlobPatterns;
         }
     }
-    else {
-        if(regHoverProvider) {
-            // Deregister
-            regHoverProvider.dispose();
-            regHoverProvider = undefined;
-        }
-    }
-    */
 }
 
