@@ -49,7 +49,7 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 
 
 	/**
-	 * Creates a vscode.SignatureInformation from the function descrioption.
+	 * Creates a vscode.SignatureInformation from the function description.
 	 * @param funcDoc The function description.
 	 * @returns A SignatureInformation for vscode.
 	 */
@@ -68,7 +68,7 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 			label += ': ' + funcDoc.return[0];
 
 		// Description
-		let desc = '*'+funcDoc.func[1]+'*';	// Italic
+		const desc = '*'+funcDoc.func[1]+'*';	// Italic
 		const md = new vscode.MarkdownString(desc, false);
 		if (funcDoc.return && funcDoc.return[1])
 			md.appendMarkdown( '\n\n@returns ' + funcDoc.return[1]);

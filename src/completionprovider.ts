@@ -121,7 +121,7 @@ export class CompletionProposalsProvider implements vscode.CompletionItemProvide
      * @param label The name to search for. (lower case)
      * @returns An array with the function names.
      */
-    protected search(label: string) {
+    protected search(label: string): string[] {
         const findings: string[] = [];
         for (const funcDoc of funcDocs) {
             const funcName = funcDoc.func[0];

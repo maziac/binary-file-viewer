@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {CompletionProposalsProvider} from './completionprovider';
 import {EditorProvider} from './editorprovider';
+import {HoverProvider} from './HoverProvider';
 import {ParserSelect} from './parserselect';
 import {SignatureProvider} from './signatureprovider';
 //import {PackageInfo} from './packageinfo';
@@ -55,10 +56,13 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerSignatureHelpProvider('javascript', signatureProvider, signatureMetaData);
 
 
-    // Register
+    // Register completion provider
     const completionsProvider = vscode.languages.registerCompletionItemProvider('javascript', new CompletionProposalsProvider(undefined));
     context.subscriptions.push(completionsProvider);
 
+    // Register hover provider
+    const hoverProvider = vscode.languages.registerHoverProvider('javascript', new HoverProvider(undefined));;
+    context.subscriptions.push(hoverProvider);
 
     // Read configuration
     configure(context);
