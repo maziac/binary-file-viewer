@@ -77,9 +77,11 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 		const info = new vscode.SignatureInformation(label, md);
 
 		// Parameter info
-		for (const param of funcDoc.params) {
-			const paramInfo = new vscode.ParameterInformation(param[0], new vscode.MarkdownString(param[2]));
-			info.parameters.push(paramInfo);
+		if (funcDoc.params) {
+			for (const param of funcDoc.params) {
+				const paramInfo = new vscode.ParameterInformation(param[0], new vscode.MarkdownString(param[2]));
+				info.parameters.push(paramInfo);
+			}
 		}
 
 		return info;

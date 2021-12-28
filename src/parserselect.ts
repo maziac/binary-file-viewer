@@ -149,19 +149,21 @@ export class ParserSelect {
 	 */
 	protected static readFile(filePath: string) {
 		// Read file contents
-		const fileContents = '() => ' + fs.readFileSync(filePath).toString();
+		const fileContents = fs.readFileSync(filePath).toString();
 
 		// Covert into function to check for errors
 		// b) run it to run 'registerFileType' and then the registered function
+		let registerFileTypeFound = false;
+		let registerParserFound = false;
 		try {
 			vmRunInNewContext(fileContents, {
 				registerFileType: (func: (fileExt: string, filePath: string, data: any) => string) => {
-					// Does nothing here.
-					let res = func('', '', undefined);	// TODO: not required to test for errors
-					console.log(res);
+					// Check if function is used
+					registerFileTypeFound = true;
 				},
 				registerParser: (func: () => void) => {
-					// Does nothing here.
+					// Check if function is used
+					registerParserFound = true;
 				}
 			},
 			filePath);
@@ -177,6 +179,19 @@ export class ParserSelect {
 			const colWidth = stacks[2].replace(/[^\^]/g, '').length;
 			// Output to vscode's PROBLEM area.
 			this.addDiagnosticsMessage(stacks[4], filePath, lineNr - 1, colNr, colWidth);
+			return;
+		}
+
+		// Check if functions are used
+		if (!registerFileTypeFound || !registerParserFound) {
+			if (!registerFileTypeFound) {
+				// Output to vscode's PROBLEM area.
+				this.addDiagnosticsMessage("You need to register for a file type via 'registerFileType'.", filePath, 0);
+			}
+			if (!registerParserFound) {
+				// Output to vscode's PROBLEM area.
+				this.addDiagnosticsMessage("You need to register a parser via 'registerParser'.", filePath, 0);
+			}
 			return;
 		}
 
@@ -255,10 +270,11 @@ export class ParserSelect {
 					found = func(fileExt, filePath, data);
 				},
 				registerParser: (func: () => void) => {
-					// Does nothing here.
+					// Do nothing
 				}
 			},
 				parserFilePath);
+
 			if (found) {
 				// If one is found stop here: // TODO: allow a selection
 				return {contents: parser, filePath: parserFilePath};

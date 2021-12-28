@@ -193,6 +193,7 @@ function addChart(config: ChartConfig, name: string): HTMLTableRowElement {
  * @param samples The data number array.
  * @param color Optional. The color to use.
  * @param label Optional. A string to mark the series.
+ * @returns A Series object with samples, label and color info.
  */
 function createSeries(samples: number[], color?: string, label?: string): Series {
 	return {samples, label, color};

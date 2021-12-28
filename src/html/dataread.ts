@@ -42,7 +42,7 @@ function arrayBufferToBase64(buffer: any) {
  * Converts the given number value into a hex string.
  * @param value The value to convert.
  * @param size The number of digits (e.g. 2 or 4)
- * @returns E.g. "0Fh" or "12FAh"
+ * @returns E.g. "0F" or "12FA"
  */
 function convertToHexString(value: number, size: number): string {
 	if (value == undefined)
@@ -69,6 +69,7 @@ function read(size: number) {
  * @param offset The starting offset in bytes.
  * @param format 'u'=unsigned, 'i'=signed
  * @param skip The number of bytes to skip after each read sample.
+ * @returns The samples in a number array.
  */
 function getData(sampleSize: number, offset: number, format: string, skip: number): number[] {
 	const data: number[] = [];
