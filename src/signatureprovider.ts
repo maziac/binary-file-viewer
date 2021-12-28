@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import {FuncDoc, funcDocs} from './functiondocs';
+import {FuncDoc, FunctionDocumentation} from './functiondocs';
 
 
 /**
@@ -19,7 +19,7 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 	 * signaled by returning `undefined` or `null`.
 	 */
 	provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.SignatureHelpContext): vscode.ProviderResult<vscode.SignatureHelp> {
-		console.log('SignatureProvider : provideSignatureHelp : document', document)
+		//console.log('SignatureProvider : provideSignatureHelp : document', document)
 
 		const line = document.lineAt(position).text;
 		const lineTrimmed = line.substring(0, position.character);
@@ -31,17 +31,21 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 		if (!match)
 			return undefined;
 		const funcName = match[1];
+		//console.log('SignatureProvider : provideSignatureHelp : funcName', funcName)
 
-		console.log('SignatureProvider : provideSignatureHelp : funcName', funcName)
+		// Get the function document
+		const funcDoc = FunctionDocumentation.search(funcName);
+		if (!funcDoc)
+			return undefined;
 
 		const help = new vscode.SignatureHelp();
 		// Count the number of parameters to get the right one
 		let remHyphes = funcParams.replace(/'.*?('|$)/g, "''");
 		remHyphes = remHyphes.replace(/".*?("|$)/g, '""');
-		help.activeParameter = remHyphes.split(',').length-1;
+		help.activeParameter = remHyphes.split(',').length - 1;
 		help.activeSignature = 0;
 		help.signatures = [
-			this.createSignatureInfo(funcDocs[0])
+			this.createSignatureInfo(funcDoc)
 		];
 
 		return help;

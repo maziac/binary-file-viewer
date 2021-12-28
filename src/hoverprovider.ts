@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import {FuncDoc, funcDocs} from './functiondocs';
+import {FuncDoc, FunctionDocumentation} from './functiondocs';
 
 
 /**
@@ -35,18 +35,18 @@ export class HoverProvider implements vscode.HoverProvider {
 
         const line = document.lineAt(position).text;
         const lineTrimmed = line.substring(0, position.character);
-        console.log('HoverProvider : provideHover : lineTrimmed', lineTrimmed);
+        //console.log('HoverProvider : provideHover : lineTrimmed', lineTrimmed);
         const matchStart = /\w*$/.exec(lineTrimmed);
         const lineEnd = line.substring(position.character);
-        console.log('HoverProvider : provideHover : lineEnd', lineEnd);
+        //console.log('HoverProvider : provideHover : lineEnd', lineEnd);
         const matchEnd = /\w*/.exec(lineEnd);
 
         // Concatenate hover word
         const label = matchStart[0] + matchEnd[0];
-        console.log('HoverProvider : provideHover : label', label);
+        //console.log('HoverProvider : provideHover : label', label);
 
         // Search
-        const funcDoc = this.search(label);
+        const funcDoc = FunctionDocumentation.search(label);
         if (!funcDoc)
             return undefined;
 
@@ -55,22 +55,6 @@ export class HoverProvider implements vscode.HoverProvider {
         const hover = new vscode.Hover(md);
 
         return hover;
-    }
-
-
-
-    /**
-     * Return the matching function description.
-     * @param label The name to search for.
-     * @returns a funcDoc object that matches or undefined if nothing matches.
-     */
-    protected search(label: string): FuncDoc {
-        for (const funcDoc of funcDocs) {
-            const funcName = funcDoc.func[0];
-            if (funcName == label)
-                return funcDoc;
-        }
-        return undefined;
     }
 
 
