@@ -19,12 +19,14 @@ export function activate(context: vscode.ExtensionContext) {
     console.log(context.extension.id + ' folder: ' + context.extensionPath);
 
     // Init
-    const diagnosticsCollection = ParserSelect.init('/Volumes/SDDPCIE2TB/Projects/Z80/vscode/binary-file-viewer-examples/parsers');
-    context.subscriptions.push(diagnosticsCollection);
+    context.subscriptions.push(ParserSelect.diagnosticsCollection);
 
     // Get settings
     const settings = vscode.workspace.getConfiguration('binary-file-viewer');
-    const parserGlobPatterns = settings.get<string[]>('parserGlobPatterns');
+    const parserFolders = settings.get<string[]>('parserFolders');
+
+    // Watch for the folders
+    ParserSelect.init(parserFolders);
 
     // Register custom readonly editor provider
     const viewProvider = new EditorProvider();
@@ -42,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register completion provider
     completionsProvider = new CompletionProvider();
-    completionsProvider.globPatterns = parserGlobPatterns;
+    completionsProvider.folders = parserFolders;
     const regCompletionsProvider = vscode.languages.registerCompletionItemProvider('javascript', completionsProvider);
     context.subscriptions.push(regCompletionsProvider);
 
@@ -67,11 +69,13 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
     const settings = vscode.workspace.getConfiguration('binary-file-viewer');
 
     if (event) {
-        if (event.affectsConfiguration('binary-file-viewer.parserGlobPatterns')) {
+        if (event.affectsConfiguration('binary-file-viewer.parserFolders')) {
             // Reconfigure all providers
-            const parserGlobPatterns = settings.get<string[]>('parserGlobPatterns');
-            console.log('configure : parserGlobPatterns', parserGlobPatterns);
-            completionsProvider.globPatterns = parserGlobPatterns;
+            const parserFolders = settings.get<string[]>('parserFolders');
+            console.log('configure : parserFolders', parserFolders);
+            completionsProvider.folders = parserFolders;
+            // Restart file watcher
+            ParserSelect.init(parserFolders);
         }
     }
 }

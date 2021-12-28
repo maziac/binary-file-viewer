@@ -7,8 +7,8 @@ import {FunctionDocumentation} from './functiondocs';
  */
 export class CompletionProvider implements vscode.CompletionItemProvider {
 
-    // The glob patterns to use.
-    public globPatterns: string[] = [];
+    // The folders to use.
+    public folders: string[] = [];
 
 
     /**
@@ -19,15 +19,15 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
      */
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>> {
         // First check for right path
-        let globMatch = false;
-        for (const pattern of this.globPatterns) {
-            const docFilter: vscode.DocumentFilter = {pattern};
+        let folderMatch = false;
+        for (const pattern of this.folders) {
+            const docFilter: vscode.DocumentFilter = {pattern: pattern + '/**/*.js'};
             if (vscode.languages.match(docFilter, document) > 0) {
-                globMatch = true;
+                folderMatch = true;
                 break;
             }
         }
-        if (!globMatch)
+        if (!folderMatch)
             return undefined;
 
         // Then get text

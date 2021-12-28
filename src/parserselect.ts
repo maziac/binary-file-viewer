@@ -26,7 +26,7 @@ const nsfw = require('nsfw');
 export class ParserSelect {
 
 	// The diagnostics collection.
-	protected static diagnosticsCollection: vscode.DiagnosticCollection;
+	public static diagnosticsCollection = vscode.languages.createDiagnosticCollection("Binary File Viewer");
 
 	// A map which associates file extensions with parser functions.
 	protected static fileExtParserMap = new Map<string, string[]>(); // TODO : Remove
@@ -34,40 +34,44 @@ export class ParserSelect {
 	// Filename -> contents association for the parser files.
 	protected static fileParserMap = new Map<string, string>();
 
-	// Custom parser js file absolute path.
-	protected static customParserPath: string;
+	// An array with all the active file watchers.
+	protected static fileWatchers: any[] = [];
 
 
 	/**
 	 * Initializes the path.
 	 */
-	public static init(parsersFolder: string): vscode.DiagnosticCollection {
-		// Prepare diagnostics
-		this.diagnosticsCollection = vscode.languages.createDiagnosticCollection("Binary File Viewer");
+	public static init(parserFolders: string[]) {
+		// Remove any previous watchers.
+		for (const fileWatcher of this.fileWatchers) {
+			fileWatcher.stop();
+		}
+		this.fileWatchers = [];
 
-		// Paths
-		this.customParserPath = path.join(parsersFolder, 'out', 'html', 'customparser.js');
 		// Setup a file watcher on the 'parsers' directory
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
-		nsfw(parsersFolder,
-			function (events: any) {
-				console.log(events);
-				// Loop array of events
-				ParserSelect.clearDiagnostics();
-				for (const event of events) {
-					ParserSelect.fileChanged(event);
+		this.clearDiagnostics();
+		for (const folder of parserFolders) {
+			nsfw(folder,
+				function (events: any) {
+					console.log(events);
+					// Loop array of events
+					ParserSelect.clearDiagnostics();
+					for (const event of events) {
+						ParserSelect.fileChanged(event);
+					}
 				}
-			}
-		)
-			.then(function (watcher: any) {
-				return watcher.start();
-			});
+			)
+				.then(function (watcher: any) {
+					// Remember
+					ParserSelect.fileWatchers.push(watcher);
+					// And start watching
+					return watcher.start();
+				});
 
-		// Read files initially.
-		this.readAllFiles(parsersFolder);
-
-		// Return to register the diagnostics
-		return this.diagnosticsCollection;
+			// Read files initially.
+			this.readAllFiles(folder);
+		}
 	}
 
 
@@ -120,7 +124,6 @@ export class ParserSelect {
 	 * @param folderPath The folder to use.
 	 */
 	protected static readAllFiles(folderPath: string) {
-		this.clearDiagnostics();
 		try {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			for (const file of files) {
