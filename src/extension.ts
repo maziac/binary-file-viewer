@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import {CompletionProposalsProvider} from './completionprovider';
 import {EditorProvider} from './editorprovider';
 import {ParserSelect} from './parserselect';
 import {SignatureProvider} from './signatureprovider';
@@ -52,6 +53,11 @@ export function activate(context: vscode.ExtensionContext) {
         triggerCharacters: ['(', ',']
     };
     vscode.languages.registerSignatureHelpProvider('javascript', signatureProvider, signatureMetaData);
+
+
+    // Register
+    const completionsProvider = vscode.languages.registerCompletionItemProvider('javascript', new CompletionProposalsProvider(undefined));
+    context.subscriptions.push(completionsProvider);
 
 
     // Read configuration

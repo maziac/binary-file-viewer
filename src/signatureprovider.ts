@@ -1,15 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-
-
-/**
- * Type for the function documentations.
- */
-interface FuncDoc {
-	func: string[],	// function name, description
-	return: string[],	// return type, description
-	params: string[][]	// param name, type, description
-}
+import {FuncDoc, funcDocs} from './functiondocs';
 
 
 /**
@@ -17,22 +8,6 @@ interface FuncDoc {
  * I.e. the help text that appears when a '(' or a ',' is typed.
  */
 export class SignatureProvider implements vscode.SignatureHelpProvider {
-
-	/**
-	 * The documentation of all functions.
-	 */
-
-	protected funcDocs: FuncDoc[] = [
-		{
-			func: ['myFunc', 'Reads in a chunk of data.\nE.g. to display later in Charts.'],
-			return: ['string', 'The data as a string.'],
-			params: [
-				['format', 'string', "'u'=unsigned, 'i'=signed"],
-				['skip', 'number', 'The number of bytes to skip after each read sample.']
-			]
-		}
-	];
-
 
 	/**
 	 * Provide help for the signature at the given position and document.
@@ -66,7 +41,7 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 		help.activeParameter = remHyphes.split(',').length-1;
 		help.activeSignature = 0;
 		help.signatures = [
-			this.createSignatureInfo(this.funcDocs[0])
+			this.createSignatureInfo(funcDocs[0])
 		];
 
 		return help;
