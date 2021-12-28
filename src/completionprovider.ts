@@ -48,6 +48,11 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
         // Search
         const completions = this.search(label);
 
+        /*
+        const debug: string[] = completions.map(val => val.label as string);
+        console.log('CompletionProvider : provideCompletionItems : debug', debug);
+        */
+
         // Search proposals
         return completions;
     }
@@ -65,7 +70,8 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
             if (funcName.toLowerCase().startsWith(label))
                 findings.push({
                     label: funcName,
-                    documentation: funcDoc.func[1]
+                    documentation: funcDoc.func[1],
+                    kind: vscode.CompletionItemKind.Function,
                 });
         }
         return findings;

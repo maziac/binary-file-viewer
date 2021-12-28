@@ -61,10 +61,12 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 		// Create label, full signature
 		let label = funcDoc.func[0] + '(';
 		// Collect all params
-		let sep = '';
-		for (const param of funcDoc.params) {
-			label += sep + param[0] + ': ' + param[1];
-			sep = ', ';
+		if (funcDoc.params) {
+			let sep = '';
+			for (const param of funcDoc.params) {
+				label += sep + param[0] + ': ' + param[1];
+				sep = ', ';
+			}
 		}
 		label += ')';
 		// Return value

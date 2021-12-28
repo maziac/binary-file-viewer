@@ -18,7 +18,7 @@ export class FunctionDocumentation {
 	// All API functions are documented below.
 	public static funcDocs: FuncDoc[] = [
 		{
-			func: ['addStandardHeader', 'Add a standard header, i.e. the size of the file.']
+			func: ['addStandardHeader', 'Add a standard header. This includes the size of the file.']
 		},
 		{
 			func: ['', 'Advances the offset (from previous call) and stores the size for reading.'],
