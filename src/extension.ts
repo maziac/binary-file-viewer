@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {EditorProvider} from './editorprovider';
 import {ParserSelect} from './parserselect';
+import {SignatureProvider} from './signatureprovider';
 //import {PackageInfo} from './packageinfo';
 
 
@@ -42,6 +43,15 @@ export function activate(context: vscode.ExtensionContext) {
     // Register custom readonly editor provider
     const viewProvider = new EditorProvider();
     vscode.window.registerCustomEditorProvider('binary-file-viewer.viewer', viewProvider, {webviewOptions: {enableFindWidget: true, retainContextWhenHidden: true}});
+
+
+    // Register signature help provider (Provides help for the API functions)
+    const signatureProvider = new SignatureProvider();
+    const signatureMetaData: vscode.SignatureHelpProviderMetadata = {
+        retriggerCharacters: [],
+        triggerCharacters: ['(', ',']
+    };
+    vscode.languages.registerSignatureHelpProvider('javascript', signatureProvider, signatureMetaData);
 
 
     // Read configuration
