@@ -106,10 +106,7 @@ export class CompletionProposalsProvider implements vscode.CompletionItemProvide
             return undefined;
 
         // Search
-        const findings = this.search(label);
-
-        // Convert to completion list
-        const completions: vscode.CompletionItem[] = findings.map(label => {return {label};});
+        const completions = this.search(label);
 
         // Search proposals
         return completions;
@@ -121,12 +118,15 @@ export class CompletionProposalsProvider implements vscode.CompletionItemProvide
      * @param label The name to search for. (lower case)
      * @returns An array with the function names.
      */
-    protected search(label: string): string[] {
-        const findings: string[] = [];
+    protected search(label: string): vscode.CompletionItem[] {
+        const findings: vscode.CompletionItem[] = [];
         for (const funcDoc of funcDocs) {
             const funcName = funcDoc.func[0];
             if (funcName.toLowerCase().startsWith(label))
-                findings.push(funcName);
+                findings.push({
+                    label: funcName,
+                    documentation: funcDoc.func[1]
+                });
         }
         return findings;
     }
