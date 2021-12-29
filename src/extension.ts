@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import {CompletionProvider} from './completionprovider';
 import {EditorProvider} from './editorprovider';
 import {HoverProvider} from './HoverProvider';
@@ -23,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Get settings
     const settings = vscode.workspace.getConfiguration('binary-file-viewer');
-    const parserFolders = settings.get<string[]>('parserFolders');
+    const parserFolders = getParserPaths(settings);
 
     // Watch for the folders
     ParserSelect.init(parserFolders);
@@ -71,8 +72,8 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
     if (event) {
         if (event.affectsConfiguration('binary-file-viewer.parserFolders')) {
             // Reconfigure all providers
-            const parserFolders = settings.get<string[]>('parserFolders');
-            console.log('configure : parserFolders', parserFolders);
+            const parserFolders = getParserPaths(settings);
+            //console.log('configure : parserFolders', parserFolders);
             completionsProvider.folders = parserFolders;
             // Restart file watcher
             ParserSelect.init(parserFolders);
@@ -80,3 +81,31 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
     }
 }
 
+
+/**
+ * Checks the folder path of the configuration.
+ * @param settings The settings of 'binary-file-viewer' obtained with getConfiguration.
+ * @returns An array with paths that point to a directory. All other paths are eliminated.
+ * For the wrong paths an error message is shown.
+ */
+function getParserPaths(settings: vscode.WorkspaceConfiguration) {
+    const parserFolders = settings.get<string[]>('parserFolders');
+    const correctFolders: string[] = [];
+    for (const folder of parserFolders) {
+         // Check that path exists
+        const exists = fs.existsSync(folder);
+        if (!exists) {
+            vscode.window.showErrorMessage("Settings: The path '" + folder + "' does not exist.");
+            continue;
+        }
+        // Check that path is a directory
+        const isDir = fs.lstatSync(folder).isDirectory();
+        if (!isDir) {
+            vscode.window.showErrorMessage("Settings: The path '" + folder + "' is not a directory.");
+            continue;
+        }
+        // Everything ok: add to array
+        correctFolders.push(folder);
+    }
+    return correctFolders;
+}
