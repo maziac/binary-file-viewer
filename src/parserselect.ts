@@ -134,31 +134,22 @@ export class ParserSelect {
 		try {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			let fullPath;
-			try {
-				for (const file of files) {
-					fullPath = path.join(folderPath, file.name);
-					if (file.isDirectory()) {
-						// Dig recursively
-						this.readAllFiles(fullPath);
-					}
-					else {
-						// Read file
-						this.readFile(fullPath);
-					}
+			for (const file of files) {
+				fullPath = path.join(folderPath, file.name);
+				if (file.isDirectory()) {
+					// Dig recursively
+					this.readAllFiles(fullPath);
 				}
-			}
-			catch (e) {
-				console.log(e);
-				// Output to vscode's PROBLEM area.
-				this.addDiagnosticsMessage('' + e, fullPath, 0);
+				else {
+					// Read file
+					this.readFile(fullPath + 't');
+				}
 			}
 		}
 		catch (e) {
 			console.log(e);
-			// Output to vscode's PROBLEM area.
-			this.addDiagnosticsMessage('' + e, folderPath + '/', 0);
+			vscode.window.showErrorMessage(e.toString());
 		}
-
 	}
 
 
@@ -168,73 +159,63 @@ export class ParserSelect {
 	 */
 	protected static readFile(filePath: string) {
 		// Read file contents
-		const fileContents = fs.readFileSync(filePath).toString();
-
-		// Covert into function to check for errors
-		// b) run it to run 'registerFileType' and then the registered function
-		let registerFileTypeFound = false;
-		let registerParserFound = false;
 		try {
-			vmRunInNewContext(fileContents, {
-				registerFileType: (func: (fileExt: string, filePath: string, data: any) => string) => {
-					// Check if function is used
-					registerFileTypeFound = true;
-				},
-				registerParser: (func: () => void) => {
-					// Check if function is used
-					registerParserFound = true;
-				}
-			},
-			filePath);
-		}
-		catch (err) {
-			console.log(err);
-			// Parse line number
-			const stacks = err.stack.split('\n');
-			const matchLine = /.*:(\d+)/.exec(stacks[0]);
-			const lineNr = parseInt(matchLine[1]);
-			// Get column number
-			const colNr = stacks[2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
-			const colWidth = stacks[2].replace(/[^\^]/g, '').length;
-			// Output to vscode's PROBLEM area.
-			this.addDiagnosticsMessage(stacks[4], filePath, lineNr - 1, colNr, colWidth);
-			return;
-		}
+			const fileContents = fs.readFileSync(filePath).toString();
 
-		// Check if functions are used
-		if (!registerFileTypeFound || !registerParserFound) {
-			if (!registerFileTypeFound) {
-				// Output to vscode's PROBLEM area.
-				this.addDiagnosticsMessage("You need to register for a file type via 'registerFileType'.", filePath, 0);
-			}
-			if (!registerParserFound) {
-				// Output to vscode's PROBLEM area.
-				this.addDiagnosticsMessage("You need to register a parser via 'registerParser'.", filePath, 0);
-			}
-			return;
-		}
-
-		// If everything is fine, add to map
-		this.fileParserMap.set(filePath, fileContents);
-		// And update any existing document
-		EditorDocument.updateDocumentsFor(filePath, fileContents);
-	}
-
-
-	/*
-
+			// Covert into function to check for errors
 			// b) run it to run 'registerFileType' and then the registered function
-			scopeLessFunctionCall(fileContents, {
-				registerParser: (func: () => void) => {},	// Unused here.
-				registerFileType: (func: (fileExt: string, filePath: string, data: any) => void) => {
-					let fileExt = path.extname(filePath);
-					if (fileExt.startsWith('.'))
-						fileExt = fileExt.substring(1);
-					const selected = func(filePath, fileExt, undefined);	// TODO: data
-					return selected;
+			let registerFileTypeFound = false;
+			let registerParserFound = false;
+			try {
+				vmRunInNewContext(fileContents, {
+					registerFileType: (func: (fileExt: string, filePath: string, data: any) => string) => {
+						// Check if function is used
+						registerFileTypeFound = true;
+					},
+					registerParser: (func: () => void) => {
+						// Check if function is used
+						registerParserFound = true;
+					}
+				},
+					filePath);
+			}
+			catch (err) {
+				console.log(err);
+				// Parse line number
+				const stacks = err.stack.split('\n');
+				const matchLine = /.*:(\d+)/.exec(stacks[0]);
+				const lineNr = parseInt(matchLine[1]);
+				// Get column number
+				const colNr = stacks[2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
+				const colWidth = stacks[2].replace(/[^\^]/g, '').length;
+				// Output to vscode's PROBLEM area.
+				this.addDiagnosticsMessage(stacks[4], filePath, lineNr - 1, colNr, colWidth);
+				return;
+			}
+
+			// Check if functions are used
+			if (!registerFileTypeFound || !registerParserFound) {
+				if (!registerFileTypeFound) {
+					// Output to vscode's PROBLEM area.
+					this.addDiagnosticsMessage("You need to register for a file type via 'registerFileType'.", filePath, 0);
 				}
-			});
-			*/
+				if (!registerParserFound) {
+					// Output to vscode's PROBLEM area.
+					this.addDiagnosticsMessage("You need to register a parser via 'registerParser'.", filePath, 0);
+				}
+				return;
+			}
+
+			// If everything is fine, add to map
+			this.fileParserMap.set(filePath, fileContents);
+			// And update any existing document
+			EditorDocument.updateDocumentsFor(filePath, fileContents);
+		}
+		catch (e) {
+			console.log(e);
+			vscode.window.showErrorMessage(e.toString());
+		}
+	}
 
 
 	/**
@@ -305,6 +286,3 @@ export class ParserSelect {
 	}
 }
 
-// TODO: for now
-ParserSelect.registerParser('.obj', '/Volumes/SDDPCIE2TB/Projects/Z80/vscode/binary-file-viewer/parsers/obj.js');
-ParserSelect.registerParser('.raw', '/Volumes/SDDPCIE2TB/Projects/Z80/vscode/binary-file-viewer/parsers/obj.js');

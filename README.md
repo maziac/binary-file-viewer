@@ -48,7 +48,6 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
-
 - Functions:
 	- Read until certain byte value
 	- Read string (until 0)
