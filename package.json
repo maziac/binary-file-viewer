@@ -15,7 +15,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/maziac/binar-file-viewer"
+        "url": "https://github.com/maziac/binary-file-viewer"
     },
     "engines": {
         "vscode": "^1.63.0"
@@ -90,7 +90,68 @@
                     "command": "binary-file-viewer.open"
                 }
             ]
-        }
+        },
+        "walkthroughs": [
+            {
+                "id": "createYourFirstParser",
+                "title": "Binary File Viewer: Create your First Parser",
+                "description": "The 'Binary-File-Viewer' is a framework that let's you create custom binary file viewers.",
+                "steps": [
+                    {
+                        "id": "theConcept",
+                        "title": "The Concept",
+                        "description": "You have to create so-called custom parser files to decode a binary file. With this approach it is easy to write custom viewers for files where no vscode file viewer extension exists or for your own proprietary file formats.",
+                        "media": {
+                            "markdown": "assets/walkthroughs/empty.md"
+                        }
+                    },
+                    {
+                        "id": "setParserFolder",
+                        "title": "Change Parser Folder",
+                        "description": "At first choose a **location for your parser files**. The 'Binary File Viewer' will use these files for decoding.\nCreate a new folder (e.g. outside vscode), enter vscode's preferences and add the absolute path of this folder.",
+                        "media": {
+                            "image": "assets/walkthroughs/settings_folder.gif",
+                            "altText": "Empty image"
+                        },
+                        "completionEvents": [
+                            "onSettingChanged:binary-file-viewer.parserFolders"
+                        ]
+                    },
+                    {
+                        "id": "createParserFile",
+                        "title": "Create a Parser File",
+                        "description": "Open the parser folder (see previous step). Add a new empty file to it with a '.js' extension. E.g. 'wav.js'.",
+                        "media": {
+                            "markdown": "assets/walkthroughs/empty.md"
+                        }
+                    },
+                    {
+                        "id": "templateParserFile",
+                        "title": "Fill Parser File with a Template",
+                        "description": "Use the code snippet ('binary...') to create the parser skeleton.",
+                        "media": {
+                            "image": "assets/walkthroughs/snippet_usage.gif",
+                            "altText": "Empty image"
+                        }
+                    },
+                    {
+                        "id": "modifyExtParserFile",
+                        "title": "Choose the File Extension",
+                        "description": "In the 'registerFileType' function you can determine for what files your parser will be executed.\nChange the string for the file extension. E.g for a '*.wav' file decoder choose 'wav'.",
+                        "media": {
+                            "image": "assets/walkthroughs/file_extension.gif",
+                            "altText": "Empty image"
+                        }
+                    }
+                ]
+            }
+        ],
+        "snippets": [
+            {
+                "language": "javascript",
+                "path": "assets/codesnippets.json"
+            }
+        ]
     },
     "scripts": {
         "test-compile": "tsc -p ./",
