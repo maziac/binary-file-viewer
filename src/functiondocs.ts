@@ -18,6 +18,14 @@ export class FunctionDocumentation {
 	// All API functions are documented below.
 	public static funcDocs: FuncDoc[] = [
 		{
+			func: ['getBytesAt', "Returns the bytes from the file at the given offset.\nUse this inside 'registerFileType' to examine the file type."],
+			return: ['number[]', "A number array with the values. The length of the array might be smaller than 'length' if the file size is smaller."],
+			params: [
+				['offset', 'number', 'number', "TThe file offset."],
+				['length', 'number', "The number of bytes to return. Defaults to 1"]
+			]
+		},
+		{
 			func: ['addStandardHeader', 'Add a standard header. This includes the size of the file.']
 		},
 		{

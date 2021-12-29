@@ -92,16 +92,67 @@ export class ParserSelect {
 	/**
 	 * Adds a diagnostics message for a file.
 	 * @param message The shown message.
-	 * @param filepath Absolute path to the file.
+	 * @param filePath Absolute path to the file.
 	 * @param line The line number. Starts at 0.
 	 * @param columnStart The start column number. Starts at 1 (?).
 	 * @param columnWidth The width of the selection.
 	 */
-	public static addDiagnosticsMessage(message: string, filepath: string, line: number, columnStart = 0, columnWidth = 1000) {
-		const uri = vscode.Uri.file(filepath);
+	public static addDiagnosticsMessage(message: string, filePath: string, line: number, columnStart = 0, columnWidth = 1000) {
+		const uri = vscode.Uri.file(filePath);
 		const range = new vscode.Range(line, columnStart, line, columnStart + columnWidth);
 		const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
 		this.diagnosticsCollection.set(uri, [diagnostic]);
+	}
+
+
+	/**
+	 * Adds an error to the diagnostics messages.
+	 * Parses the stack to get the right line.
+	 * @param err The error obtained by a catch.
+	 * @param filePath Absolute path to the file.
+	 */
+	protected static addDiagnosticsStack(err: Error, filePath: string) {
+		let colNr;
+		let colWidth;
+		// An error occurred during execution of the custom parser
+		const stacks = err.stack.split('\n');
+		let lineNr = 0;
+		let i = 1;
+		for (; i < stacks.length; i++) {
+			const match = /.*>:(\d+)(:(\d+))?/.exec(stacks[i]);
+			if (match) {
+				lineNr = parseInt(match[1]);
+				if (match[3]) {
+					// Column
+					colNr = parseInt(match[3]);
+					colWidth = 1000;
+				}
+				break;
+			}
+		}
+		let msg = stacks[0];
+		if (i > 1)
+			msg += ' (Probably an error in the passed arguments.)';
+
+		// Get column
+		if (colNr == undefined) {
+			if (i + 2 < stacks.length) {
+				colNr = stacks[i + 2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
+				colWidth = stacks[i + 2].replace(/[^\^]/g, '').length;
+			}
+		}
+
+		/*
+		// Parse line number
+		const stacks = err.stack.split('\n');
+		const matchLine = /.*:(\d+)/.exec(stacks[0]);
+		const lineNr = parseInt(matchLine[1]);
+		// Get column number
+		const colNr = stacks[2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
+		const colWidth = stacks[2].replace(/[^\^]/g, '').length;
+		*/
+		// Output to vscode's PROBLEM area.
+		this.addDiagnosticsMessage(msg, filePath, lineNr - 1, colNr, colWidth);
 	}
 
 
@@ -157,6 +208,12 @@ export class ParserSelect {
 	 * @param filePath The full file path of the parser file to read.
 	 */
 	protected static readFile(filePath: string) {
+		// Skip if not a js file
+		if (path.extname(filePath) != '.js')
+			return;
+		if (path.basename(filePath).startsWith('obj'))
+			return;	// REMOVE TODO
+
 		// Read file contents
 		try {
 			const fileContents = fs.readFileSync(filePath).toString();
@@ -167,7 +224,7 @@ export class ParserSelect {
 			let registerParserFound = false;
 			try {
 				vmRunInNewContext(fileContents, {
-					registerFileType: (func: (fileExt: string, filePath: string, data: any) => string) => {
+					registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => string) => {
 						// Check if function is used
 						registerFileTypeFound = true;
 					},
@@ -175,20 +232,12 @@ export class ParserSelect {
 						// Check if function is used
 						registerParserFound = true;
 					}
-				},
-					filePath);
+				});
 			}
 			catch (err) {
 				console.log(err);
-				// Parse line number
-				const stacks = err.stack.split('\n');
-				const matchLine = /.*:(\d+)/.exec(stacks[0]);
-				const lineNr = parseInt(matchLine[1]);
-				// Get column number
-				const colNr = stacks[2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
-				const colWidth = stacks[2].replace(/[^\^]/g, '').length;
-				// Output to vscode's PROBLEM area.
-				this.addDiagnosticsMessage(stacks[4], filePath, lineNr - 1, colNr, colWidth);
+				// Show error
+				this.addDiagnosticsStack(err, filePath);
 				return;
 			}
 
@@ -234,15 +283,22 @@ export class ParserSelect {
 		for (const [parserFilePath, parser] of this.fileParserMap) {
 			// Run each parser 'registerFileType'
 			vmRunInNewContext(parser, {
-				registerFileType: (func: (fileExt: string, filePath: string, data: any) => boolean) => {
-					// Evaluate custom function
-					found = func(fileExt, filePath, fileData);
+				registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => boolean) => {
+					try {
+						// Evaluate custom function
+						found = func(fileExt, filePath, fileData);
+					}
+					catch (err) {
+						console.log(err);
+						// Show error
+						this.addDiagnosticsStack(err, parserFilePath);
+						return;
+					}
 				},
 				registerParser: (func: () => void) => {
 					// Do nothing
 				}
-			},
-				parserFilePath);
+			});
 
 			if (found) {
 				// If one is found stop here: // TODO: allow a selection
@@ -255,6 +311,15 @@ export class ParserSelect {
 
 		// Not found
 		return undefined;
+	}
+
+
+	/**
+	 * @returns All available parser file paths.
+	 */
+	public static getParserFilePaths(): string[] {
+		const parserPaths: string[] = Array.from(this.fileParserMap.keys());
+		return parserPaths;
 	}
 }
 

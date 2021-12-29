@@ -14,6 +14,9 @@ export class EditorDocument implements vscode.CustomDocument {
 	// The used parser file.
 	public parser: {contents: string, filePath: string};
 
+	// If no parser is found this html is presented instead.
+	public errorHtml: string;
+
 	// Remember the webviewPanel for sending updates.
 	public webviewPanel: vscode.WebviewPanel;
 
@@ -63,6 +66,13 @@ export class EditorDocument implements vscode.CustomDocument {
 			const filePath = this.uri.fsPath;
 			const parser = this.parser;
 
+			// Check for error (set if no parser has been found)
+			if (this.errorHtml) {
+				webviewPanel.webview.html = this.errorHtml;
+				return;
+			}
+
+			// Normal behavior: Parser installed.
 			// Handle 'ready' message from the webview
 			webviewPanel.webview.onDidReceiveMessage(message => {
 				switch (message.command) {

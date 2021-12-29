@@ -41,7 +41,8 @@ export class FileData {
 
 
 	/**
-	 * Returns the bytes at the given offset.
+	 * Returns the bytes from the file at the given offset.
+	 * Use this inside 'registerFileType' to examine the file type.
 	 * @param offset The file offset.
 	 * @param length The number of bytes to return.
 	 * @returns A number array with the values. The length of the array might

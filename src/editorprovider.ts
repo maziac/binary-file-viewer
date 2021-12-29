@@ -18,8 +18,18 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 			if (fileExt.length >= 1)
 				fileExt = fileExt.slice(1); 	// Remove the '.'
 			const parser = ParserSelect.selectParserFile(fileExt, filePath, undefined);
-			if (!parser)
-				return undefined;	// Nothing found
+			if (!parser) {
+				const doc = new EditorDocument();
+				doc.uri = uri;
+				// Get all tried parsers.
+				let html = '<html><body>Binary-File-Viewer: No parser available.<br>Tried parsers:<br>';
+				const parserPaths = ParserSelect.getParserFilePaths();
+				for (const parserPath of parserPaths)
+					html += parserPath + '<br>';
+				html += '</body></html>';
+				doc.errorHtml = html;
+				return doc;
+			}
 
 			// Create a document
 			const doc = new EditorDocument();
