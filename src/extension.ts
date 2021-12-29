@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
 import {CompletionProvider} from './completionprovider';
 import {EditorProvider} from './editorprovider';
 import {HoverProvider} from './HoverProvider';
@@ -7,6 +8,7 @@ import {ParserSelect} from './parserselect';
 import {SignatureProvider} from './signatureprovider';
 import {PackageInfo} from './packageinfo';
 import {HelpView} from './helpview';
+import {EditorDocument} from './editordocument';
 
 
 // Declare the providers to cahnge them on preferences change.
@@ -58,6 +60,32 @@ export function activate(context: vscode.ExtensionContext) {
         const helpView = HelpView.getHelpView();
         // Make sure the view is visible
         helpView.reveal();
+    }));
+
+
+    // Command to open a file
+    context.subscriptions.push(vscode.commands.registerCommand('binary-file-viewer.open', uri => {
+        // Get the parser contents
+        const filePath = uri.fsPath;
+        let fileExt = path.extname(filePath);
+        if (fileExt.length >= 1)
+            fileExt = fileExt.slice(1); 	// Remove the '.'
+        const parser = ParserSelect.selectParserFile(fileExt, filePath, undefined);
+        if (!parser) {
+            // Get all tried parsers.
+            let msg = "Binary-File-Viewer: No parser available for '" + path.basename(filePath) + "'.\n";
+            const parserPaths = ParserSelect.getParserFilePaths();
+            if (parserPaths.length > 0) {
+                msg += "Tried parser(s): ";
+                for (const parserPath of parserPaths)
+                    msg += '\n' + parserPath;
+            }
+            vscode.window.showErrorMessage(msg);
+            return;
+        }
+
+        // Open document
+        vscode.commands.executeCommand('vscode.openWith', uri, 'binary-file-viewer.viewer');
     }));
 
 

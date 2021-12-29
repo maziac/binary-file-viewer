@@ -22,7 +22,7 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 				const doc = new EditorDocument();
 				doc.uri = uri;
 				// Get all tried parsers.
-				let html = '<html><body>Binary-File-Viewer: No parser available.<br>Tried parsers:<br>';
+				let html = '<html><body>Binary-File-Viewer: No parser available.<br>Tried parser(s):<br>';
 				const parserPaths = ParserSelect.getParserFilePaths();
 				for (const parserPath of parserPaths)
 					html += parserPath + '<br>';

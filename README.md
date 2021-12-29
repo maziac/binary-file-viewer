@@ -49,6 +49,8 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
+ - Vielleicht vscode walkthrough
+
 - Functions:
 	- Read until certain byte value
 	- Read string (until 0)

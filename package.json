@@ -41,18 +41,15 @@
                 "displayName": "Binary File Viewer",
                 "selector": [
                     {
-                        "filenamePattern": "*.obj*"
-                    },
-                    {
-                        "filenamePattern": "*.wav"
+                        "filenamePattern": "*.*"
                     }
                 ],
-                "priority": "default"
+                "priority": "option"
             }
         ],
         "configuration": {
             "type": "object",
-            "title": "binary-file-viewerbiary configuration",
+            "title": "binary-file-viewer configuration",
             "properties": {
                 "binary-file-viewer.parserFolders": {
                     "scope": "window",
@@ -70,12 +67,27 @@
                 "command": "binary-file-viewer.help",
                 "title": "Shows the help page",
                 "category": "bfv"
+            },
+            {
+                "command": "binary-file-viewer.open",
+                "title": "Open with 'Binary File Viewer'",
+                "category": "bfv"
             }
         ],
         "menus": {
             "commandPalette": [
                 {
                     "command": "binary-file-viewer.help"
+                },
+                {
+                    "command": "binary-file-viewer.open",
+                    "when": "false"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "group": "navigation",
+                    "command": "binary-file-viewer.open"
                 }
             ]
         }
