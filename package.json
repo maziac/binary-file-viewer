@@ -64,6 +64,20 @@
                     }
                 }
             }
+        },
+        "commands": [
+            {
+                "command": "binary-file-viewer.help",
+                "title": "Shows the help page",
+                "category": "bfv"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "binary-file-viewer.help"
+                }
+            ]
         }
     },
     "scripts": {
@@ -81,6 +95,9 @@
         "gif-writer": "^0.9.4",
         "hammerjs": "^2.0.8",
         "nsfw": "^2.1.2",
-        "path": "^0.12.7"
+        "path": "^0.12.7",
+        "posthtml": "^0.16.5",
+        "posthtml-toc": "^1.0.3",
+        "showdown": "^1.9.1"
     }
 }

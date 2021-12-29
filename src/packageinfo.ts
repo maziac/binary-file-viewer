@@ -7,33 +7,46 @@ import * as vscode from 'vscode';
 export class PackageInfo {
 
 	// The extension info is stored here after setting the extensionPath.
-	public static extension: vscode.Extension<any>;
+	public static context: vscode.ExtensionContext;
 
 
 	/**
 	 * Sets the extension path.
 	 * Called on extension activation.
 	 */
-	public static Init(context: vscode.ExtensionContext) {
-		// Store path
-		//this.extensionPath = path;
-		// Get package info from globalState
-		const _extension = context.extension;
-		const extensionName = _extension.id;
-		// Store extension info
-		this.extension = vscode.extensions.getExtension(extensionName)!;
+	public static init(context: vscode.ExtensionContext) {
+		this.context = context;
+	}
+
+
+	/**
+	 * @returns The extension's name. E.g. 'binary-file-viewer', without the
+	 * author.
+	 */
+	public static extensionId(): string {
+		const complete = this.context.extension.id;
+		const id = complete.split('.')[1];
+		return id;
+	}
+
+
+	/**
+	 * @returns The extension's absolute path.
+	 */
+	public static extensionPath(): string {
+		const path = this.context.extension.extensionPath;
+		return path;
 	}
 
 
 	/**
 	 * Convenience method to return the configuration/the settings.
-	 * @param workspaceFolder The workspace folder to get the configuration for
+	 * @param workspaceFolder (Optional) The workspace folder to get the configuration for
 	 * (in case of multiroot)
 	 */
-	public static getConfiguration(workspaceFolder?: vscode.WorkspaceFolder): vscode.WorkspaceConfiguration {
-		const packageJSON = this.extension.packageJSON;
-		const extensionBaseName = packageJSON.name;
-		const config = vscode.workspace.getConfiguration(extensionBaseName, workspaceFolder);
+	public static configuration(workspaceFolder?: vscode.WorkspaceFolder): vscode.WorkspaceConfiguration {
+		const id = this.extensionId();
+		const config = vscode.workspace.getConfiguration(id, workspaceFolder);
 		return config;
 	}
 }

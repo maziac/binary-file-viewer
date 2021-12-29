@@ -5,7 +5,8 @@ import {EditorProvider} from './editorprovider';
 import {HoverProvider} from './HoverProvider';
 import {ParserSelect} from './parserselect';
 import {SignatureProvider} from './signatureprovider';
-//import {PackageInfo} from './packageinfo';
+import {PackageInfo} from './packageinfo';
+import {HelpView} from './helpview';
 
 
 // Declare the providers to cahnge them on preferences change.
@@ -14,7 +15,7 @@ let completionsProvider: CompletionProvider;
 
 export function activate(context: vscode.ExtensionContext) {
     // Init package info
-    //PackageInfo.Init(context); // TODO : remove
+    PackageInfo.init(context);
 
     // Log the extension dir
     console.log(context.extension.id + ' folder: ' + context.extensionPath);
@@ -23,8 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(ParserSelect.diagnosticsCollection);
 
     // Get settings
-    const settings = vscode.workspace.getConfiguration('binary-file-viewer');
-    const parserFolders = getParserPaths(settings);
+    const parserFolders = getParserPaths();
 
     // Watch for the folders
     ParserSelect.init(parserFolders);
@@ -53,8 +53,13 @@ export function activate(context: vscode.ExtensionContext) {
     const hoverProvider = vscode.languages.registerHoverProvider('javascript', new HoverProvider(undefined));
     context.subscriptions.push(hoverProvider);
 
-    // Read configuration
-    configure(context);
+    // Command to show the help
+    context.subscriptions.push(vscode.commands.registerCommand('binary-file-viewer.help', () => {
+        const helpView = HelpView.getHelpView();
+        // Make sure the view is visible
+        helpView.reveal();
+    }));
+
 
     // Check for every change.
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
@@ -67,12 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
  * Reads the configuration.
  */
 function configure(context: vscode.ExtensionContext, event?: vscode.ConfigurationChangeEvent) {
-    const settings = vscode.workspace.getConfiguration('binary-file-viewer');
-
     if (event) {
         if (event.affectsConfiguration('binary-file-viewer.parserFolders')) {
             // Reconfigure all providers
-            const parserFolders = getParserPaths(settings);
+            const parserFolders = getParserPaths();
             //console.log('configure : parserFolders', parserFolders);
             completionsProvider.folders = parserFolders;
             // Restart file watcher
@@ -84,11 +87,11 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
 
 /**
  * Checks the folder path of the configuration.
- * @param settings The settings of 'binary-file-viewer' obtained with getConfiguration.
  * @returns An array with paths that point to a directory. All other paths are eliminated.
  * For the wrong paths an error message is shown.
  */
-function getParserPaths(settings: vscode.WorkspaceConfiguration) {
+function getParserPaths() {
+    const settings = PackageInfo.configuration();
     const parserFolders = settings.get<string[]>('parserFolders');
     const correctFolders: string[] = [];
     for (const folder of parserFolders) {

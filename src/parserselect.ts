@@ -142,7 +142,7 @@ export class ParserSelect {
 				}
 				else {
 					// Read file
-					this.readFile(fullPath + 't');
+					this.readFile(fullPath);
 				}
 			}
 		}

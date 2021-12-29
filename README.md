@@ -1,10 +1,11 @@
-# Important
+# The (Customizable) Binary File Viewer
+## Important
 
 Project is not usable yet.
 Under construction !
 
 
-# Support
+## Support
 
 If you like the "Binary File Viewer" please consider supporting it.
 
@@ -17,19 +18,19 @@ If you like the "Binary File Viewer" please consider supporting it.
 </a>
 
 
-# Binary File Viewer
+## Binary File Viewer
 
 ...
 
 
 
-## Installation
+### Installation
 
 Install through Visual Studio Code Marketplace.
 The extension is called "Binary File Viewer".
 
 
-# Usage
+## Usage
 
 Just click on a file with the *.* extension.
 The file is opened and shown in the text editor area.
