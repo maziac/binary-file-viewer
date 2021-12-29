@@ -4,6 +4,7 @@ import {ActionType} from 'nsfw';
 import * as path from 'path';
 import {vmRunInNewContext} from './scopelessfunctioncall';
 import {EditorDocument} from './editordocument';
+import {FileData} from './filedata';
 //import * as nfsw from 'nsfw';
 const nsfw = require('nsfw');
 //import nfsw as Nsfw 'nsfw';
@@ -28,8 +29,6 @@ export class ParserSelect {
 	// The diagnostics collection.
 	public static diagnosticsCollection = vscode.languages.createDiagnosticCollection("Binary File Viewer");
 
-	// A map which associates file extensions with parser functions.
-	protected static fileExtParserMap = new Map<string, string[]>(); // TODO : Remove
 
 	// Filename -> contents association for the parser files.
 	protected static fileParserMap = new Map<string, string>();
@@ -219,47 +218,17 @@ export class ParserSelect {
 
 
 	/**
-	 * Register an parser function for an extension.
-	 * It is possible to register more than one function to one extension.
-	 * @param fileExtension E.g. "obj" or "bin". Not used.
-	 * @param parserFile The absolute path to the parser file.
-	 */
-	public static registerParser(fileExtension: string, parserFile: string) {
-		let funcArr = this.fileExtParserMap.get(fileExtension);
-		if (!funcArr) {
-			// First function. Create a new array.
-			funcArr = [];
-			this.fileExtParserMap.set(fileExtension, funcArr);
-		}
-		funcArr.push(parserFile);
-	}
-
-
-	/**
-	 * Returns the right parser file for the given file extension.
-	 * @param fileExtension Eg. "obj".
-	 * @returns The full path name to the parser file or undefined if none exists.
-	 */
-	protected static getFileForExt(fileExtension: string): string {
-		const parserFileArr = this.fileExtParserMap.get(fileExtension);
-		if (!parserFileArr)
-			return undefined;
-		// Select the right file
-		const parserFile = parserFileArr[0];	// TODO: for now simply the first one.
-
-		return parserFile;
-	}
-
-
-	/**
 	 * Select the right parser file (depending on the given file extension
 	 * and copies it to the extension dir ('out/html').
 	 * @param fileExt E.g. "obj"
 	 * @param filePath The full (absolute) file path.
-	 * @param data The file data object.
+	 * @param file The file data object.
 	 * @returns the parser contents and its file path on success. Otherwise undefined.
 	 */
-	public static selectParserFile(fileExt: string, filePath: string, data: any): {contents: string, filePath: string} {
+	public static selectParserFile(fileExt: string, filePath: string, file: FileData): {contents: string, filePath: string} {
+		// Create file data object
+		const fileData = new FileData(filePath);
+
 		// Loop through all parsers
 		let found = false;
 		for (const [parserFilePath, parser] of this.fileParserMap) {
@@ -267,7 +236,7 @@ export class ParserSelect {
 			vmRunInNewContext(parser, {
 				registerFileType: (func: (fileExt: string, filePath: string, data: any) => boolean) => {
 					// Evaluate custom function
-					found = func(fileExt, filePath, data);
+					found = func(fileExt, filePath, fileData);
 				},
 				registerParser: (func: () => void) => {
 					// Do nothing
@@ -280,6 +249,9 @@ export class ParserSelect {
 				return {contents: parser, filePath: parserFilePath};
 			}
 		}
+
+		// Close, in case it was opened.
+		fileData.close();
 
 		// Not found
 		return undefined;

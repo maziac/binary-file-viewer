@@ -75,11 +75,3 @@ export function vmRunInNewContext(funcBodyString: string, parameters = {}, fileP
 	return result;
 }
 
-// TODO: Remove
-export function vmCreateScript(funcBodyString: string, filePath?: string): vm.Script {
-	//	console.time('vmRunInNewContext');
-	const result = new vm.Script(funcBodyString, {filename: filePath, columnOffset: 1});
-	//	console.timeEnd('vmRunInNewContext');
-	return result;
-}
-
