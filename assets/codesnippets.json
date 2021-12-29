@@ -1,0 +1,31 @@
+{
+	"Binary File Viewer": {
+		"prefix": [
+			"bfv",
+			"Binary File Viewer"
+		],
+		"body": [
+			"/**",
+ 			" * Select the files for which the parser should work.",
+			" */",
+			"registerFileType((fileExt, filePath, fileData) => {",
+			"    // Check for the right file extension",
+			"    if (fileExt == '${1:<ext>}') {",
+			"        return true;",
+			"    }",
+			"    return false;",
+			"});",
+			"",
+			"",
+			"/**",
+			" * The parser to decode the file.",
+			" */",
+			"registerParser(() => {",
+			"    // Put your code here",
+			"    // ...",
+			"});",
+			""
+		],
+		"description": "The parser template."
+	}
+}
