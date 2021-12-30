@@ -8,7 +8,6 @@ import {ParserSelect} from './parserselect';
 import {SignatureProvider} from './signatureprovider';
 import {PackageInfo} from './packageinfo';
 import {HelpView} from './helpview';
-import {EditorDocument} from './editordocument';
 
 
 // Declare the providers to cahnge them on preferences change.
@@ -47,7 +46,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register completion provider
     completionsProvider = new CompletionProvider();
-    completionsProvider.folders = parserFolders;
     const regCompletionsProvider = vscode.languages.registerCompletionItemProvider('javascript', completionsProvider);
     context.subscriptions.push(regCompletionsProvider);
 
@@ -104,8 +102,6 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
         if (event.affectsConfiguration('binary-file-viewer.parserFolders')) {
             // Reconfigure all providers
             const parserFolders = getParserPaths();
-            //console.log('configure : parserFolders', parserFolders);
-            completionsProvider.folders = parserFolders;
             // Restart file watcher
             ParserSelect.init(parserFolders);
         }

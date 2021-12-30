@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import {FuncDoc, FunctionDocumentation} from './functiondocs';
+import {ParserSelect} from './parserselect';
 
 
 /**
@@ -29,8 +30,8 @@ export class HoverProvider implements vscode.HoverProvider {
      */
     public async provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Hover> {
         // First check for right path
-        const docPath = document.uri.fsPath;
-        // TODO: check glob pattern
+        if (!ParserSelect.isParser(document))
+            return undefined;
 
 
         const line = document.lineAt(position).text;

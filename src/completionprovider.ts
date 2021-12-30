@@ -1,15 +1,12 @@
 import * as vscode from 'vscode';
 import {FunctionDocumentation} from './functiondocs';
+import {ParserSelect} from './parserselect';
 
 
 /**
  * CompletionItemProvider for assembly language.
  */
 export class CompletionProvider implements vscode.CompletionItemProvider {
-
-    // The folders to use.
-    public folders: string[] = [];
-
 
     /**
      * Called from vscode if the user selects "Find all references".
@@ -19,15 +16,7 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
      */
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>> {
         // First check for right path
-        let folderMatch = false;
-        for (const pattern of this.folders) {
-            const docFilter: vscode.DocumentFilter = {pattern: pattern + '/**/*.js'};
-            if (vscode.languages.match(docFilter, document) > 0) {
-                folderMatch = true;
-                break;
-            }
-        }
-        if (!folderMatch)
+        if(!ParserSelect.isParser(document))
             return undefined;
 
         // Then get text

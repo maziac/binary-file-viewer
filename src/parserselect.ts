@@ -321,5 +321,22 @@ export class ParserSelect {
 		const parserPaths: string[] = Array.from(this.fileParserMap.keys());
 		return parserPaths;
 	}
-}
 
+
+	/**
+	 * Check if the given document matches one of the parser folder paths.
+	 * @param document The document e.g. from a document from one of the providers.
+	 * @returns true if document is  a parser file.
+	 */
+	public static isParser(document: vscode.TextDocument): boolean {
+		// First check for right path
+		for (const [folder,] of this.fileParserMap) {
+			const docFilter: vscode.DocumentFilter = {pattern: folder + '/**/*.js'};
+			if (vscode.languages.match(docFilter, document) > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+}

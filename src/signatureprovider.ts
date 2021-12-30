@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 //import * as path from 'path';
 import {FuncDoc, FunctionDocumentation} from './functiondocs';
+import {ParserSelect} from './parserselect';
 
 
 /**
@@ -19,7 +20,9 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 	 * signaled by returning `undefined` or `null`.
 	 */
 	provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.SignatureHelpContext): vscode.ProviderResult<vscode.SignatureHelp> {
-		//console.log('SignatureProvider : provideSignatureHelp : document', document)
+		// First check for right path
+		if (!ParserSelect.isParser(document))
+			return undefined;
 
 		const line = document.lineAt(position).text;
 		const lineTrimmed = line.substring(0, position.character);
