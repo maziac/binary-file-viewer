@@ -12,17 +12,6 @@ a.tip {
 	font-weight: bold;
 }
 
-/* Makes content gray. */
-.gray {
-    color: var(--vscode-editorLineNumber-foreground);
-}
-
-
-/* class attached to errors for highlighting. */
-.error {
-	color: red;
-	font-weight: bold;
-}
 
 /* Alternating colors for table rows. */
 tr:nth-child(even) {
@@ -95,28 +84,6 @@ td {
 	color: var(--vscode-terminal-ansiWhite)
 }
 
-/* To achieve fixed char sizes  for the ASCII text. */
-.mem_ascii {
-  display: inline-block;
-  width: 1em;
-  text-align: center;
-}
-
-
-/* Expanded content of a memory dump. */
-.mem_dump {
-}
-
-/* The offset inside a memory dump. */
-.mem_offset {
-	color: var(--vscode-editorLineNumber-foreground);
-}
-
-/* The relative offset. */
-.mem_rel_offset {
-	color: var(--vscode-editorLineNumber-foreground);
-	padding-left: 0.25em;
-}
 
 /* One mem dump byte. */
 .mem_byte {
