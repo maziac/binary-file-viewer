@@ -417,6 +417,7 @@ function parseStart() {
 			},
 			addStandardHeader,
 			read,
+			readUntil,
 			addRow,
 			addDetails,
 			addHoverValue,

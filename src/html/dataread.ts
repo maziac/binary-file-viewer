@@ -79,6 +79,27 @@ function read(size?: number) {
 
 
 /**
+ * Advances the offset until the 'value' is found.
+ * Most prominent use case for this is to read all data of a C-string.
+ * Note: The read bytes do not contain 'value'.
+ * @param value The value to search for. Searches byte-wise. Defaults to 0.
+ */
+function readUntil(value: number = 0) {
+	lastOffset += lastSize;
+	let i = lastOffset;
+	const len = dataBuffer.length;
+	while (true) {
+		if (i >= len)
+			throw new Error("readUntil: reached end of file.");
+		if (dataBuffer[i] == value)
+			break;
+		i++;
+	}
+	lastSize = i - lastOffset;
+}
+
+
+/**
  * Reads in a chunk of data. E.g. to display later in Charts.
  * @param sampleSize (Optional) The size of each data value (sample) in bytes. Defaults to 1.
  * @param offset (Optional) The starting offset in bytes. Defaults to 0.

@@ -63,6 +63,12 @@ export class FunctionDocumentation {
 					]
 				},
 				{
+					func: ['readUntil', "Advances the offset until the 'value' is found.\nMost prominent use case for this is to read all data of a C- string.\nNote: The read bytes do not contain 'value'."],
+					params: [
+						['value?', 'number', 'The value to search for. Searches byte-wise. Defaults to 0.']
+					]
+				},
+				{
 					func: ['addRow', 'Creates a new row for the table.'],
 					params: [
 						['name', 'string', "The name of the value."],
