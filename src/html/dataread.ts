@@ -65,10 +65,15 @@ function convertToHexString(value: number, size: number): string {
 /**
  * Advances the offset (from previous call) and
  * stores the size for reading.
- * @param size The number of bytes to read. // TODO: allow undefined to read everything till end of file.
+ * @param size The number of bytes to read. If undefined, all remaining data is read.
  */
-function read(size: number) {
-	lastOffset += lastSize;	// TODO: Check if bigger than file size. Then limit to file size.
+function read(size?: number) {
+	lastOffset += lastSize;
+	lastSize = 0;	// In case of an error later on
+	if (size == undefined)
+		size = dataBuffer.length - lastOffset;
+	else if (lastOffset + size > dataBuffer.length)
+		throw new Error("read: Reading more data than available (size=" + size + ").");
 	lastSize = size;
 }
 

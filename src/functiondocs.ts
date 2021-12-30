@@ -59,7 +59,7 @@ export class FunctionDocumentation {
 				{
 					func: ['read', 'Advances the offset (from previous call) and stores the size for reading.'],
 					params: [
-						['size', 'number', 'The number of bytes to read.']
+						['size?', 'number', 'The number of bytes to read. If undefined, all remaining data is read.']
 					]
 				},
 				{
