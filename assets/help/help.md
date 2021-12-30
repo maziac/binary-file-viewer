@@ -256,3 +256,27 @@ E.g.:
 
 ![](help4c.jpg)
 
+
+## addCanvas
+
+For visualizing of embedded picture there exists a canvas object that you can draw to.
+You create one with
+~~~js
+	const ctx = addCanvas(1000, 300, 'My Canvas');
+~~~
+Returned is a ```CanvasRenderingContext2D``` that you can use for drawing.
+
+The example here creates a canvas object and draws a red rectangle inside:
+~~~js
+	const ctx = addCanvas(1000, 300, 'My Canvas');
+	// Fill whole canvas with black
+	const w = ctx.canvas.width;
+	const h = ctx.canvas.height;
+	ctx.fillStyle = 'black';
+	ctx.fillRect(0, 0, w, h);
+	// Draw a red rect
+	ctx.fillStyle = 'red';
+	ctx.fillRect(200, 100, 600, 150);
+~~~
+
+![](help5.jpg)
