@@ -31,8 +31,10 @@ export class EditorDocument implements vscode.CustomDocument {
 	 */
 	public static updateDocumentsFor(parser: ParserInfo) {
 		for (const doc of this.documentList) {
-			if (doc.parser.filePath == parser.filePath) {
-				doc.updateParser(parser);
+			if (doc.parser) {
+				if (doc.parser.filePath == parser.filePath) {
+					doc.updateParser(parser);
+				}
 			}
 		}
 	}
