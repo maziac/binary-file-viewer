@@ -109,6 +109,12 @@ export class ParserSelect {
 	 * @param columnWidth The width of the selection.
 	 */
 	public static addDiagnosticsMessage(message: string, filePath: string, line: number, columnStart = 0, columnWidth = 1000) {
+		if (line < 0)
+			line = 0;
+		if (columnStart != undefined && columnStart < 1)
+			columnStart = 1;
+		if (columnWidth != undefined && columnWidth < 0)
+			columnWidth = 0;
 		const uri = vscode.Uri.file(filePath);
 		const range = new vscode.Range(line, columnStart, line, columnStart + columnWidth);
 		const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
@@ -127,41 +133,51 @@ export class ParserSelect {
 		let colWidth;
 		// An error occurred during execution of the custom parser
 		const stacks = err.stack.split('\n');
+        console.log('ParserSelect : addDiagnosticsStack : stacks', stacks);
 		let lineNr = 0;
-		let i = 1;
+		let i = 0;
 		for (; i < stacks.length; i++) {
 			const match = /.*>:(\d+)(:(\d+))?/.exec(stacks[i]);
 			if (match) {
 				lineNr = parseInt(match[1]);
 				if (match[3]) {
 					// Column
-					colNr = parseInt(match[3]);
+					colNr = parseInt(match[3])-1;
 					colWidth = 1000;
 				}
 				break;
 			}
 		}
-		let msg = stacks[0];
-		if (i > 1)
-			msg += ' (Probably an error in the passed arguments.)';
 
-		// Get column
+		// There are 2 types of error messages.
+		// Type a: Contains line and column information, e.g.
+		//         '\tat evalmachine.<anonymous>:5:2'
+		//         The error description is in the previous line.
+		// Type b: Contains only line information, e.g.
+		//         'evalmachine.<anonymous>:19'
+		//         The error description is in the line after.
+		//         Followed by characters indicating the column, e.g.:
+		//         '                 ^^^^'
+		// I.e. the 2 types are differentiated by the existence of the column number.
+		let msg;
 		if (colNr == undefined) {
+			// Type b
+			msg = stacks[i + 1];
+			if (i > 0)
+				msg += ' (Probably an error in the passed arguments.)';
+			// Get column
 			if (i + 2 < stacks.length) {
 				colNr = stacks[i + 2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
 				colWidth = stacks[i + 2].replace(/[^\^]/g, '').length;
 			}
 		}
+		else {
+			// Type a
+			msg = stacks[i - 1];
+			if (i > 1)
+				msg += ' (Probably an error in the passed arguments.)';
+		}
 
-		/*
-		// Parse line number
-		const stacks = err.stack.split('\n');
-		const matchLine = /.*:(\d+)/.exec(stacks[0]);
-		const lineNr = parseInt(matchLine[1]);
-		// Get column number
-		const colNr = stacks[2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
-		const colWidth = stacks[2].replace(/[^\^]/g, '').length;
-		*/
 		// Output to vscode's PROBLEM area.
 		this.addDiagnosticsMessage(msg, filePath, lineNr - 1, colNr, colWidth);
 	}
@@ -235,7 +251,7 @@ export class ParserSelect {
 			let registerParserFound = false;
 			try {
 				vmRunInNewContext(fileContents, {
-					registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => string) => {
+					registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => boolean) => {
 						// Check if function is used
 						registerFileTypeFound = true;
 					},
