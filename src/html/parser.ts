@@ -273,8 +273,6 @@ function createDescription(descr: string) {
 	const node = document.createElement("DIV");
 	// Add description
 	node.innerHTML = convertLineBreaks(descr);
-	// Apply style gray
-	node.classList.add('gray');
 	// Append it
 	lastNode.appendChild(node);
 }
