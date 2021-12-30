@@ -151,7 +151,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	protected getMainHtml(webviewPanel: any) {
 		// Add the html styles etc.
 		const extPath = vscode.extensions.getExtension("maziac.binary-file-viewer")!.extensionPath;
-		const mainHtmlFile = path.join(extPath, 'html/main.html');
+		const mainHtmlFile = path.join(extPath, 'html', 'main.html');
 		let mainHtml = fs.readFileSync(mainHtmlFile).toString();
 		// Exchange local path
 		const resourcePath = vscode.Uri.file(extPath);
@@ -159,7 +159,7 @@ export class EditorDocument implements vscode.CustomDocument {
 		mainHtml = mainHtml.replace('${vscodeResPath}', vscodeResPath);
 
 		// Add a Reload and Copy button for debugging
-		mainHtml = mainHtml.replace('<body>', '<body><button onclick="parseStart()">Reload</button><button onclick="copyHtmlToClipboard()">Copy HTML to clipboard</button>');
+		//mainHtml = mainHtml.replace('<body>', '<body><button onclick="parseStart()">Reload</button><button onclick="copyHtmlToClipboard()">Copy HTML to clipboard</button>');
 
 		return mainHtml;
 	}

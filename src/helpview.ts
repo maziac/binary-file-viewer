@@ -43,7 +43,7 @@ export class HelpView {
 			// Load Usage.md file
 			const extFolder = PackageInfo.extensionPath();
 			//const usageFileName = 'documentation/Usage.md';
-			const usageFileName = 'Readme.md';
+			const usageFileName = path.join('assets','help.md');
 			const filePath = path.join(extFolder, usageFileName);
 			const mdText = readFileSync(filePath).toString();
 

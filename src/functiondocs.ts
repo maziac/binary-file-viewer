@@ -66,7 +66,7 @@ export class FunctionDocumentation {
 					func: ['addRow', 'Creates a new row for the table.'],
 					params: [
 						['name', 'string', "The name of the value."],
-						['valString', 'string', "Optional) The value to show as a string."],
+						['value', 'string|number', "(Optional) The value to display."],
 						['shortDescription', 'string', "(Optional) A short description of the entry"]
 					]
 				},

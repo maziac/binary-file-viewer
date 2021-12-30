@@ -49,7 +49,7 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
- - Vielleicht vscode walkthrough
+ - Table passt sich nicht dynamisch an die Größe an. (Window-resize.)
 
 - Functions:
 	- Read until certain byte value

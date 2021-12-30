@@ -92,10 +92,10 @@ function addStandardHeader() {
 /**
  * Creates a new row for the table.
  * @param name The name of the value.
- * @param valString (Optional) The value to show as a string.
+ * @param value (Optional) The value to display.
  * @param shortDescription (Optional) A short description of the entry.
  */
-function addRow(name: string, valString = '', shortDescription = ''): HTMLTableRowElement {
+function addRow(name: string, value: string|number = '', shortDescription = ''): HTMLTableRowElement {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
@@ -113,7 +113,7 @@ function addRow(name: string, valString = '', shortDescription = ''): HTMLTableR
 	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
 	<td class="size" title="Size\nHex: ${lastSizeHex}">${lastSize}</td>
 	<td class="name">${name}</td>
-	<td class="value">${valString}</td>
+	<td class="value">${value}</td>
 	<td class="description">${shortDescription}</td>
 `;
 	node.innerHTML = html;
