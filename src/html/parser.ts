@@ -22,23 +22,21 @@ const vscode = acquireVsCodeApi();
 // The custom parser (js program as a string).
 var customParser: string;
 
+// The file path of the custom parser.
+var filePathParser: string;
+
 // The root node for parsing. New objects are appended here.
 var lastNode: any;
 
 // The current row's cell that contains the collapsible icon (+)
 var lastCollapsibleNode: HTMLTableCellElement;
 
-// The last node used for the title.
-var lastNameNode: any;
-
 // The last node used for the value.
 var lastValueNode: any;
 
-// The last node used for the short description.
-var lastDescriptionNode: any;
+// The node used for the standard header.
+var standardHeaderNode: HTMLDivElement;
 
-// The last node used for the long description.
-var lastLongDescriptionNode: any;
 
 
 /**
@@ -58,11 +56,36 @@ function assert(condition: boolean) {
  * Add a standard header, i.e. the size of the file.
  */
 function addStandardHeader() {
-	// TODO: Because of table this needs to be done differently
-/*
-	let html = `<div><b>Size: ${dataBuffer.length}</b><br>`;
-	lastNode.innerHTML = html;
-	*/
+	// Calculate human readable file size
+	const fileSize = getDataBufferSize();
+	let humanString = '';
+	let humanFileSize = fileSize;
+	const sizes = ['K', 'M', 'G'];
+	let h = -1;
+	while (humanFileSize > 2000) {
+		if (h >= sizes.length - 1)
+			break;
+		humanFileSize /= 1000;
+		h++;
+	}
+	if (h >= 0) {
+		humanFileSize = Math.round(humanFileSize);
+		humanString = ' (' + humanFileSize.toString() + sizes[h] + 'B)';
+	}
+
+	// Add file size
+	let html = '<span>Filesize: ' + fileSize + ' Bytes' + humanString + ', </span>';
+
+	// Used parser
+	let i = filePathParser.lastIndexOf('/');
+	const k = filePathParser.lastIndexOf('\\');
+	if (k > i)
+		i = k;
+	i++;
+	const usedParser = filePathParser.substring(i);
+	html += '<span>Parser used: ' + usedParser + '</span>';
+
+	standardHeaderNode.innerHTML = html;
 }
 
 
@@ -98,11 +121,7 @@ function addRow(name: string, valString = '', shortDescription = ''): HTMLTableR
 	// Get child objects
 	const cells = node.cells;
 	lastCollapsibleNode = cells[0];
-	lastNameNode = cells[2];
 	lastValueNode = cells[3];
-	lastDescriptionNode = cells[4];
-//	const descriptionChildren = lastDescriptionNode.childNodes;
-//	lastLongDescriptionNode = descriptionChildren[3];	// TODO: Support long description
 
 	// Append it / Insert new row
 	lastNode.appendChild(node);
@@ -373,6 +392,7 @@ function parseStart() {
 
 	// Create table with header row
 	lastNode.innerHTML = `
+	<div></div>
 	<table>
 		<tr>
 			<th class="collapse"></td>
@@ -383,8 +403,10 @@ function parseStart() {
 			<th class="description">Description</th>
 		</tr>
 	</table>`;
+	// For the standard header
+	standardHeaderNode = lastNode.children[0];
 	// Use table
-	lastNode = lastNode.children[0];
+	lastNode = lastNode.children[1];
 
 
 	try {
@@ -447,7 +469,9 @@ window.addEventListener('message', event => {	// NOSONAR
 		case 'setParser':
 			{
 				// Store in global variable
-				customParser = message.parser
+				customParser = message.parser.contents;
+				filePathParser = message.parser.filePath;
+
 				// Parse
 				parseStart();
 			} break;

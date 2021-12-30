@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import {ParserSelect} from './parserselect';
+import {ParserInfo, ParserSelect} from './parserselect';
 
 
 /**
@@ -12,7 +12,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	public uri: vscode.Uri;
 
 	// The used parser file.
-	public parser: {contents: string, filePath: string};
+	public parser: ParserInfo;
 
 	// If no parser is found this html is presented instead.
 	public errorHtml: string;
@@ -27,12 +27,12 @@ export class EditorDocument implements vscode.CustomDocument {
 
 	/**
 	 * Updates all editors which use the given parser.
-	 * @param parserFilePath The custom parser's path.
+	 * @param parser The custom parser's path and contents.
 	 */
-	public static updateDocumentsFor(parserFilePath: string, parserContents: string) {
+	public static updateDocumentsFor(parser: ParserInfo) {
 		for (const doc of this.documentList) {
-			if (doc.parser.filePath == parserFilePath) {
-				doc.updateParser(parserContents);
+			if (doc.parser.filePath == parser.filePath) {
+				doc.updateParser(parser);
 			}
 		}
 	}
@@ -82,7 +82,7 @@ export class EditorDocument implements vscode.CustomDocument {
 						const data = Uint8Array.from(dataFs);
 						// Send data and parser
 						this.sendDataToWebView(data, webviewPanel);
-						this.sendParserToWebView(parser.contents, webviewPanel);
+						this.sendParserToWebView(parser, webviewPanel);
 						break;
 					case 'customParserError':
 						// An error occurred during execution of the custom parser
@@ -132,10 +132,10 @@ export class EditorDocument implements vscode.CustomDocument {
 
 	/**
 	 * Reads the file and sends the data to the webview.
-	 * @param parser The parser (js code) as a string
+	 * @param parser The parser (js code) as a string plus the parser path.
 	 * @param webviewPanel The webview to send the data to.
 	 */
-	protected sendParserToWebView(parser: string, webviewPanel: vscode.WebviewPanel) {
+	protected sendParserToWebView(parser: {contents: string, filePath: string}, webviewPanel: vscode.WebviewPanel) {
 		// Send the parser to the webview
 		const message = {
 			command: 'setParser',
@@ -167,9 +167,9 @@ export class EditorDocument implements vscode.CustomDocument {
 	/**
 	 * Update the parser.
 	 */
-	public updateParser(parserContents: string) {
-		this.parser.contents = parserContents;
-		this.sendParserToWebView(parserContents, this.webviewPanel);
+	public updateParser(parser: ParserInfo) {
+		this.parser.contents = parser.contents;
+		this.sendParserToWebView(parser, this.webviewPanel);
 	}
 
 }

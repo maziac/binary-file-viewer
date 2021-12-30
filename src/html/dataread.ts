@@ -20,6 +20,16 @@ var startOffset: number;
 
 
 /**
+ * @returns Returns the databuffer (file) size.
+ */
+function getDataBufferSize(): number {
+	if (!dataBuffer)
+		return 0;
+	return dataBuffer.length;
+}
+
+
+/**
  * Returns the relative index used for displaying inside collapsed sections.
  */
 function getRelOffset(): number {

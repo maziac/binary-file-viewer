@@ -5,9 +5,20 @@ import * as path from 'path';
 import {vmRunInNewContext} from './scopelessfunctioncall';
 import {EditorDocument} from './editordocument';
 import {FileData} from './filedata';
-//import * as nfsw from 'nsfw';
 const nsfw = require('nsfw');
-//import nfsw as Nsfw 'nsfw';
+
+
+/**
+ * Object used to pass parser information.
+ * Consists of the parser file path and its contents.
+ */
+export interface ParserInfo {
+	// The parser contents as string.
+	contents: string,
+
+	// The absolute file path.
+	filePath: string
+}
 
 
 /**
@@ -256,8 +267,9 @@ export class ParserSelect {
 
 			// If everything is fine, add to map
 			this.fileParserMap.set(filePath, fileContents);
+
 			// And update any existing document
-			EditorDocument.updateDocumentsFor(filePath, fileContents);
+			EditorDocument.updateDocumentsFor({contents: fileContents, filePath: filePath});
 		}
 		catch (e) {
 			console.log(e);

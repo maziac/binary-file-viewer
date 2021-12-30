@@ -53,14 +53,16 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
      */
     protected search(label: string): vscode.CompletionItem[] {
         const findings: vscode.CompletionItem[] = [];
-        for (const funcDoc of FunctionDocumentation.funcDocs) {
-            const funcName = funcDoc.func[0];
-            if (funcName.toLowerCase().startsWith(label))
-                findings.push({
-                    label: funcName,
-                    documentation: funcDoc.func[1],
-                    kind: vscode.CompletionItemKind.Function,
-                });
+        for (const [, funcDocs] of FunctionDocumentation.funcDocs) {
+            for (const funcDoc of funcDocs) {
+                const funcName = funcDoc.func[0];
+                if (funcName.toLowerCase().startsWith(label))
+                    findings.push({
+                        label: funcName,
+                        documentation: funcDoc.func[1],
+                        kind: vscode.CompletionItemKind.Function,
+                    });
+            }
         }
         return findings;
     }
