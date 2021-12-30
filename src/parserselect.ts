@@ -47,11 +47,17 @@ export class ParserSelect {
 	// An array with all the active file watchers.
 	protected static fileWatchers: any[] = [];
 
+	// A copy of the array of parser folder from the settings.
+	protected static parserFolders: string[];
+
 
 	/**
 	 * Initializes the path.
 	 */
 	public static init(parserFolders: string[]) {
+		// Remember
+		this.parserFolders = parserFolders;
+
 		// Remove any previous watchers.
 		for (const fileWatcher of this.fileWatchers) {
 			fileWatcher.stop();
@@ -357,13 +363,16 @@ export class ParserSelect {
 	 * @returns true if document is  a parser file.
 	 */
 	public static isParser(document: vscode.TextDocument): boolean {
-		// Get doc file path
-		const fsPath = document.uri.fsPath;
+		// Note: I cannot compare the fileParserMap as the map contains onl valid files (without errors).
+
 		// First check for right path
-		for (const [filePath,] of this.fileParserMap) {
-			if(filePath == fsPath)
-				return true;
+		for (const pattern of this.parserFolders) {
+			const docFilter: vscode.DocumentFilter = {pattern: pattern + '/**/*.js'};
+			if (vscode.languages.match(docFilter, document) > 0) {
+				return	true;
+			}
 		}
+		// Not found
 		return false;
 	}
 
