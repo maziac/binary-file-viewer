@@ -178,3 +178,40 @@ I.e. the next row can be decoded just like before with:
 ~~~
 
 ![](help2c.jpg)
+
+
+## addMemDump
+
+If you just want to output a memory dump of a region you can use ```addMemDump```.
+If you additionally put it into ```addDetails```you can make it expandable.
+
+E.g.:
+~~~
+	read(1000);
+	addRow('Mem Dump');
+	addDetails(() => {
+		read(1000);
+		addMemDump();
+	});
+~~~
+
+results in:
+![](help3.jpg)
+
+Note: Hovering above the values will give additional information about the relative and absolute offset.
+
+
+## addChart
+
+To visualize data series you can use the ```addChart``` command.
+
+![](help4.jpg)
+
+In the basic form you just need to collect data in a number array that you can then use for display in a chart.
+
+~~~js
+	const samples = getData(2);
+	addChart({
+		series: [samples]
+	}, 'Samples');
+~~~

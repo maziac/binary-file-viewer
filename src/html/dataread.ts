@@ -75,13 +75,13 @@ function read(size: number) {
 
 /**
  * Reads in a chunk of data. E.g. to display later in Charts.
- * @param sampleSize The size of each data value (sample) in bytes.
- * @param offset The starting offset in bytes.
- * @param format 'u'=unsigned, 'i'=signed
- * @param skip The number of bytes to skip after each read sample.
+ * @param sampleSize (Optional) The size of each data value (sample) in bytes. Defaults to 1.
+ * @param offset (Optional) The starting offset in bytes. Defaults to 0.
+ * @param format (Optional) 'u'=unsigned, 'i'=signed. Defaults to 'u'.
+ * @param skip (Optional) The number of bytes to skip after each read sample. Defaults to 0.
  * @returns The samples in a number array.
  */
-function getData(sampleSize: number, offset: number, format: string, skip: number): number[] {
+function getData(sampleSize = 1, offset = 0, format = 'u', skip = 0): number[] {
 	const data: number[] = [];
 	const step = sampleSize + skip;
 	const signed = (format == 'i');
