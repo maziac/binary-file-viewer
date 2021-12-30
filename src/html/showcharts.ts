@@ -1,4 +1,3 @@
-//declare function getHexString(value: number, size: number): string;
 declare var lastOffset: number;
 declare var lastSize: number;
 declare var lastContentNode: any;
@@ -6,12 +5,9 @@ declare var lastValueNode: any;
 declare var lastLongDescriptionNode: any;
 declare var lastNode: any;
 declare var dataBuffer: Uint8Array;
-//declare var getHexString: any;
 declare var createNode: any;
 declare var Chart: any;
 
-
-// Register zoom plugin.
 
 
 
@@ -70,9 +66,12 @@ function resetZoom(button: HTMLButtonElement) {
  * samples: The data number array.
  * label: A name for the data series.
  * color: The color of the data series, e.g. 'green'.
- * @param name The name of the chart.
+ * @param name (Optional) The name of the chart.
  */
-function addChart(config: ChartConfig, name: string): HTMLTableRowElement {
+function addChart(config: ChartConfig, name?: string) {
+	// Check parameters
+	if (config == undefined)
+		throw new Error("addChart: Expecting a 'config' parameter.");
 	// Check the config
 	const cfg = {...config};
 	if (cfg.type == undefined)
@@ -144,7 +143,7 @@ function addChart(config: ChartConfig, name: string): HTMLTableRowElement {
 	const button = div.lastElementChild as HTMLButtonElement;
 	// Add canvas for chart
 	const canvas = document.createElement('canvas'); // as HTMLCanvasElement;
-	div.appendChild(canvas);
+	tdNode.appendChild(canvas);
 
 	// Add the chart to it
 	const chartCfg = {
@@ -179,9 +178,6 @@ function addChart(config: ChartConfig, name: string): HTMLTableRowElement {
 	};
 	const chart = new Chart(canvas, chartCfg);	// NOSONAR
 	(button as any)._chart = chart;
-
-	// Return
-	return node;
 }
 
 

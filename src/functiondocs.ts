@@ -129,6 +129,15 @@ export class FunctionDocumentation {
 						['color?', 'string', "Optional. The color to use."],
 						['label?', 'string', "Optional. A string to mark the series."]
 					]
+				},
+				{
+					func: ['addCanvas', 'Creates a canvas object inside a table row.\nIt returns a context that can be used for drawing.'],
+					return: ['CanvasRenderingContext2D', 'The rendering context for the canvas'],
+					params: [
+						['width', 'number', "The physical width in pixel."],
+						['height', 'number', "The physical height in pixel."],
+						['name?', 'string', "Optional. A name (title) to show above the canvas."]
+					]
 				}
 			]
 		]

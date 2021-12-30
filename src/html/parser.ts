@@ -95,7 +95,7 @@ function addStandardHeader() {
  * @param value (Optional) The value to display.
  * @param shortDescription (Optional) A short description of the entry.
  */
-function addRow(name: string, value: string|number = '', shortDescription = ''): HTMLTableRowElement {
+function addRow(name: string, value: string|number = '', shortDescription = '') {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
@@ -125,9 +125,6 @@ function addRow(name: string, value: string|number = '', shortDescription = ''):
 
 	// Append it / Insert new row
 	lastNode.appendChild(node);
-
-	// Return
-	return node;
 }
 
 
@@ -435,7 +432,8 @@ function parseStart() {
 			addDescription,
 			addChart,
 			getData,
-			createSeries
+			createSeries,
+			addCanvas
 		});
 	}
 	catch (e) {
