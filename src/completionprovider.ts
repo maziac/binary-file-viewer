@@ -15,27 +15,30 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
      * @param token
      */
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>> {
+        //console.log('CompletionProvider : ---------------------------');
+        //console.log('CompletionProvider : provideCompletionItems');
+
         // First check for right path
-        if(!ParserSelect.isParser(document))
+        if (!ParserSelect.isParser(document))
             return undefined;
+        //console.log('CompletionProvider : b');
 
         // Then get text
         //const docPath = document.uri.fsPath;
         const line = document.lineAt(position).text;
         const lineTrimmed = line.substring(0, position.character);
         //console.log('CompletionProvider : provideCompletionItems : lineTrimmed', lineTrimmed);
-        const match = /[a-zA-Z_][\w\.]*$/.exec(lineTrimmed);
+        const match = /[\w\.]+$/.exec(lineTrimmed);
         if (!match)
             return undefined;
+        //console.log('CompletionProvider : c');
 
         const label = match[0].toLowerCase();
-        // Minimum length
-        if (label.length < 2)
-            return undefined;
+        //console.log('CompletionProvider : d');
 
         // Search
         const completions = this.search(label);
-        console.log('CompletionProvider : provideCompletionItems : completions', completions);
+        //console.log('CompletionProvider : provideCompletionItems : completions', completions.map(val => val.label));
 
         /*
         const debug: string[] = completions.map(val => val.label as string);
