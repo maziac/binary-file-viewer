@@ -15,9 +15,10 @@ declare var Chart: any;
  * Default colors used.
  */
 const defaultColors = [
+	'yellow',
 	'darkgreen',
 	'cornflowerblue',
-	'yellow',
+	'red',
 	'crimson',
 	'chocolate',
 	'dimgray',
@@ -30,8 +31,8 @@ const defaultColors = [
  */
 interface Series {
 	samples: number[],
-	label: string,
-	color: string
+	label?: string,
+	color?: string
 }
 
 /**
@@ -39,7 +40,7 @@ interface Series {
  */
 interface ChartConfig {
 	// The chart type:
-	type: 'line' | 'bar';
+	type?: 'line' | 'bar';
 	// The data series.
 	series: (Series|number[])[]
 }

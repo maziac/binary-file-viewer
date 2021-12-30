@@ -205,13 +205,54 @@ Note: Hovering above the values will give additional information about the relat
 
 To visualize data series you can use the ```addChart``` command.
 
-![](help4.jpg)
+![](help4a.jpg)
 
-In the basic form you just need to collect data in a number array that you can then use for display in a chart.
+In the basic form you just need to collect data in a number array that you can then use to display in a chart.
 
 ~~~js
+	read(100);
 	const samples = getData(2);
 	addChart({
 		series: [samples]
 	}, 'Samples');
 ~~~
+
+You can display more than one series by simply adding another number array to the series array. E.g.:
+~~~js
+	addChart({
+		series: [
+			samples1,
+			samples2]
+	}, 'Chart');
+~~~
+
+![](help4b.jpg)
+
+
+To get some more control you can also add an object with ```Series``` instead of a simple number array.
+
+A ```Series``` is defined as
+~~~js
+interface Series {
+	samples: number[],
+	label?: string,
+	color?: string
+}
+~~~
+
+E.g.:
+~~~js
+	read(100);
+	const sampleData = getData(2);
+	const sampleSeries = {
+		samples: sampleData,
+		label: 'Audio data',
+		color: 'red'
+	};
+	addChart({
+		series: [sampleSeries]
+	}, 'Samples');
+~~~
+
+![](help4c.jpg)
+

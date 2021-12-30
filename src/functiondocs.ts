@@ -117,7 +117,7 @@ export class FunctionDocumentation {
 					params: [
 						['sampleSize', 'number', "((Optional) The starting offset in bytes. Defaults to 0."],
 						['offset', 'number', "(Optional) The starting offset in bytes. Defaults to 0."],
-						['format', 'string', "(Optional) 'u'=unsigned, 'i'=signed. Defaults to 'u'."],
+						['format', 'string', "(Optional) 'u'=unsigned, 'i'=signed. Defaults to 'i'."],
 						['skip', 'number', "(Optional) The number of bytes to skip after each read sample. Defaults to 0."]
 					]
 				},
