@@ -26,26 +26,71 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 
 		const line = document.lineAt(position).text;
 		const lineTrimmed = line.substring(0, position.character);
-		const matchLast = /(\w+\s*\([^(]*$)/g.exec(lineTrimmed);
+		const len = lineTrimmed.length;
+
+		// Remove hyphens (everything in between ' and ")
+		let modLine = '';
+		let k = 0;
+		while (k < len) {
+			const char = lineTrimmed.substring(k, k+1);
+			if (char == "'" || char == '"') {
+				do {
+					k++;
+					if (k >= len)
+						break;
+					const nChar = lineTrimmed.substring(k, k+1);
+					if (nChar == char)
+						break;
+				} while (k < len);
+				k++;
+				continue;
+			}
+			modLine += char;
+			k++;
+		}
+
+
+		// Search reverse for first unclosed bracket (
+		let i = modLine.length - 1;
+		let bracketCount = 0;
+		while (i >= 0) {
+			const char = modLine.substring(i, i+1);
+			if (char == '(') {
+				if (bracketCount == 0)
+					break;
+				bracketCount--;
+			}
+			else if (char == ')') {
+				bracketCount++;
+			}
+			i--;
+		}
+
+		// Get the word before the bracket
+		const beforeLine = modLine.substring(0, i).trimEnd();	// without bracket
+        //console.log('SignatureProvider : provideSignatureHelp : beforeLine', beforeLine);
+
+		// Get the function name
+		const matchLast = /[\w.]+$/g.exec(beforeLine);
 		if (!matchLast)
 			return undefined;
-		const funcParams = matchLast[1];
-		const match = /([a-zA-Z_][\w]*)/.exec(funcParams);
-		if (!match)
-			return undefined;
-		const funcName = match[1];
-		//console.log('SignatureProvider : provideSignatureHelp : funcName', funcName)
+		const funcName = matchLast[0];
+        //console.log('SignatureProvider : provideSignatureHelp : funcName', funcName);
 
 		// Get the function document
 		const funcDoc = FunctionDocumentation.search(funcName);
 		if (!funcDoc)
 			return undefined;
 
+		// Get the number of parameters
+		const afterLine = modLine.substring(i + 1);
+		const countColons = afterLine.split(',').length - 1;
+        //console.log('SignatureProvider : provideSignatureHelp : countColons', countColons);
+		//console.log('SignatureProvider : --------------------');
+
+		// Create the signature help
 		const help = new vscode.SignatureHelp();
-		// Count the number of parameters to get the right one
-		let remHyphes = funcParams.replace(/'.*?('|$)/g, "''");
-		remHyphes = remHyphes.replace(/".*?("|$)/g, '""');
-		help.activeParameter = remHyphes.split(',').length - 1;
+		help.activeParameter = countColons;
 		help.activeSignature = 0;
 		help.signatures = [
 			this.createSignatureInfo(funcDoc)
