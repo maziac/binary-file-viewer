@@ -19,7 +19,7 @@ export class FunctionDocumentation {
 
 	// All API functions are documented below.
 	public static funcDocs = new Map<string, FuncDoc[]>([
-		['general',
+		['General',
 			[
 				{
 					func: ['registerFileType', "Registers the function that checks for the right file type."],
@@ -35,7 +35,7 @@ export class FunctionDocumentation {
 				}
 			],
 		],
-		['registerFileType',
+		['Function registerFileType',
 			[
 				{
 					func: ['fileData.getBytesAt', "Returns the bytes from the file at the given offset.\nUse this inside 'registerFileType' to examine the file type."],
@@ -46,18 +46,18 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['getFileSize', "Returns the file size."],
+					func: ['fileData.getFileSize', "Returns the file size."],
 					return: ['number', "The file size in bytes."]
 				}
 			],
 		],
-		['registerParser',
+		['Function registerParser',
 			[
 				{
 					func: ['addStandardHeader', 'Add a standard header. This includes the size of the file.']
 				},
 				{
-					func: ['', 'Advances the offset (from previous call) and stores the size for reading.'],
+					func: ['read', 'Advances the offset (from previous call) and stores the size for reading.'],
 					params: [
 						['size', 'number', 'The number of bytes to read.']
 					]
@@ -123,7 +123,7 @@ export class FunctionDocumentation {
 				},
 				{
 					func: ['createSeries', 'Creates a series from a number array.\nAdds a label and a color.'],
-					return: ['Series', 'A Series object with samples, label and color info.\ninterface Series {\n  samples: number[],\n  label: string,\n  color: string\n}'],
+					return: ['Series', 'A Series object with samples, label and color info.\n~~~\ninterface Series {\n  samples: number[],\n  label: string,\n  color: string\n~~~\n}'],
 					params: [
 						['samples', 'number[]', "The data number array."],
 						['color?', 'string', "Optional. The color to use."],
@@ -159,4 +159,64 @@ export class FunctionDocumentation {
 		}
 		return undefined;
 	}
+
+
+	/**
+	 * Returns the markdown description of all functions.
+	 * Orders them by scope.
+	 * Each scope ('general', 'registerFileType' and 'registerParser') gets
+	 * an own chapter.
+	 */
+	public static getMarkdown(): string {
+		let md = '## Function Documentation\n\n';
+
+		// First loop: all scopes
+		for (const [scope, funcDocs] of this.funcDocs) {
+			md += '### ' + scope + '\n\n';
+			// Now all functions
+			for (const funcDoc of funcDocs) {
+				// Title
+				const funcSignature = this.getFuncSignature(funcDoc);
+				md += '#### ' + funcSignature + '\n\n';
+				// Add description
+				md += funcDoc.func[1] + '\n\n';
+				// Add parameters
+				for (const param of funcDoc.params||[]) {
+					md += '_' + param[0] + '_: ' + param[2] + '\n\n';
+				}
+				// Add return value
+				if (funcDoc.return && funcDoc.return[1])
+					md += '_Returns_: ' + funcDoc.return[1] + '\n\n';
+			}
+		}
+
+		return md;
+	}
+
+
+	/**
+	 * Returns the function signature.
+	 * @param funcDoc A func doc object.
+	 * @returns E.g. 'addCanvas(width number, height: number, name?: string): CanvasRenderingContext2D'
+	 */
+	public static getFuncSignature(funcDoc: FuncDoc): string {
+		// Create label, full signature
+		let label = funcDoc.func[0] + '(';
+		// Collect all params
+		if (funcDoc.params) {
+			let sep = '';
+			for (const param of funcDoc.params||[]) {
+				label += sep + param[0] + ': ' + param[1];
+				sep = ', ';
+			}
+		}
+		label += ')';
+		// Return value
+		if (funcDoc.return)
+			label += ': ' + funcDoc.return[0];
+
+		// Return
+		return label;
+	}
+
 }

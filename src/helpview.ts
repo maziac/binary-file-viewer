@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import {readFileSync} from 'fs';
 import * as path from 'path';
 import {PackageInfo} from './packageinfo';
+import {FunctionDocumentation} from './functiondocs';
 const showdown = require('showdown');	// Showdown 1.9.1 has moderate vulnerabilit dependency. need to wait on v2.0.
 
 
@@ -45,8 +46,11 @@ export class HelpView {
 			//const usageFileName = 'documentation/Usage.md';
 			const usageFileName = path.join('assets', 'help', 'help.md');
 			const filePath = path.join(extFolder, usageFileName);
-			const mdText = readFileSync(filePath).toString();
+			let mdText = readFileSync(filePath).toString();
 
+			// Add the function documentation
+			mdText += FunctionDocumentation.getMarkdown();
+			
 			// Convert md -> html
 			const converter = new showdown.Converter();
 			//converter.setOption('completeHTMLDocument', 'true');

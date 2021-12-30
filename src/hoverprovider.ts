@@ -66,25 +66,15 @@ export class HoverProvider implements vscode.HoverProvider {
      */
     protected createHoverMarkdown(funcDoc: FuncDoc): vscode.MarkdownString {
         // Create label, full signature
-        let label = funcDoc.func[0] + '(';
-        // Collect all params
-        let sep = '';
-        for (const param of funcDoc.params) {
-            label += sep + param[0] + ': ' + param[1];
-            sep = ', ';
-        }
-        label += ')';
-        // Return value
-        if (funcDoc.return)
-            label += ': ' + funcDoc.return[0];
+        const label = FunctionDocumentation.getFuncSignature(funcDoc);
 
         // The markdown object
-        const md = new vscode.MarkdownString(label, false);
+        const md = new vscode.MarkdownString(label + '\n\n', false);
 
         // Description
         const desc = '*' + funcDoc.func[1] + '*';	// Italic
-        md.appendMarkdown('\n\n' + desc);
-         if (funcDoc.return && funcDoc.return[1])
+        md.appendMarkdown(desc);
+        if (funcDoc.return && funcDoc.return[1])
             md.appendMarkdown('\n\n@returns ' + funcDoc.return[1]);
 
         return md;

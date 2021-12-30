@@ -62,25 +62,16 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 	 */
 	protected createSignatureInfo(funcDoc: FuncDoc): vscode.SignatureInformation {
 		// Create label, full signature
-		let label = funcDoc.func[0] + '(';
-		// Collect all params
-		if (funcDoc.params) {
-			let sep = '';
-			for (const param of funcDoc.params) {
-				label += sep + param[0] + ': ' + param[1];
-				sep = ', ';
-			}
-		}
-		label += ')';
-		// Return value
-		if (funcDoc.return)
-			label += ': ' + funcDoc.return[0];
+		const label = FunctionDocumentation.getFuncSignature(funcDoc);
+
+		// The markdown object
+		const md = new vscode.MarkdownString();
 
 		// Description
-		const desc = '*'+funcDoc.func[1]+'*';	// Italic
-		const md = new vscode.MarkdownString(desc, false);
+		const desc = '*' + funcDoc.func[1] + '*';	// Italic
+		md.appendMarkdown(desc);
 		if (funcDoc.return && funcDoc.return[1])
-			md.appendMarkdown( '\n\n@returns ' + funcDoc.return[1]);
+			md.appendMarkdown('\n\n@returns ' + funcDoc.return[1]);
 
 		// Create signature info
 		const info = new vscode.SignatureInformation(label, md);
