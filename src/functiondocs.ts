@@ -66,8 +66,8 @@ export class FunctionDocumentation {
 					func: ['addRow', 'Creates a new row for the table.'],
 					params: [
 						['name', 'string', "The name of the value."],
-						['value', 'string|number', "(Optional) The value to display."],
-						['shortDescription', 'string', "(Optional) A short description of the entry"]
+						['value?', 'string|number', "(Optional) The value to display."],
+						['shortDescription?', 'string', "(Optional) A short description of the entry"]
 					]
 				},
 				{
@@ -115,10 +115,10 @@ export class FunctionDocumentation {
 					func: ['getData', 'Reads in a chunk of data. E.g. to display later in Charts.'],
 					return: ['number[]', 'The samples in a number array.'],
 					params: [
-						['sampleSize', 'number', "The size of each data value (sample) in bytes."],
-						['offset', 'number', "The starting offset in bytes."],
-						['format', 'string', "'u'=unsigned, 'i'=signed."],
-						['skip', 'number', "The number of bytes to skip after each read sample."]
+						['sampleSize', 'number', "((Optional) The starting offset in bytes. Defaults to 0."],
+						['offset', 'number', "(Optional) The starting offset in bytes. Defaults to 0."],
+						['format', 'string', "(Optional) 'u'=unsigned, 'i'=signed. Defaults to 'u'."],
+						['skip', 'number', "(Optional) The number of bytes to skip after each read sample. Defaults to 0."]
 					]
 				},
 				{
