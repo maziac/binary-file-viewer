@@ -19,13 +19,29 @@ export class FunctionDocumentation {
 
 	// All API functions are documented below.
 	public static funcDocs = new Map<string, FuncDoc[]>([
+		['general',
+			[
+				{
+					func: ['registerFileType', "Registers the function that checks for the right file type."],
+					return: ['number[]', "A number array with the values. The length of the array might be smaller than 'length' if the file size is smaller."],
+					params: [
+						['fileExt', 'string', "The file extension without the '.', e.g. 'wav'"],
+						['filePath', 'string', "The complete absolute path to the file."],
+						['fileData', 'FileData', "You can use this to access the file data itself. Some files contain an Id at the start of the file or you might use this for message protocols where a number determines the message ID."],
+					]
+				},
+				{
+					func: ['registerParser', "Registers the function to parse and decode the file."]
+				}
+			],
+		],
 		['registerFileType',
 			[
 				{
 					func: ['fileData.getBytesAt', "Returns the bytes from the file at the given offset.\nUse this inside 'registerFileType' to examine the file type."],
 					return: ['number[]', "A number array with the values. The length of the array might be smaller than 'length' if the file size is smaller."],
 					params: [
-						['offset', 'number', 'number', "TThe file offset."],
+						['offset', 'number', "The file offset."],
 						['length', 'number', "The number of bytes to return. Defaults to 1"]
 					]
 				},

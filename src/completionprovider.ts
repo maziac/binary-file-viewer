@@ -24,7 +24,7 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
         const line = document.lineAt(position).text;
         const lineTrimmed = line.substring(0, position.character);
         //console.log('CompletionProvider : provideCompletionItems : lineTrimmed', lineTrimmed);
-        const match = /[a-zA-Z_]\w*$/.exec(lineTrimmed);
+        const match = /[a-zA-Z_][\w\.]*$/.exec(lineTrimmed);
         if (!match)
             return undefined;
 
@@ -35,6 +35,7 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
 
         // Search
         const completions = this.search(label);
+        console.log('CompletionProvider : provideCompletionItems : completions', completions);
 
         /*
         const debug: string[] = completions.map(val => val.label as string);
