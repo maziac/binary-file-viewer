@@ -43,7 +43,7 @@ export class HelpView {
 			// Load Usage.md file
 			const extFolder = PackageInfo.extensionPath();
 			//const usageFileName = 'documentation/Usage.md';
-			const usageFileName = path.join('assets','help.md');
+			const usageFileName = path.join('assets', 'help', 'help.md');
 			const filePath = path.join(extFolder, usageFileName);
 			const mdText = readFileSync(filePath).toString();
 
@@ -219,7 +219,7 @@ window.addEventListener('message', event => {
 
 		// Substitute the resource path
 		const extPath = PackageInfo.extensionPath();
-		const resourcePath = vscode.Uri.file(extPath); // path.join(extPath, 'documentation'));
+		const resourcePath = vscode.Uri.file(path.join(extPath, 'assets', 'help'));
 		const vscodeResPath = this.vscodePanel.webview.asWebviewUri(resourcePath).toString();
 		html = html.replace('${vscodeResPath}', vscodeResPath);
 

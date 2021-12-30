@@ -1,16 +1,17 @@
-# Concept
+# The Binary File Viewer
+## Concept
 
 The 'Binary File Viewer' is a framework that allows you to build your own custom viewers for binary files.
 These files can be either existing file formats for which no vscode extension exists or also proprietary file formats.
 I.e. file formats that you build on your own and for which you would like to have a convenient way to look inside.
 
-To tell the 'Binary File Viewer' what files to decode and how you have to provide a javascript file.
+To tell the 'Binary File Viewer' what files to decode and how, you have to provide a javascript file.
 This *.js file consist of 2 stages. I.e. you basically register 2 functions:
 - with 'registerFileType' you register the function which checks for the right file type. Normally you just check the file extension here.
 - with 'registerParser' you register the function which actually decodes the binary file.
 
 
-# registerFileType
+## registerFileType
 
 The 'Binary File Viewer' itself registers inside vscode for every file type (*.*).
 I.e. whenever you select a file to be viewed the 'Binary File Viewer' will iterate through all of your js files until it finds one that returns true to idicate that it can decode the file.
@@ -31,7 +32,7 @@ For more complicated checks other arguments are passed:
 - filePath: The absolute file path to the binary file.
 - fileData: You can access the file data through this object.
 
-Although normally not required, ```fileData```can be quite handy in some situations.
+Although normally not required, ```fileData``` can be quite handy in some situations.
 With ```fileData```you can access the file contents and check e.g. the header of a file for certain data. E.g. some files carry an ID at the start of the file to identify the file type.
 E.g. a more enhanced version of the file type check for wav files could look like this:
 ~~~js
@@ -60,10 +61,10 @@ Returns the bytes from the file at the given offset.
 Returns the file size in bytes.
 
 
-# registerParser
+## registerParser
 
-This is the main function you need to work with.
-Here you read in the data from the file ad you create the output for the viewer's window.
+This is the main function you need to install.
+Here you read in the data from the file and you create the output for the viewer's window.
 Basically you add a row for each decoded value in a table.
 
 ![](help1.jpg)
@@ -95,7 +96,7 @@ An important aspect of the size is that it is no parameter to the ```addRow```.
 In fact it is directly used from the previous ```read```.
 
 
-# read
+## read
 
 As you have seen before: with ```read``` you will read in data from the file.
 The reading starts at the last position. I.e. for the first ```read```at offset 0 or for the following ```read``` after the previous ```read```.
@@ -128,7 +129,7 @@ const val2 = getNumberValue();
 ```val1``` and ```val2``` are the same values. They are read from the same file data offsets.
 
 
-# addDetails
+## addDetails
 
 ```addDetails```is used to make rows expandable.
 I.e. when using ```addDetails``` the previous row gets a '+' sign:

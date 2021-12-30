@@ -66,12 +66,12 @@
             {
                 "command": "binary-file-viewer.help",
                 "title": "Shows the help page",
-                "category": "bfv"
+                "category": "Binary File Viewer"
             },
             {
                 "command": "binary-file-viewer.open",
                 "title": "Open with 'Binary File Viewer'",
-                "category": "bfv"
+                "category": "Binary File Viewer"
             }
         ],
         "menus": {
