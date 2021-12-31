@@ -13,8 +13,6 @@ function addCanvas(width: number, height: number, name: string = ''): CanvasRend
 	// Check parameters
 	if (width == undefined)
 		throw new Error("addCanvas: Expecting a 'width' parameter.");
-	if (typeof width != 'number')
-		throw new Error("addCanvas: 'width' is not a number.");
 	if (height == undefined)
 		throw new Error("addCanvas: Expecting a 'height' parameter.");
 	if (typeof height != 'number')

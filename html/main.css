@@ -39,28 +39,28 @@ td {
 
 /* Class for the embedded table */
 .embeddedtable {
-	background-color: var(--vscode-editorWidget-background)
+	background-color: var(--vscode-editorWidget-background);
 }
 
 /* Class for the collapse icon */
 .collapse {
 	min-width: 1em;
 	text-align: right;
-	color: var(--vscode-terminal-ansiYellow)
+	color: var(--vscode-terminal-ansiYellow);
 }
 
 /* Class for the offset */
 .offset {
 	min-width: 3em;
 	text-align: right;
-	color: var(--vscode-terminal-ansiYellow)
+	color: var(--vscode-terminal-ansiYellow);
 }
 
 /* Class for the size */
 .size {
 	min-width: 3em;
 	text-align: right;
-	color: var(--vscode-terminal-ansiMagenta)
+	color: var(--vscode-terminal-ansiMagenta);
 }
 
 /* Class for the name */
@@ -68,20 +68,20 @@ td {
 	min-width: 3em;
 	font-weight: bold;
 	/* color: var(--vscode-terminal-ansiBrightWhite) */
-	color: var(--vscode-terminal-ansiBrightBlue)
+	color: var(--vscode-terminal-ansiBrightBlue);
 }
 
 /* Class for the value */
 .value {
 	min-width: 4em;
 	font-weight: bold;
-	color: var(--vscode-terminal-ansiGreen)
+	color: var(--vscode-terminal-ansiGreen);
 }
 
 /* Class for the description */
 .description {
 	/* padding-left: 1.5em; */
-	color: var(--vscode-terminal-ansiWhite)
+	color: var(--vscode-terminal-ansiWhite);
 }
 
 

@@ -3,7 +3,6 @@ declare var document: Document;
 declare var window: Window & typeof globalThis;
 declare var navigator: Navigator;
 declare var dataBuffer: Uint8Array;
-declare var Bfv: any;
 
 const vscode = acquireVsCodeApi();
 

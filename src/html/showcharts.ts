@@ -144,7 +144,14 @@ function addChart(config: ChartConfig, name?: string) {
 	const button = div.lastElementChild as HTMLButtonElement;
 	// Add canvas for chart
 	const canvas = document.createElement('canvas'); // as HTMLCanvasElement;
-	tdNode.appendChild(canvas);
+
+	// Canvas container. Is required for proper re-sizing. Without re-sizing to smaller sizes would not work.
+	// See https://www.chartjs.org/docs/3.5.0/configuration/responsive.html#important-note
+	const canvasContainer = document.createElement('div');
+	canvasContainer.style.position = 'relative';
+	canvasContainer.style.width = '91vw';	// 91% of the view port. Higher values move the button for whatever reason.
+	canvasContainer.appendChild(canvas);
+	tdNode.appendChild(canvasContainer);
 
 	// Add the chart to it
 	const chartCfg = {
