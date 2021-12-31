@@ -200,7 +200,7 @@ export class ParserSelect {
 				const filePath = path.join(event.directory, event.file);
 				this.readFile(filePath);
 				// Update the files. Since file type registration might have changed, all files need to be checked.
-				this.updateAllOpenEditors();
+				this.updateAllOpenEditors(filePath);
 			}
 
 			// TODO: Handle renamed, deleted
@@ -371,13 +371,16 @@ export class ParserSelect {
 	 * When the file changes, also the file type might have changed.
 	 * Therefore it is necessary to run 'selectParser' on all open editors
 	 * once again.
+	 * @param changedFilePath This file was the originator for the call.
+	 * The doc is updated also if the file contents actually did not change.
 	 */
-	public static updateAllOpenEditors() {
+	public static updateAllOpenEditors(changedFilePath: string) {
 		const docs = EditorDocument.getDocuments();
 		for (const doc of docs) {
 			const filePath = doc.uri.fsPath;
 			const parser = this.selectParserFile(filePath);
-			doc.updateParser(parser);
+			const updateInAnyCase = (changedFilePath == parser?.filePath);
+			doc.updateParser(parser, updateInAnyCase);
 		}
 	}
 
