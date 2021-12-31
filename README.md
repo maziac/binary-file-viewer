@@ -49,11 +49,8 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
-0, 1, 2, 5,3,6,3,
 
 - Walkthroughs vollenden.
-
- - Table passt sich nicht dynamisch an die Größe an. (Window-resize.)
 
 - Functions:
 	- Functions for customizing
@@ -61,7 +58,6 @@ When hovering over a value or register name you will get additional info like th
 		- indentation
 	- Reading bits
 
-- Wenn schon ein binary file angezeigt. Ich dann ein anderes js für diesen Typ aktiv schalte, dann wird das file nicht nochmal eingelesen.
-
+- Icon png
 
 - number-plotter: Vielleicht auch zoom/pan implementieren.
