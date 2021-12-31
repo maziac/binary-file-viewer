@@ -183,8 +183,9 @@ export class EditorDocument implements vscode.CustomDocument {
 	 * Update the parser.
 	 * Checks beforehand if an update is necessary.
 	 * @param parser The new ParserInfo.
+	 * @param updateInAnyCase If true the file is re-parsed even if the contents did not change.
 	 */
-	public updateParser(parser: ParserInfo) {
+	public updateParser(parser: ParserInfo, updateInAnyCase: boolean) {
 		// If this.parser is undefined there was no parser found in the past.
 		if (!this.parser) {
 			// No previous parser
@@ -199,7 +200,7 @@ export class EditorDocument implements vscode.CustomDocument {
 			}
 			else {
 				// New parser might be different
-				if (this.parser.contents != parser.contents) {
+				if (updateInAnyCase || (this.parser.contents != parser.contents)) {
 					// Yes it's different, use the new parser
 					this.sendParserToWebView(parser, this.webviewPanel);
 				}
