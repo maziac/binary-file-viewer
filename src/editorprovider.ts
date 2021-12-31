@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import {EditorDocument} from './editordocument';
-import {ParserSelect} from './parserselect';
 
 
 export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
@@ -11,40 +9,11 @@ export class EditorProvider implements vscode.CustomReadonlyEditorProvider {
 	 * Create document
 	 */
 	public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
-		try {
-			// Get the parser contents
-			const filePath = uri.fsPath;
-			let fileExt = path.extname(filePath);
-			if (fileExt.length >= 1)
-				fileExt = fileExt.slice(1); 	// Remove the '.'
-			const parser = ParserSelect.selectParserFile(fileExt, filePath, undefined);
-			if (!parser) {
-				const doc = new EditorDocument();
-				doc.uri = uri;
-				// Get all tried parsers.
-				let html = '<html><body>Binary-File-Viewer: No parser available.<br>';
-				const parserPaths = ParserSelect.getParserFilePaths();
-				if (parserPaths.length > 0) {
-					html += 'Tried parser(s):';
-					for (const parserPath of parserPaths)
-						html += '<br>' + parserPath;
-				}
-				html += '</body></html>';
-				doc.errorHtml = html;
-				return doc;
-			}
-
-			// Create a document
-			const doc = new EditorDocument();
-			doc.uri = uri;
-			doc.parser = parser;
-			// Return a document
-			return doc;
-		}
-		catch (e) {
-			console.log(e);
-			return undefined;
-		}
+		// Create a document
+		const doc = new EditorDocument();
+		doc.uri = uri;
+		// Return a document
+		return doc;
 	}
 
 

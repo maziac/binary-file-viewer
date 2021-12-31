@@ -26,17 +26,12 @@ export class EditorDocument implements vscode.CustomDocument {
 
 
 	/**
-	 * Updates all editors which use the given parser.
-	 * @param parser The custom parser's path and contents.
+	 * Returns all EditorDocuments in an array.
+	 * @returns Array of active EditorDocuments.
 	 */
-	public static updateDocumentsFor(parser: ParserInfo) {
-		for (const doc of this.documentList) {
-			if (doc.parser) {
-				if (doc.parser.filePath == parser.filePath) {
-					doc.updateParser(parser);
-				}
-			}
-		}
+	public static getDocuments(): EditorDocument[] {
+		const arr = Array.from(this.documentList);
+		return arr;
 	}
 
 
@@ -52,7 +47,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	/**
 	 * Initializes the document with the webviewpanel.
 	 * Reads the data file and starts parsing.
-	 * @param webviewPanel The webview pael passed from vscode.
+	 * @param webviewPanel The webview panel passed from vscode.
 	 */
 	public init(webviewPanel: vscode.WebviewPanel) {
 		try {
@@ -65,17 +60,9 @@ export class EditorDocument implements vscode.CustomDocument {
 				enableScripts: true
 			};
 
-			const filePath = this.uri.fsPath;
-			const parser = this.parser;
-
-			// Check for error (set if no parser has been found)
-			if (this.errorHtml) {
-				webviewPanel.webview.html = this.errorHtml;
-				return;
-			}
-
 			// Normal behavior: Parser installed.
 			// Handle 'ready' message from the webview
+			const filePath = this.uri.fsPath;
 			webviewPanel.webview.onDidReceiveMessage(message => {
 				switch (message.command) {
 					case 'ready':
@@ -84,7 +71,7 @@ export class EditorDocument implements vscode.CustomDocument {
 						const data = Uint8Array.from(dataFs);
 						// Send data and parser
 						this.sendDataToWebView(data, webviewPanel);
-						this.sendParserToWebView(parser, webviewPanel);
+						this.sendParserToWebView(this.parser, webviewPanel);
 						break;
 					case 'customParserError':
 						// An error occurred during execution of the custom parser
@@ -102,18 +89,43 @@ export class EditorDocument implements vscode.CustomDocument {
 						let msg = stacks[0];
 						if (i > 1)
 							msg += ' (Probably an error in the passed arguments.)';
-						ParserSelect.addDiagnosticsMessage(msg, parser.filePath, line);
+						ParserSelect.addDiagnosticsMessage(msg, this.parser.filePath, line);
 						break;
 				}
 			});
 
-			// Create html code
-			const html = this.getMainHtml(webviewPanel);
-			webviewPanel.webview.html = html;
+			// Set the html
+			const parser = ParserSelect.selectParserFile(filePath);
+			this.setHtml(parser);
 		}
 		catch (e) {
 			console.error('Error: ', e);
 		}
+	}
+
+
+	/**
+	 * Selects the right parser and sets the html.
+	 */
+	protected setHtml(parser: ParserInfo) {
+		this.parser = parser;
+		let html;
+		if (this.parser) {
+			// Create html code
+			html = this.getMainHtml();
+		}
+		else {
+			// Get all tried parsers.
+			html = '<html><body>Binary-File-Viewer: No parser available.<br>';
+			const parserPaths = ParserSelect.getParserFilePaths();
+			if (parserPaths.length > 0) {
+				html += 'Tried parser(s):';
+				for (const parserPath of parserPaths)
+					html += '<br>' + parserPath;
+			}
+			html += '</body></html>';
+		}
+		this.webviewPanel.webview.html = html;
 	}
 
 
@@ -150,14 +162,14 @@ export class EditorDocument implements vscode.CustomDocument {
 	/**
 	 * Returns the html code to display the text.
 	 */
-	protected getMainHtml(webviewPanel: any) {
+	protected getMainHtml(): string {
 		// Add the html styles etc.
 		const extPath = vscode.extensions.getExtension("maziac.binary-file-viewer")!.extensionPath;
 		const mainHtmlFile = path.join(extPath, 'html', 'main.html');
 		let mainHtml = fs.readFileSync(mainHtmlFile).toString();
 		// Exchange local path
 		const resourcePath = vscode.Uri.file(extPath);
-		const vscodeResPath = webviewPanel.webview.asWebviewUri(resourcePath).toString();
+		const vscodeResPath = this.webviewPanel.webview.asWebviewUri(resourcePath).toString();
 		mainHtml = mainHtml.replace('${vscodeResPath}', vscodeResPath);
 
 		// Add a Reload and Copy button for debugging
@@ -166,12 +178,34 @@ export class EditorDocument implements vscode.CustomDocument {
 		return mainHtml;
 	}
 
+
 	/**
 	 * Update the parser.
+	 * Checks beforehand if an update is necessary.
+	 * @param parser The new ParserInfo.
 	 */
 	public updateParser(parser: ParserInfo) {
-		this.parser.contents = parser.contents;
-		this.sendParserToWebView(parser, this.webviewPanel);
+		// If this.parser is undefined there was no parser found in the past.
+		if (!this.parser) {
+			// No previous parser
+			if (parser)
+				this.setHtml(parser);
+		}
+		else {
+			// Previous parser exists
+			if (!parser) {
+				// But not anymore
+				this.setHtml(parser);
+			}
+			else {
+				// New parser might be different
+				if (this.parser.contents != parser.contents) {
+					// Yes it's different, use the new parser
+					this.sendParserToWebView(parser, this.webviewPanel);
+				}
+				this.parser = parser;
+			}
+		}
 	}
 
 }

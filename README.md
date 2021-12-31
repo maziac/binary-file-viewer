@@ -49,21 +49,19 @@ When hovering over a value or register name you will get additional info like th
 
 # TODO
 
+0, 1, 2, 5,3,6,3,
+
+- Walkthroughs vollenden.
+
  - Table passt sich nicht dynamisch an die Größe an. (Window-resize.)
 
 - Functions:
-	- Read until certain byte value
-	- Read string (until 0)
 	- Functions for customizing
 		- colors
 		- indentation
 	- Reading bits
-	- createMemDump: mit ASCII chars Ausgabe
 
-- How to customize the file extensions? I.e. that the binary-file-viewer reacts only on certain (customized) file extensions.
-
-- file in completion etc überprüfen, ob path passt.
-- Besser: nicht nur file extensions sondern glob pattern und auch Teil-dekodierung des Headers zulassen um richtigen Parser zu finden.
+- Wenn schon ein binary file angezeigt. Ich dann ein anderes js für diesen Typ aktiv schalte, dann wird das file nicht nochmal eingelesen.
 
 
 - number-plotter: Vielleicht auch zoom/pan implementieren.

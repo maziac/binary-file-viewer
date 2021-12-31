@@ -199,6 +199,8 @@ export class ParserSelect {
 				// Read the file
 				const filePath = path.join(event.directory, event.file);
 				this.readFile(filePath);
+				// Update the files. Since file type registration might have changed, all files need to be checked.
+				this.updateAllOpenEditors();
 			}
 
 			// TODO: Handle renamed, deleted
@@ -244,8 +246,8 @@ export class ParserSelect {
 		// Skip if not a js file
 		if (path.extname(filePath) != '.js')
 			return;
-		if (path.basename(filePath).startsWith('obj'))
-			return;	// REMOVE TODO
+	//	if (path.basename(filePath).startsWith('obj'))
+	//		return;	// REMOVE TODO
 
 		// Read file contents
 		try {
@@ -289,9 +291,6 @@ export class ParserSelect {
 
 			// If everything is fine, add to map
 			this.fileParserMap.set(filePath, fileContents);
-
-			// And update any existing document
-			EditorDocument.updateDocumentsFor({contents: fileContents, filePath: filePath});
 		}
 		catch (e) {
 			console.log(e);
@@ -301,26 +300,32 @@ export class ParserSelect {
 
 
 	/**
-	 * Select the right parser file (depending on the given file extension
-	 * and copies it to the extension dir ('out/html').
-	 * @param fileExt E.g. "obj"
+	 * Select the right parser file and returns it.
+	 * If several parsers are found a warning is shown and the first one is selected.
 	 * @param filePath The full (absolute) file path.
-	 * @param file The file data object.
 	 * @returns the parser contents and its file path on success. Otherwise undefined.
 	 */
-	public static selectParserFile(fileExt: string, filePath: string, file: FileData): {contents: string, filePath: string} {
+	public static selectParserFile(filePath: string): ParserInfo {
+		// Get the file extension
+		let fileExt = path.extname(filePath);
+		if (fileExt.length >= 1)
+			fileExt = fileExt.slice(1); 	// Remove the '.'
+
 		// Create file data object
 		const fileData = new FileData(filePath);
 
 		// Loop through all parsers
-		let found = false;
+		const foundParsers: ParserInfo[] = [];
 		for (const [parserFilePath, parser] of this.fileParserMap) {
 			// Run each parser 'registerFileType'
 			vmRunInNewContext(parser, {
 				registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => boolean) => {
 					try {
 						// Evaluate custom function
-						found = func(fileExt, filePath, fileData);
+						const found = func(fileExt, filePath, fileData);
+						if (found) {
+							foundParsers.push({contents: parser, filePath: parserFilePath});
+						}
 					}
 					catch (err) {
 						console.log(err);
@@ -333,18 +338,47 @@ export class ParserSelect {
 					// Do nothing
 				}
 			});
-
-			if (found) {
-				// If one is found stop here: // TODO: allow a selection
-				return {contents: parser, filePath: parserFilePath};
-			}
 		}
 
 		// Close, in case it was opened.
 		fileData.close();
 
-		// Not found
-		return undefined;
+		// Check for no selection
+		const len = foundParsers.length;
+		if (len == 0)
+			return undefined;
+
+		// Check for multiple selections
+		if (len > 1) {
+			// Show warning
+			let msg = "Multiple parsers found for '" + filePath + "': ";
+			let sep = '';
+			for (const parser of foundParsers) {
+				msg += sep + path.basename(parser.filePath);
+				sep = ', ';
+			}
+			msg += '. Choosing the first one.';
+			vscode.window.showWarningMessage(msg);
+		}
+
+		// Returning the first one.
+		return foundParsers[0];
+	}
+
+
+	/**
+	 * Is called whenever a js file changes.
+	 * When the file changes, also the file type might have changed.
+	 * Therefore it is necessary to run 'selectParser' on all open editors
+	 * once again.
+	 */
+	public static updateAllOpenEditors() {
+		const docs = EditorDocument.getDocuments();
+		for (const doc of docs) {
+			const filePath = doc.uri.fsPath;
+			const parser = this.selectParserFile(filePath);
+			doc.updateParser(parser);
+		}
 	}
 
 
