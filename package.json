@@ -26,7 +26,8 @@
     ],
     "activationEvents": [
         "onCustomEditor:binary-file-viewer.viewer",
-        "onCommand:binary-file-viewer.open"
+        "onCommand:binary-file-viewer.open",
+        "onCommand:binary-file-viewer.help"
     ],
     "capabilities": {
         "untrustedWorkspaces": {
@@ -65,7 +66,7 @@
         "commands": [
             {
                 "command": "binary-file-viewer.help",
-                "title": "Shows the help page",
+                "title": "Show Help",
                 "category": "Binary File Viewer"
             },
             {
@@ -150,6 +151,19 @@
                         "media": {
                             "markdown": "assets/walkthroughs/modify_parser.md"
                         }
+                    },
+                    {
+                        "id": "getHelp",
+                        "title": "Get Help",
+                        "description": "To get help use the command palette and enter 'Binary file Viewer: Show Help'.\n[Run Command](command:binary-file-viewer.help)\nTip: Inside the help view you can use CTRL-F to search.",
+                        "media": {
+                            "image": "assets/walkthroughs/show_help.gif",
+                            "altText": "Empty image"
+                        },
+
+                        "completionEvents": [
+                            "onCommand:binary-file-viewer.help"
+                        ]
                     }
                 ]
             }

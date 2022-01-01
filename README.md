@@ -56,7 +56,6 @@ When hovering over a value or register name you will get additional info like th
 	- Functions for customizing
 		- colors
 		- indentation
-	- Reading bits
 
 - Icon png
 
