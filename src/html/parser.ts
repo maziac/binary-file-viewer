@@ -224,12 +224,16 @@ function addDetails(func: () => void, opened = false) {
 		// Call function immediately
 		const bakLastOffset = lastOffset;
 		const bakLastSize = lastSize;
+		const bakLastBitOffset = lastBitOffset;
+		const bakLastBitSize = lastBitSize;
 		const bakStartOffset = startOffset;
 		lastSize = 0;
 		startOffset = lastOffset;
 		func();
 		lastOffset = bakLastOffset;
 		lastSize = bakLastSize;
+		lastBitOffset = bakLastBitOffset;
+		lastBitSize = bakLastBitSize;
 		startOffset = bakStartOffset;
 	}
 	else {
@@ -274,15 +278,6 @@ function createDescription(descr: string) {
 	node.innerHTML = convertLineBreaks(descr);
 	// Append it
 	lastNode.appendChild(node);
-}
-
-
-/**
- * Adds a hover text to lastValueNode.
- * @param hoverValueString String to show on hover for the title. Can be undefined.
- */
-function addHoverValue(hoverValueString: string) {
-	lastValueNode.title = hoverValueString;
 }
 
 
@@ -417,12 +412,13 @@ function parseStart() {
 			addStandardHeader,
 			read,
 			readUntil,
+			readBits,
 			addRow,
 			addDetails,
-			addHoverValue,
-			getHex0xValue,
 			getNumberValue,
+			getBitsValue,
 			getHexValue,
+			getHex0xValue,
 			getDecimalValue,
 			convertToHexString,
 			getStringValue,

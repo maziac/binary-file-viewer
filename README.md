@@ -60,4 +60,11 @@ When hovering over a value or register name you will get additional info like th
 
 - Icon png
 
+- Formatting (column size) inside addDetails ist komisch.
+
+- Test :
+ - 2 addDetails below each other. Withotu parent row.
+ - addDetails at the start.
+ - read(0)
+
 - number-plotter: Vielleicht auch zoom/pan implementieren.

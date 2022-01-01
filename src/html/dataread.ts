@@ -14,6 +14,12 @@ var lastOffset: number;
 // The last retrieved data size.
 var lastSize: number;
 
+// The bit index into dataBuffer.
+var lastBitOffset: number;
+
+// The last retrieved bit data size. Either lastSize is !=0 or lastBitSize. Never both.
+var lastBitSize: number;
+
 // The startOffset for relative indices (detailsParsing.)
 // Is used only for displaying.
 var startOffset: number;
@@ -68,7 +74,15 @@ function convertToHexString(value: number, size: number): string {
  * @param size The number of bytes to read. If undefined, all remaining data is read.
  */
 function read(size?: number) {
+	// Offsets
 	lastOffset += lastSize;
+	lastBitOffset += lastBitSize;
+	while (lastBitOffset >= 1) {
+		lastBitOffset -= 8;
+		lastOffset++;
+	}
+
+	lastBitSize = 0;
 	lastSize = 0;	// In case of an error later on
 	if (size == undefined)
 		size = dataBuffer.length - lastOffset;
@@ -96,6 +110,30 @@ function readUntil(value: number = 0) {
 		i++;
 	}
 	lastSize = i - lastOffset;
+}
+
+
+/**
+ * Advances the offset (from previous call) bitwise and
+ * stores the size for reading.
+ * @param size The number of bits to read.
+ */
+function readBits(bitSize: number) {
+	// Offsets
+	lastOffset += lastSize;
+	lastBitOffset += lastBitSize;
+	while (lastBitOffset >= 8) {
+		lastBitOffset -= 8;
+		lastOffset++;
+	}
+
+	// Check
+	if(lastOffset + (lastBitOffset+lastBitSize)/8 > dataBuffer.length)
+		throw new Error("readBits: Reading past end of file.");
+
+	// Sizes
+	lastSize = 0;
+	lastBitSize = bitSize;
 }
 
 
@@ -137,15 +175,65 @@ function getData(sampleSize = 1, offset = 0, format = 'i', skip = 0): number[] {
 
 /**
  * Reads the value from the buffer.
+ * Also supports reading bits.
+ * Either lastSize or lastBitSize is != 0.
  */
 function getNumberValue(): number {
-	let value = dataBuffer[lastOffset];
-	let factor = 1;
-	for (let i = 1; i < lastSize; i++) {
-		factor *= 256;
-		value += factor * dataBuffer[lastOffset + i];
+	let value = 0;
+
+	// Byte wise
+	if (lastSize) {
+		let factor = 1;
+		for (let i = 0; i < lastSize; i++) {
+			value += factor * dataBuffer[lastOffset + i];
+			factor *= 256;
+		}
 	}
+
+	// Or bitwise
+	else if (lastBitSize) {
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let i = lastOffset;
+		for (let k = 0; k < lastBitSize; k++) {
+			const bit = (dataBuffer[i] & mask) ? 1 : 0;
+			value += factor * bit;
+			factor *= 2;
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				mask = 0x01;
+				i++;
+			}
+		}
+	}
+
 	return value;
+}
+
+/**
+ * Reads the bits from the dataBuffer.
+ * Either lastSize or lastBitSize is != 0.
+ * @returns E.g. '001101'
+ */
+function getBitsValue(): string {
+	let bits = '';
+	let mask = 0x01 << lastBitOffset;
+	let i = lastOffset;
+	const countOfBits = lastBitSize + lastSize * 8;
+	for (let k = 0; k < countOfBits; k++) {
+		if (k > 0 && (k % 8 == 0))
+			bits = "_" + bits;
+		const bit = (dataBuffer[i] & mask) ? '1' : '0';
+		bits = bit + bits;
+		// Next
+		mask <<= 1;
+		if (mask >= 0x100) {
+			mask = 0x01;
+			i++;
+		}
+	}
+	return bits;
 }
 
 

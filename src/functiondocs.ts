@@ -69,6 +69,12 @@ export class FunctionDocumentation {
 					]
 				},
 				{
+					func: ['readBits', 'Advances the offset (from previous call) bitwise and stores the size for reading.'],
+					params: [
+						['size', 'number', 'The number of bits to read.']
+					]
+				},
+				{
 					func: ['addRow', 'Creates a new row for the table.'],
 					params: [
 						['name', 'string', "The name of the value."],
@@ -94,6 +100,14 @@ export class FunctionDocumentation {
 				{
 					func: ['getNumberValue', 'The value from the dataBuffer as number value.'],
 					return: ['number', "The decoded number."]
+				},
+				{
+					func: ['getBitsValue', 'The bits from the dataBuffer.'],
+					return: ['string', "E.g. '001101'"]
+				},
+				{
+					func: ['getHexValue', "The value from the dataBuffer as hex string."],
+					return: ['string', "E.g. '7FA0'"]
 				},
 				{
 					func: ['getHex0xValue', "The value from the dataBuffer as hex string + '0x' in front."],
