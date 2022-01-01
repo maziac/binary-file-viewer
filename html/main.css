@@ -34,6 +34,7 @@ th {
 td {
 	text-align: left;
 	vertical-align: top;
+	overflow-wrap: break-word;
 	padding: 0.25em;
 }
 
@@ -52,6 +53,7 @@ td {
 /* Class for the offset */
 .offset {
 	min-width: 3em;
+	max-width: 10vw;
 	text-align: right;
 	color: var(--vscode-terminal-ansiYellow);
 }
@@ -59,6 +61,7 @@ td {
 /* Class for the size */
 .size {
 	min-width: 3em;
+	max-width: 10vw;
 	text-align: right;
 	color: var(--vscode-terminal-ansiMagenta);
 }
@@ -66,6 +69,7 @@ td {
 /* Class for the name */
 .name {
 	min-width: 3em;
+	max-width: 20vw;
 	font-weight: bold;
 	/* color: var(--vscode-terminal-ansiBrightWhite) */
 	color: var(--vscode-terminal-ansiBrightBlue);
@@ -74,12 +78,15 @@ td {
 /* Class for the value */
 .value {
 	min-width: 4em;
+	max-width: 20vw;
 	font-weight: bold;
 	color: var(--vscode-terminal-ansiGreen);
 }
 
 /* Class for the description */
 .description {
+	min-width: 4em;
+	max-width: 50vw;
 	/* padding-left: 1.5em; */
 	color: var(--vscode-terminal-ansiWhite);
 }
