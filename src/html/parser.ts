@@ -31,7 +31,7 @@ var lastNode: any;
 var lastCollapsibleNode: HTMLTableCellElement;
 
 // The last node used for the value.
-var lastValueNode: any;
+//var lastValueNode: any;
 
 // The node used for the standard header.
 var standardHeaderNode: HTMLDivElement;
@@ -120,7 +120,7 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	// Get child objects
 	const cells = node.cells;
 	lastCollapsibleNode = cells[0];
-	lastValueNode = cells[3];
+	//lastValueNode = cells[3];
 
 	// Append it / Insert new row
 	lastNode.appendChild(node);
@@ -149,9 +149,23 @@ function convertLineBreaks(s: string) {
 
 /**
  * Is called by 'onclick'.
- * Collapses and expands the following row.
+ * Collapses and expands all rows in '_expandRows'.
  */
 function collapse(cell: HTMLTableCellElement) {
+	let expandRows = (cell as any)['_expandRows'] as HTMLTableRowElement[];
+	for (const targetRow of expandRows) {
+		if (targetRow.style.display == 'table-row') {
+			cell.innerHTML = '+';
+			targetRow.style.display = 'none';
+		} else {
+			cell.innerHTML = '-';
+			targetRow.style.display = 'table-row';
+			const event = new CustomEvent('expand');
+			cell.dispatchEvent(event);
+		}
+	}
+
+	/*
 	const row = cell.parentElement as HTMLTableRowElement;
 	// Use next row as target.
 	const target_row = row.parentElement.children[row.rowIndex + 1] as HTMLTableRowElement;
@@ -164,6 +178,7 @@ function collapse(cell: HTMLTableCellElement) {
 		const event = new CustomEvent('expand');
 		cell.dispatchEvent(event);
 	}
+	*/
 }
 
 
@@ -173,11 +188,6 @@ function collapse(cell: HTMLTableCellElement) {
  * @param opened true=the details are directly shown, false=the details are initially hidden.
  */
 function beginDetails(opened: boolean) {
-	// Add collapsible icon (+)
-	lastCollapsibleNode.innerHTML = (opened) ? '-' : '+';
-	// Add function
-	lastCollapsibleNode.setAttribute('onclick', 'collapse(this)');
-
 	// Add row for the details
 	const row = document.createElement("TR") as HTMLTableRowElement;
 	row.style.display = (opened) ? 'table-row' : 'none';
@@ -190,6 +200,22 @@ function beginDetails(opened: boolean) {
 	// Give the table a dark color.
 	const detailsTable = row.cells[1].children[0];
 	detailsTable.classList.add('embeddedtable');
+
+	// Check if there is a row to expand
+	if (lastCollapsibleNode) {
+		// Add collapsible icon (+)
+		lastCollapsibleNode.innerHTML = (opened) ? '-' : '+';
+		// Add function
+		lastCollapsibleNode.setAttribute('onclick', 'collapse(this)');
+
+		// Get/Set row(s) to open
+		let expandRows = (lastCollapsibleNode as any)['_expandRows'] as HTMLTableRowElement[];
+		if (!expandRows) {
+			expandRows = [];
+			(lastCollapsibleNode as any)['_expandRows'] = expandRows;
+		}
+		expandRows.push(row);
+	}
 
 	// Use new table
 	lastNode = detailsTable;
@@ -220,34 +246,36 @@ function endDetails() {
 function addDetails(func: () => void, opened = false) {
 	// "Indent"
 	beginDetails(opened);
+
+	// Backup values
+	const bakLastOffset = lastOffset;
+	const bakLastSize = lastSize;
+	const bakLastBitOffset = lastBitOffset;
+	const bakLastBitSize = lastBitSize;
+	const bakStartOffset = startOffset;
+	const bakLastNode = lastNode;
+	const bakLastCollapsibleNode = lastCollapsibleNode;
+
+	// Delayed or not
 	if (opened) {
 		// Call function immediately
-		const bakLastOffset = lastOffset;
-		const bakLastSize = lastSize;
-		const bakLastBitOffset = lastBitOffset;
-		const bakLastBitSize = lastBitSize;
-		const bakStartOffset = startOffset;
 		lastSize = 0;
+		lastBitSize = 0;
 		startOffset = lastOffset;
 		func();
-		lastOffset = bakLastOffset;
-		lastSize = bakLastSize;
-		lastBitOffset = bakLastBitOffset;
-		lastBitSize = bakLastBitSize;
-		startOffset = bakStartOffset;
 	}
 	else {
 		// Open/parse delayed
-		const bakLastOffset = lastOffset;
-		const baklastNode = lastNode;
 		lastCollapsibleNode.addEventListener("expand", function handler(this: any, event: any) {
 			this.removeEventListener("expand", handler);
 			// Get parse node and index
-			lastNode = event.target;
+			//lastNode = event.target;
 			lastOffset = bakLastOffset;
 			startOffset = lastOffset;
 			lastSize = 0;
-			lastNode = baklastNode;
+			lastBitSize = 0;
+			lastNode = bakLastNode;
+			lastCollapsibleNode = undefined;
 			try {
 				func();
 			}
@@ -259,8 +287,16 @@ function addDetails(func: () => void, opened = false) {
 				});
 			}
 		});
-
 	}
+
+	// Restore values
+	lastOffset = bakLastOffset;
+	lastSize = bakLastSize;
+	lastBitOffset = bakLastBitOffset;
+	lastBitSize = bakLastBitSize;
+	startOffset = bakStartOffset;
+	lastCollapsibleNode = bakLastCollapsibleNode;
+
 	// Close/leave
 	endDetails();
 }
