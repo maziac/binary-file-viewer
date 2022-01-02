@@ -75,7 +75,7 @@ export class EditorDocument implements vscode.CustomDocument {
 						break;
 					case 'customParserError':
 						// An error occurred during execution of the custom parser
-						ParserSelect.addDiagnosticsStack(message.stack, this.parser.filePath);
+						ParserSelect.addDiagnosticsStack(message.stack, this.parser.filePath, -3);
 						break;
 				}
 			});

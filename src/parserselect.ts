@@ -133,8 +133,10 @@ export class ParserSelect {
 	 * Parses the stack to get the right line.
 	 * @param errStack The error.stack obtained by a catch.
 	 * @param filePath Absolute path to the file.
+	 * @param lineOffset Number added to the line number. This is required for some
+	 * sources (e.g. parser.js). Otherwise the wrong line number os reported.
 	 */
-	public static addDiagnosticsStack(errStack: string, filePath: string) {
+	public static addDiagnosticsStack(errStack: string, filePath: string, lineOffset = 0) {
 		let colNr;
 		let colWidth;
 		// An error occurred during execution of the custom parser
@@ -188,6 +190,7 @@ export class ParserSelect {
 		}
 
 		// Output to vscode's PROBLEM area.
+		lineNr += lineOffset;
 		this.addDiagnosticsMessage(msg, filePath, lineNr - 1, colNr, colWidth);
 	}
 
