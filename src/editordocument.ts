@@ -207,17 +207,37 @@ export class EditorDocument implements vscode.CustomDocument {
 	 * Otherwise nothing happens.
 	 * @param offset Contains the line info.
 	 */
-	protected selectParserLine(offset: {lineNr: number, colNr: number, colWidth: number}) {
+	protected selectParserLine(offset: {lineNr: number, colNr: number}) {
 		for (const doc of vscode.workspace.textDocuments) {
 			const fsPath = doc.uri.fsPath;
 			if (fsPath == this.parser.filePath) {
 				// Document found, select it
 				vscode.window.showTextDocument(doc)
 					.then(editor => {
-						;
+						// Get line to estimate the column width
+						const text = doc.getText().split('\n');
+						const line = text[offset.lineNr];
+						// Search for closed bracket
+						let i = offset.colNr+1;
+						let bracketCount = 0;
+						const len = line.length;
+						while (i < len) {
+							const char = line.substring(i, i + 1);
+							i++;
+							if (char == ')') {
+								bracketCount--;
+								if (bracketCount <= 0)
+									break;
+							}
+							else if (char == '(') {
+								bracketCount++;
+							}
+							// Next
+						}
+						const colEnd = i;
 						// Select range
-						const range = new vscode.Range(offset.lineNr, offset.colNr, offset.lineNr, 1000);
-						const selection = new vscode.Selection(offset.lineNr, offset.colNr, offset.lineNr, 1000);
+						const range = new vscode.Range(offset.lineNr, offset.colNr, offset.lineNr, colEnd);
+						const selection = new vscode.Selection(offset.lineNr, offset.colNr, offset.lineNr, colEnd);
 						editor.selection = selection;
 						// Scroll to range first range
 						editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);

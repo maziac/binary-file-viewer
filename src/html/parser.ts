@@ -95,10 +95,12 @@ function addStandardHeader() {
  */
 function linkToCustomParser(cell: HTMLTableCellElement) {
 	const offset = (cell as any)['_customParserOffset'];
-	vscode.postMessage({
-		command: 'selectLine',
-		offset
-	});
+	if (offset) {
+		vscode.postMessage({
+			command: 'selectLine',
+			offset
+		});
+	}
 }
 
 
@@ -137,13 +139,29 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	const offsetNode = cells[1];
 	//lastValueNode = cells[3];
 
-	// Create link: If the offset is clicked the line in the user's js file is selected.
-	(offsetNode as any)['_customParserOffset'] = {
-		lineNr: 5,
-		colNr: 1,
-		colWidth: 5
-	};
-	offsetNode.setAttribute('onclick', 'linkToCustomParser(this)');
+	// Get stack trace for link to custom parser file
+	try {
+		// Throw some exception to get the stack trace
+		throw new Error();
+	}
+	catch (e) {
+		// Parse the stack trace
+		const stack = e.stack.split('\n');
+		const customLine: string = stack[2];
+		const match = /.*>:(\d+):(\d+)/.exec(customLine);
+		if (match) {
+			// Line
+			const lineNr = parseInt(match[1]) - 4;
+			// Column
+			const colNr = parseInt(match[2]) - 1;
+			// Create link: If the offset is clicked the line in the user's js file is selected.
+			(offsetNode as any)['_customParserOffset'] = {
+				lineNr,
+				colNr
+			};
+			offsetNode.setAttribute('onclick', 'linkToCustomParser(this)');
+		}
+	}
 
 	// Append it / Insert new row
 	lastNode.appendChild(node);

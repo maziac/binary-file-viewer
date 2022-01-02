@@ -280,3 +280,13 @@ The example here creates a canvas object and draws a red rectangle inside:
 ~~~
 
 ![](help5.jpg)
+
+
+## Navigation
+
+If you have the parser (js) file open and then click on the offset value of the decoded binary file, the function that was used to create the row will become selected.
+
+![](help6.gif)
+
+
+
