@@ -52,10 +52,8 @@ When hovering over a value or register name you will get additional info like th
 
 - Walkthroughs vollenden.
 
-- Functions:
-	- Functions for customizing
-		- colors
-		- indentation
+- Link öffnen bei click auf row
+
 
 - Icon png
 

@@ -85,8 +85,9 @@ td {
 
 /* Class for the description */
 .description {
-	min-width: 4em;
-	max-width: 50vw;
+	min-width: 50vw; /*4em;
+	max-width: 50vw;*/
+	/*width: 50vw;*/
 	/* padding-left: 1.5em; */
 	color: var(--vscode-terminal-ansiWhite);
 }
