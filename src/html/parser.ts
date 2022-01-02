@@ -89,6 +89,20 @@ function addStandardHeader() {
 
 
 /**
+ * When the cell with the offset is clicked the webview sends a
+ * command to the webview, so that it displays the corresponding line
+ * in the custom parser js file.
+ */
+function linkToCustomParser(cell: HTMLTableCellElement) {
+	const offset = (cell as any)['_customParserOffset'];
+	vscode.postMessage({
+		command: 'selectLine',
+		offset
+	});
+}
+
+
+/**
  * Creates a new row for the table.
  * @param name The name of the value.
  * @param value (Optional) The value to display.
@@ -120,7 +134,16 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	// Get child objects
 	const cells = node.cells;
 	lastCollapsibleNode = cells[0];
+	const offsetNode = cells[1];
 	//lastValueNode = cells[3];
+
+	// Create link: If the offset is clicked the line in the user's js file is selected.
+	(offsetNode as any)['_customParserOffset'] = {
+		lineNr: 5,
+		colNr: 1,
+		colWidth: 5
+	};
+	offsetNode.setAttribute('onclick', 'linkToCustomParser(this)');
 
 	// Append it / Insert new row
 	lastNode.appendChild(node);

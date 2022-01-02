@@ -18,7 +18,7 @@ If you like the "Binary File Viewer" please consider supporting it.
 In vscode's command palette run: 'Binary File Viewer: Show Help'.
 That will open a help page explaining the concept and the available API.
 
-There exists also a basic walkthrough. You can open it via: 'Get Started: Open Walkthrough...' -> 'Binary File Viewer'.
+There exists also a basic walkthrough. You can open it from the command palette via: 'Get Started: Open Walkthrough...' -> 'Binary File Viewer'.
 ## Binary File Viewer
 
 The 'Binary File Viewer' is a framework that allows you to build your own custom viewers for binary files.
@@ -27,7 +27,7 @@ I.e. file formats that you build on your own and for which you would like to hav
 
 To tell the 'Binary File Viewer' what files to decode and how, you have to provide a javascript file.
 
-Besides the display of numerical and binary values there is also support for graphic visualization with charts or to draw into a canvas.
+Besides the display of numerical and binary values there is also support for graphic visualization with charts or a canvas.
 
 ## Examples
 
@@ -66,18 +66,3 @@ To use the 'Binary File Viewer' as default for some file extension:
 5. In the next window select the 'Binary File Viewer'.
 6. The next time you select a file of the same type it is immediately opened by the 'Binary File Viewer'.
 
-
-# TODO
-
-
-- Link öffnen bei click auf row
-
-
-- Examples into git
-
-- Test :
- - 2 addDetails below each other. Without parent row.
- - addDetails at the start.
- - read(0)
-
-- number-plotter: Vielleicht auch zoom/pan implementieren.

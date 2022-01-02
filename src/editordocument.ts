@@ -77,6 +77,10 @@ export class EditorDocument implements vscode.CustomDocument {
 						// An error occurred during execution of the custom parser
 						ParserSelect.addDiagnosticsStack(message.stack, this.parser.filePath, -3);
 						break;
+					case 'selectLine':
+						// Display the given line (and column) in the parser (js) file
+						this.selectParserLine(message.offset);
+						break;
 				}
 			});
 
@@ -195,4 +199,33 @@ export class EditorDocument implements vscode.CustomDocument {
 		}
 	}
 
+
+
+	/**
+	 * Display the given line (and column) in the parser (js) file.
+	 * The line is only selected if the file is already opened.
+	 * Otherwise nothing happens.
+	 * @param offset Contains the line info.
+	 */
+	protected selectParserLine(offset: {lineNr: number, colNr: number, colWidth: number}) {
+		for (const doc of vscode.workspace.textDocuments) {
+			const fsPath = doc.uri.fsPath;
+			if (fsPath == this.parser.filePath) {
+				// Document found, select it
+				vscode.window.showTextDocument(doc)
+					.then(editor => {
+						;
+						// Select range
+						const range = new vscode.Range(offset.lineNr, offset.colNr, offset.lineNr, 1000);
+						const selection = new vscode.Selection(offset.lineNr, offset.colNr, offset.lineNr, 1000);
+						editor.selection = selection;
+						// Scroll to range first range
+						editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+					});
+				return;
+			}
+		}
+
+		// Nothing found
+	}
 }

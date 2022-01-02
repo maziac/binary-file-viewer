@@ -71,7 +71,7 @@ export class ParserSelect {
 			try {
 				nsfw(folder,
 					function (events: any) {
-						console.log(events);
+						//console.log(events);
 						// Loop array of events
 						ParserSelect.clearDiagnostics();
 						for (const event of events) {
@@ -141,7 +141,7 @@ export class ParserSelect {
 		let colWidth;
 		// An error occurred during execution of the custom parser
 		const stacks = errStack.split('\n');
-        console.log('ParserSelect : addDiagnosticsStack : stacks', stacks);
+        //console.log('ParserSelect : addDiagnosticsStack : stacks', stacks);
 		let lineNr = 0;
 		let i = 0;
 		for (; i < stacks.length; i++) {

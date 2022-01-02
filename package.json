@@ -1,8 +1,8 @@
 {
     "name": "binary-file-viewer",
     "displayName": "Binary File Viewer",
-    "description": "A viewer for binary files. The viewer can be customized to interprete the contents of any binary file.",
-    "version": "0.1.0",
+    "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file.",
+    "version": "0.9.0",
     "publisher": "maziac",
     "author": {
         "name": "Thomas Busse"
@@ -56,7 +56,7 @@
                     "scope": "window",
                     "type": "array",
                     "default": [],
-                    "markdownDescription": "Add here the path(s) to the folder(s) that contain your parser file(s). The Binary-File-Viewer will observe these locations. If a file is changed (on disk) it is automatically read and used for parsing. Normally you need to add absolute paths. You can do so e.g. by right-click on the folder in vscode, copy the path and paste it here.",
+                    "markdownDescription": "Add here the path(s) to the folder(s) that contain your parser file(s). The Binary-File-Viewer will observe these locations. If a file is changed (on disk) it is automatically read and used for parsing. You need to add absolute paths. You can do so e.g. by right-click on the folder in vscode, copy the path and paste it here.",
                     "items": {
                         "type": "string"
                     }
