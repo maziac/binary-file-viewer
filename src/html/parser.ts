@@ -139,7 +139,8 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	const offsetNode = cells[1];
 	//lastValueNode = cells[3];
 
-	// Get stack trace for link to custom parser file
+	// Get stack trace for link to custom parser file.
+	// Note: takes about 0.03ms
 	try {
 		// Throw some exception to get the stack trace
 		throw new Error();
