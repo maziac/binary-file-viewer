@@ -160,7 +160,7 @@ export class ParserSelect {
 		// There are 2 types of error messages.
 		// Type a: Contains line and column information, e.g.
 		//         '\tat evalmachine.<anonymous>:5:2'
-		//         The error description is in the previous line.
+		//         The error description is in the first line.
 		//         This type of error I, e.g., get from the webview (parser.js).
 		// Type b: Contains only line information, e.g.
 		//         'evalmachine.<anonymous>:19'
@@ -184,7 +184,7 @@ export class ParserSelect {
 		}
 		else {
 			// Type a
-			msg = stacks[i - 1];
+			msg = stacks[0];
 			if (i > 1)
 				msg += ' (Probably an error in the passed arguments.)';
 		}
