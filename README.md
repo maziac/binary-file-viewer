@@ -1,4 +1,5 @@
 # The (Customizable) Binary File Viewer
+
 ## Important
 
 Project is not usable yet.
@@ -20,8 +21,26 @@ If you like the "Binary File Viewer" please consider supporting it.
 
 ## Binary File Viewer
 
-...
+The 'Binary File Viewer' is a framework that allows you to build your own custom viewers for binary files.
+These files can be either existing file formats for which no vscode extension exists or also proprietary file formats.
+I.e. file formats that you build on your own and for which you would like to have a convenient way to look inside.
 
+To tell the 'Binary File Viewer' what files to decode and how, you have to provide a javascript file.
+
+Besides the display of numerical and binary values there is also support for graphic visualization with charts or to draw into a canvas.
+
+## Examples
+
+Basic example:
+![](assets/basic_example.jpg)
+
+
+Memory dump:
+![](assets/help/help3.jpg)
+
+
+Charts:
+![](assets/help/help4b.jpg)
 
 
 ### Installation
@@ -32,19 +51,20 @@ The extension is called "Binary File Viewer".
 
 ## Usage
 
-Just click on a file with the *.* extension.
-The file is opened and shown in the text editor area.
+To understand how to build own parser scripts please refer to the [Help](https://github.com/maziac/binary-file-viewer/blob/main/assets/help/help.md).
 
-![](assets/icon.png)
+To use it:
+1. In the vscode explorer right-click the binary file.
+2. Choose 'Open with Binary File Viewer'.
 
-
-Alternatively you can open a binary file via "Open With...":
-
-![](assets/icon.png)
-
-When hovering over a value or register name you will get additional info like the offset or the value in decimal:
-
-![](assets/icon.png)
+To use the 'Binary File Viewer' as default for some file extension:
+1. In the vscode explorer right-click the binary file.
+2. Choose 'Open With...'.
+3. If there is more than 1 viewer registered for the file type all viewers will show up, e.g.:
+![](assets/viewer_selection.jpg)
+4. Choose 'Configure default editor for ...'
+5. In the next window select the 'Binary File Viewer'.
+6. The next time you select a file of the same type it is immediately opened by the 'Binary File Viewer'.
 
 
 # TODO
@@ -54,13 +74,11 @@ When hovering over a value or register name you will get additional info like th
 
 - Link öffnen bei click auf row
 
-
 - Icon png
 
-- Formatting (column size) inside addDetails ist komisch.
 
 - Test :
- - 2 addDetails below each other. Withotu parent row.
+ - 2 addDetails below each other. Without parent row.
  - addDetails at the start.
  - read(0)
 
