@@ -197,7 +197,7 @@ export class FunctionDocumentation {
 			for (const funcDoc of funcDocs) {
 				// Title
 				const funcSignature = this.getFuncSignature(funcDoc);
-				md += '#### ' + funcSignature + '\n\n';
+				md += '#### ```' + funcSignature + '```\n\n';
 				// Add description
 				md += funcDoc.func[1] + '\n\n';
 				// Add parameters

@@ -95,9 +95,21 @@
         "walkthroughs": [
             {
                 "id": "createYourFirstParser",
-                "title": "Binary File Viewer: Create your First Parser",
+                "title": "Binary File Viewer",
                 "description": "The 'Binary-File-Viewer' is a framework that let's you create custom binary file viewers.",
                 "steps": [
+                    {
+                        "id": "getHelp",
+                        "title": "Get Help",
+                        "description": "To get help use the command palette and enter 'Binary file Viewer: Show Help'.\n[Run Command](command:binary-file-viewer.help)\nTip: Inside the help view you can use CTRL-F to search.",
+                        "media": {
+                            "image": "assets/walkthroughs/show_help.gif",
+                            "altText": "Empty image"
+                        },
+                        "completionEvents": [
+                            "onCommand:binary-file-viewer.help"
+                        ]
+                    },
                     {
                         "id": "theConcept",
                         "title": "The Concept",
@@ -153,16 +165,13 @@
                         }
                     },
                     {
-                        "id": "getHelp",
-                        "title": "Get Help",
-                        "description": "To get help use the command palette and enter 'Binary file Viewer: Show Help'.\n[Run Command](command:binary-file-viewer.help)\nTip: Inside the help view you can use CTRL-F to search.",
+                        "id": "viewFile",
+                        "title": "View the Decoded Binary File",
+                        "description": "Right-click the file and choose 'Open with 'Binary File Viewer'.",
                         "media": {
-                            "image": "assets/walkthroughs/show_help.gif",
+                            "image": "assets/walkthroughs/view_binfile.gif",
                             "altText": "Empty image"
-                        },
-                        "completionEvents": [
-                            "onCommand:binary-file-viewer.help"
-                        ]
+                        }
                     }
                 ]
             }

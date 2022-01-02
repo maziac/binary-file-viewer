@@ -1,11 +1,5 @@
 # The (Customizable) Binary File Viewer
 
-## Important
-
-Project is not usable yet.
-Under construction !
-
-
 ## Support
 
 If you like the "Binary File Viewer" please consider supporting it.
@@ -19,6 +13,12 @@ If you like the "Binary File Viewer" please consider supporting it.
 </a>
 
 
+## Help
+
+In vscode's command palette run: 'Binary File Viewer: Show Help'.
+That will open a help page explaining the concept and the available API.
+
+There exists also a basic walkthrough. You can open it via: 'Get Started: Open Walkthrough...' -> 'Binary File Viewer'.
 ## Binary File Viewer
 
 The 'Binary File Viewer' is a framework that allows you to build your own custom viewers for binary files.
@@ -43,7 +43,7 @@ Charts:
 ![](assets/help/help4b.jpg)
 
 
-### Installation
+## Installation
 
 Install through Visual Studio Code Marketplace.
 The extension is called "Binary File Viewer".
@@ -70,12 +70,10 @@ To use the 'Binary File Viewer' as default for some file extension:
 # TODO
 
 
-- Walkthroughs vollenden.
-
 - Link öffnen bei click auf row
 
-- Icon png
 
+- Examples into git
 
 - Test :
  - 2 addDetails below each other. Without parent row.
