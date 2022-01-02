@@ -255,7 +255,7 @@ function addDetails(func: () => void, opened = false) {
 				// Return error
 				vscode.postMessage({
 					command: 'customParserError',
-					text: e.stack
+					stack: e.stack
 				});
 			}
 		});
@@ -434,7 +434,7 @@ function parseStart() {
 		// Return error
 		vscode.postMessage({
 			command: 'customParserError',
-			text: e.stack
+			stack: e.stack
 		});
 	}
 }

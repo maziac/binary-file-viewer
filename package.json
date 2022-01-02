@@ -160,7 +160,6 @@
                             "image": "assets/walkthroughs/show_help.gif",
                             "altText": "Empty image"
                         },
-
                         "completionEvents": [
                             "onCommand:binary-file-viewer.help"
                         ]

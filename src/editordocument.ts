@@ -75,21 +75,7 @@ export class EditorDocument implements vscode.CustomDocument {
 						break;
 					case 'customParserError':
 						// An error occurred during execution of the custom parser
-						const stacks = message.text.split('\n');
-						let line = 0;
-						let i = 1;
-						for (; i < stacks.length; i++) {
-							const match = /.*>:(\d+)/.exec(stacks[i]);
-							if (match) {
-								line = parseInt(match[1]);
-								line -= 4;	// The reported number is too high, don't know why.
-								break;
-							}
-						}
-						let msg = stacks[0];
-						if (i > 1)
-							msg += ' (Probably an error in the passed arguments.)';
-						ParserSelect.addDiagnosticsMessage(msg, this.parser.filePath, line);
+						ParserSelect.addDiagnosticsStack(message.stack, this.parser.filePath);
 						break;
 				}
 			});

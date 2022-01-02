@@ -131,14 +131,14 @@ export class ParserSelect {
 	/**
 	 * Adds an error to the diagnostics messages.
 	 * Parses the stack to get the right line.
-	 * @param err The error obtained by a catch.
+	 * @param errStack The error.stack obtained by a catch.
 	 * @param filePath Absolute path to the file.
 	 */
-	protected static addDiagnosticsStack(err: Error, filePath: string) {
+	public static addDiagnosticsStack(errStack: string, filePath: string) {
 		let colNr;
 		let colWidth;
 		// An error occurred during execution of the custom parser
-		const stacks = err.stack.split('\n');
+		const stacks = errStack.split('\n');
         console.log('ParserSelect : addDiagnosticsStack : stacks', stacks);
 		let lineNr = 0;
 		let i = 0;
@@ -159,12 +159,15 @@ export class ParserSelect {
 		// Type a: Contains line and column information, e.g.
 		//         '\tat evalmachine.<anonymous>:5:2'
 		//         The error description is in the previous line.
+		//         This type of error I, e.g., get from the webview (parser.js).
 		// Type b: Contains only line information, e.g.
 		//         'evalmachine.<anonymous>:19'
 		//         The error description is in the line after.
 		//         Followed by characters indicating the column, e.g.:
 		//         '                 ^^^^'
+		//         This type of error I, e.g., get from the extension (e.g. parserselect.ts).
 		// I.e. the 2 types are differentiated by the existence of the column number.
+		// Note: the npm module stacktrace-parser cannot cope with the column info of type b.
 		let msg;
 		if (colNr == undefined) {
 			// Type b
@@ -272,7 +275,7 @@ export class ParserSelect {
 			catch (err) {
 				console.log(err);
 				// Show error
-				this.addDiagnosticsStack(err, filePath);
+				this.addDiagnosticsStack(err.stack, filePath);
 				return;
 			}
 
@@ -330,7 +333,7 @@ export class ParserSelect {
 					catch (err) {
 						console.log(err);
 						// Show error
-						this.addDiagnosticsStack(err, parserFilePath);
+						this.addDiagnosticsStack(err.stack, parserFilePath);
 						return;
 					}
 				},
