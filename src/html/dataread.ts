@@ -24,6 +24,25 @@ var lastBitSize: number;
 // Is used only for displaying.
 var startOffset: number;
 
+// The endianness. (Default = true)
+var littleEndian: boolean;
+
+
+/**
+ * Set the endianness for data reads.
+ * @param endianness Either 'little' (default) or 'big'.
+ */
+function setEndianness(endianness: 'little' | 'big') {
+	if (endianness == 'big')
+		littleEndian = false;
+	else if(endianness == 'little')
+		littleEndian = true;
+	else {
+		// Neither big nor little
+		throw new Error("Use only 'little' or 'big' for the endianness.");
+	}
+}
+
 
 /**
  * @returns Returns the databuffer (file) size.
@@ -155,11 +174,21 @@ function getData(sampleSize = 1, offset = 0, format = 'i', skip = 0): number[] {
 	const end = lastOffset + lastSize;
 	for (let i = totalOffset; i < end; i += step) {
 		// Read all bytes of sample
-		let value = dataBuffer[i];
+		let value = 0;
 		let factor = 1;
-		for (let k = 1; k < sampleSize; k++) {
-			factor *= 256;
-			value += factor * dataBuffer[i + k];
+		if (littleEndian) {
+			// Little endian
+			for (let k = 0; k < sampleSize; k++) {
+				value += factor * dataBuffer[i + k];
+				factor *= 256;
+			}
+		}
+		else {
+			// Big endian
+			for (let k = sampleSize - 1; k >= 0; k--) {
+				value += factor * dataBuffer[i + k];
+				factor *= 256;
+			}
 		}
 		// Convert to signed, if necessary
 		if (signed) {
@@ -184,9 +213,19 @@ function getNumberValue(): number {
 	// Byte wise
 	if (lastSize) {
 		let factor = 1;
-		for (let i = 0; i < lastSize; i++) {
-			value += factor * dataBuffer[lastOffset + i];
-			factor *= 256;
+		if (littleEndian) {
+			// Little endian
+			for (let i = 0; i < lastSize; i++) {
+				value += factor * dataBuffer[lastOffset + i];
+				factor *= 256;
+			}
+		}
+		else {
+			// Big endian
+			for (let i = lastSize - 1; i >= 0; i--) {
+				value += factor * dataBuffer[lastOffset + i];
+				factor *= 256;
+			}
 		}
 	}
 

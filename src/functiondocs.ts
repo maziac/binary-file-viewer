@@ -75,6 +75,12 @@ export class FunctionDocumentation {
 					]
 				},
 				{
+					func: ['setEndianness', 'Set the endianness for data reads.'],
+					params: [
+						['endianness', 'string', "Either 'little'(default ) or 'big'."]
+					]
+				},
+				{
 					func: ['addRow', 'Creates a new row for the table.'],
 					params: [
 						['name', 'string', "The name of the value."],

@@ -129,6 +129,21 @@ const val2 = getNumberValue();
 ```val1``` and ```val2``` are the same values. They are read from the same file data offsets.
 
 
+## readBits
+
+Similar to ```read``` you can use ```readBits``` to read an amount of bits.
+After usage of ```readBits``` the ```get...``` functions will operate on the bits instead of the bytes.
+
+Note: If you read at least one bit of a byte, the next ```read``` will start on the next byte.
+
+## Endianness
+
+The default for reading data is little endian.
+You can change it via ```setEndianness```.
+Changing the endianness will take effect on the next ```get...``` function.
+Please note that changing the endianness will not effect values read with ```readBits```, only values read with ```read```.
+
+
 ## addDetails
 
 ```addDetails```is used to make rows expandable.

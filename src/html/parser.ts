@@ -451,6 +451,7 @@ function addMemDump() {
  */
 function parseStart() {
 	// Reset
+	littleEndian = true;
 	lastOffset = 0;
 	startOffset = lastOffset;
 	lastSize = 0;
@@ -491,6 +492,7 @@ function parseStart() {
 			read,
 			readUntil,
 			readBits,
+			setEndianness,
 			addRow,
 			addDetails,
 			getNumberValue,
