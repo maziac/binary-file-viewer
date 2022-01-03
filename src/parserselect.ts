@@ -58,6 +58,9 @@ export class ParserSelect {
 		// Remember
 		this.parserFolders = parserFolders;
 
+		// New parser map
+		this.fileParserMap.clear();
+
 		// Remove any previous watchers.
 		for (const fileWatcher of this.fileWatchers) {
 			fileWatcher.stop();
@@ -95,6 +98,8 @@ export class ParserSelect {
 				this.addDiagnosticsMessage('' + e, folder + '/', 0);
 			}
 		}
+		// Update any existing docs
+		this.updateAllOpenEditors(undefined);
 	}
 
 

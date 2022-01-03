@@ -255,7 +255,7 @@ export class EditorDocument implements vscode.CustomDocument {
 
 	/**
 	 * Displays the parser (js) file.
-	 * Caleld if user clicks on file name in decoded file.
+	 * Called if user clicks on file name in decoded file.
 	 */
 	protected openCustomParser() {
 		vscode.workspace.openTextDocument(this.parser.filePath)
