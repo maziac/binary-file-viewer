@@ -206,10 +206,30 @@ export class ParserSelect {
 				const filePath = path.join(event.directory, event.file);
 				this.readFile(filePath);
 				// Update the files. Since file type registration might have changed, all files need to be checked.
-				this.updateAllOpenEditors(filePath);
+				setTimeout(() => {
+					// In case of a rename, vscode does a MODIFIED (new file name) followed by a DELETED (old file name). This would result for a short while in 2 parsers for the same file name.
+					// To avoid that (error message) the MODIFIED is delayed a little while.
+					this.updateAllOpenEditors(filePath);
+				}, 100);
 			}
-
-			// TODO: Handle renamed, deleted
+			else if (event.action == ActionType.DELETED) {
+				// Remove the file
+				const filePath = path.join(event.directory, event.file);
+				this.fileParserMap.delete(filePath);
+				// Update the files. It might be that no file is present anymore for the file type.
+				this.updateAllOpenEditors(undefined);
+			} else if (event.action == ActionType.RENAMED) {
+				// Note: Renaming in vscode results in: DELETED, CREATED.
+				// On macOS finder it is: RENAMED.
+				// Remove the old file name
+				const oldFilePath = path.join(event.directory, event.oldFile);
+				this.fileParserMap.delete(oldFilePath);
+				// Read the new file name
+				const newFilePath = path.join(event.newDirectory, event.newFile);
+				this.readFile(newFilePath);
+				// Update the files. It might be that no file is present anymore for the file type.
+				this.updateAllOpenEditors(newFilePath);	// 'newFilePath' to make sure the file is re-read to update the PROBLEM page.
+			}
 		}
 		catch (e) {
 			console.log(e);
@@ -252,8 +272,6 @@ export class ParserSelect {
 		// Skip if not a js file
 		if (path.extname(filePath) != '.js')
 			return;
-	//	if (path.basename(filePath).startsWith('obj'))
-	//		return;	// REMOVE TODO
 
 		// Read file contents
 		try {
