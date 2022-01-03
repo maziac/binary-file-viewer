@@ -21,6 +21,7 @@
 			" * The parser to decode the file.",
 			" */",
 			"registerParser(() => {",
+			"    addStandardHeader();",
 			"    // Put your code here",
 			"    // ...",
 			"});",

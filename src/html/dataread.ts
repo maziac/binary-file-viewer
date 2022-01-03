@@ -164,7 +164,7 @@ function readBits(bitSize: number) {
  * @param skip (Optional) The number of bytes to skip after each read sample. Defaults to 0.
  * @returns The samples in a number array.
  */
-function getData(sampleSize = 1, offset = 0, format = 'i', skip = 0): number[] {
+function getData(sampleSize = 1, offset = 0, format = 'u', skip = 0): number[] {
 	const data: number[] = [];
 	const step = sampleSize + skip;
 	const signed = (format == 'i');

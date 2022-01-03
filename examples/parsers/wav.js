@@ -1,5 +1,3 @@
-
-
 /**
  * Select the 'wav' extension.
  */
@@ -17,6 +15,10 @@ registerFileType((fileExt, filePath, fileData) => {
 
 /**
  * Parser for WAV files.
+ * This parser is able to read the test binary files, mono.wav and stereo.wav.
+ * It may or may not read other wav files.
+ * Purpose of the parser is to demonstrate the parser features.
+ * It is not a complete wav parsing implementation.
  */
 registerParser(() => {
 	// Parse
@@ -69,7 +71,7 @@ registerParser(() => {
 	for (let ch = 0; ch < countChannels; ch++) {
 		const offs = ch * bytesPerSample;
 		const skip = (countChannels - 1) * bytesPerSample;
-		const samples = getData(2, offs, 'i', skip);
+		const samples = getData(2, offs, 'u', skip);
 		channels.push(samples);
 	}
 	addRow('Samples', undefined, 'The samples of the wav file.');

@@ -15,6 +15,7 @@ registerFileType((fileExt, filePath, data) => {
 
 /**
  * Parser for obj files.
+ * This parser just demonstrates the very basics of the parsing commands.
  */
 registerParser(() => {
 

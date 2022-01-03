@@ -141,10 +141,10 @@ export class FunctionDocumentation {
 					func: ['getData', 'Reads in a chunk of data. E.g. to display later in Charts.'],
 					return: ['number[]', 'The samples in a number array.'],
 					params: [
-						['sampleSize', 'number', "((Optional) The starting offset in bytes. Defaults to 0."],
-						['offset', 'number', "(Optional) The starting offset in bytes. Defaults to 0."],
-						['format', 'string', "(Optional) 'u'=unsigned, 'i'=signed. Defaults to 'i'."],
-						['skip', 'number', "(Optional) The number of bytes to skip after each read sample. Defaults to 0."]
+						['sampleSize?', 'number', "(Optional) The size of each data value (sample) in bytes. Defaults to 1."],
+						['offset?', 'number', "(Optional) The starting offset in bytes. Defaults to 0."],
+						['format?', 'string', "(Optional) 'u'=unsigned, 'i'=signed. Defaults to 'u'."],
+						['skip?', 'number', "(Optional) The number of bytes to skip after each read sample. Defaults to 0."]
 					]
 				},
 				{
