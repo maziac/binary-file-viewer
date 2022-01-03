@@ -304,4 +304,11 @@ If you have the parser (js) file open and then click on the offset value of the 
 ![](help6.gif)
 
 
+## Interactive Usage
+
+If you open the parser file and the decoded binary file side-by-side you can easily extend your parser and watch the effect in the decoding immediately.
+
+Just save your parser file to update the decoded file.
+
+![](help7.gif)
 

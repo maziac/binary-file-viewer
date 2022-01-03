@@ -1,7 +1,7 @@
 
 
 /**
- * Select the files for which the parser should work.
+ * Select the 'wav' extension.
  */
 registerFileType((fileExt, filePath, fileData) => {
 	// Check for wav extension
@@ -16,7 +16,7 @@ registerFileType((fileExt, filePath, fileData) => {
 
 
 /**
- * My own parser.
+ * Parser for WAV files.
  */
 registerParser(() => {
 	// Parse

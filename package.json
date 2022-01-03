@@ -104,7 +104,7 @@
                         "description": "To get help use the command palette and enter 'Binary file Viewer: Show Help'.\n[Run Command](command:binary-file-viewer.help)\nTip: Inside the help view you can use CTRL-F to search.",
                         "media": {
                             "image": "assets/walkthroughs/show_help.gif",
-                            "altText": "Empty image"
+                            "altText": ""
                         },
                         "completionEvents": [
                             "onCommand:binary-file-viewer.help"
@@ -124,7 +124,7 @@
                         "description": "At first choose a **location for your parser files**. The 'Binary File Viewer' will use these files for decoding.\nCreate a new folder (e.g. outside vscode), enter vscode's preferences and add the absolute path of this folder.",
                         "media": {
                             "image": "assets/walkthroughs/settings_folder.gif",
-                            "altText": "Empty image"
+                            "altText": ""
                         },
                         "completionEvents": [
                             "onSettingChanged:binary-file-viewer.parserFolders"
@@ -144,7 +144,7 @@
                         "description": "Use the code snippet ('binary...') to create the parser skeleton.",
                         "media": {
                             "image": "assets/walkthroughs/snippet_usage.gif",
-                            "altText": "Empty image"
+                            "altText": ""
                         }
                     },
                     {
@@ -153,7 +153,7 @@
                         "description": "In the 'registerFileType' function you can determine for what files your parser will be executed.\nChange the string for the file extension. E.g for a '*.wav' file decoder choose 'wav'.",
                         "media": {
                             "image": "assets/walkthroughs/file_extension.gif",
-                            "altText": "Empty image"
+                            "altText": ""
                         }
                     },
                     {
@@ -170,7 +170,7 @@
                         "description": "Right-click the file and choose 'Open with 'Binary File Viewer'.",
                         "media": {
                             "image": "assets/walkthroughs/view_binfile.gif",
-                            "altText": "Empty image"
+                            "altText": ""
                         }
                     },
                     {
@@ -179,7 +179,16 @@
                         "description": "If you have the parser (js) file open and then click on the offset value of the decoded binary file, the function that was used to create the row will become selected.",
                         "media": {
                             "image": "assets/help/help6.gif",
-                            "altText": "Empty image"
+                            "altText": ""
+                        }
+                    },
+                    {
+                        "id": "interactive",
+                        "title": "Interactive Usage",
+                        "description": "If you open the parser file and the decoded binary file side-by-side you can easily extend your parser and watch the effect in the decoding immediately.\nJust save your parser file to update the decoded file.",
+                        "media": {
+                            "image": "assets/help/help7.gif",
+                            "altText": ""
                         }
                     }
                 ]
