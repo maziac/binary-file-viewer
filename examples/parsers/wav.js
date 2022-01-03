@@ -71,7 +71,7 @@ registerParser(() => {
 	for (let ch = 0; ch < countChannels; ch++) {
 		const offs = ch * bytesPerSample;
 		const skip = (countChannels - 1) * bytesPerSample;
-		const samples = getData(2, offs, 'u', skip);
+		const samples = getData(2, offs, 'i', skip);
 		channels.push(samples);
 	}
 	addRow('Samples', undefined, 'The samples of the wav file.');

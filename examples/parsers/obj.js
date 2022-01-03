@@ -1,6 +1,3 @@
-
-
-
 /**
  * Selects the 'obj' extension.
  */

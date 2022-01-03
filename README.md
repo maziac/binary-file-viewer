@@ -19,6 +19,8 @@ In vscode's command palette run: 'Binary File Viewer: Show Help'.
 That will open a help page explaining the concept and the available API.
 
 There exists also a basic walkthrough. You can open it from the command palette via: 'Get Started: Open Walkthrough...' -> 'Binary File Viewer'.
+
+
 ## Binary File Viewer
 
 The 'Binary File Viewer' is a framework that allows you to build your own custom viewers for binary files.

@@ -1,4 +1,23 @@
 # The Binary File Viewer
+
+## Support
+
+If you like the "Binary File Viewer" please consider supporting it.
+
+<a href="https://github.com/sponsors/maziac" title="Github sponsor">
+	<img src="../button_donate_sp.png" />
+</a>
+&nbsp;&nbsp;
+<a href="https://www.paypal.com/donate/?hosted_button_id=K6NNLZCTN3UV4&locale.x=en_DE&Z3JncnB0=" title="PayPal">
+	<img src="../button_donate_pp.png" />
+</a>
+
+
+## Walkthrough
+
+There exists also a basic walkthrough. You can open it from the command palette via: 'Get Started: Open Walkthrough...' -> 'Binary File Viewer'.
+
+
 ## Concept
 
 The 'Binary File Viewer' is a framework that allows you to build your own custom viewers for binary files.
@@ -11,7 +30,7 @@ This *.js file consist of 2 stages. I.e. you basically register 2 functions:
 - with 'registerParser' you register the function which actually decodes the binary file.
 
 
-## registerFileType
+### registerFileType
 
 The 'Binary File Viewer' itself registers inside vscode for every file type (*.*).
 I.e. whenever you select a file to be viewed the 'Binary File Viewer' will iterate through all of your js files until it finds one that returns true to idicate that it can decode the file.
@@ -61,7 +80,7 @@ Returns the bytes from the file at the given offset.
 Returns the file size in bytes.
 
 
-## registerParser
+### registerParser
 
 This is the main function you need to install.
 Here you read in the data from the file and you create the output for the viewer's window.
@@ -96,7 +115,7 @@ An important aspect of the size is that it is no parameter to the ```addRow```.
 In fact it is directly used from the previous ```read```.
 
 
-## read
+### read
 
 As you have seen before: with ```read``` you will read in data from the file.
 The reading starts at the last position. I.e. for the first ```read```at offset 0 or for the following ```read``` after the previous ```read```.
@@ -129,14 +148,14 @@ const val2 = getNumberValue();
 ```val1``` and ```val2``` are the same values. They are read from the same file data offsets.
 
 
-## readBits
+### readBits
 
 Similar to ```read``` you can use ```readBits``` to read an amount of bits.
 After usage of ```readBits``` the ```get...``` functions will operate on the bits instead of the bytes.
 
 Note: If you read at least one bit of a byte, the next ```read``` will start on the next byte.
 
-## Endianness
+### Endianness
 
 The default for reading data is little endian.
 You can change it via ```setEndianness```.
@@ -144,7 +163,7 @@ Changing the endianness will take effect on the next ```get...``` function.
 Please note that changing the endianness will not effect values read with ```readBits```, only values read with ```read```.
 
 
-## addDetails
+### addDetails
 
 ```addDetails```is used to make rows expandable.
 I.e. when using ```addDetails``` the previous row gets a '+' sign:
@@ -195,7 +214,7 @@ I.e. the next row can be decoded just like before with:
 ![](help2c.jpg)
 
 
-## addMemDump
+### addMemDump
 
 If you just want to output a memory dump of a region you can use ```addMemDump```.
 If you additionally put it into ```addDetails```you can make it expandable.
@@ -216,7 +235,7 @@ results in:
 Note: Hovering above the values will give additional information about the relative and absolute offset.
 
 
-## addChart
+### addChart
 
 To visualize data series you can use the ```addChart``` command.
 
@@ -272,7 +291,7 @@ E.g.:
 ![](help4c.jpg)
 
 
-## addCanvas
+### addCanvas
 
 For visualizing of embedded picture there exists a canvas object that you can draw to.
 You create one with
@@ -311,4 +330,39 @@ If you open the parser file and the decoded binary file side-by-side you can eas
 Just save your parser file to update the decoded file.
 
 ![](help7.gif)
+
+
+## Examples
+
+In the github repository there exist a few example parser and binary files.
+You'll find them [here](https://github.com/maziac/binary-file-viewer/tree/main/examples).
+
+In order to use them you need to download the files and put the parser (*.js) files in your parser folder (the one you used in the settings).
+
+You can also download the test binaries.
+When opened in vscode you are able to decode them with the parser files.
+
+### [obj.js](https://github.com/maziac/binary-file-viewer/tree/main/examples/parsers/obj.js)
+
+A very basic parser. Just showing the simplest commands.
+
+![](help9obj.jpg)
+
+
+### [wav.js](https://github.com/maziac/binary-file-viewer/tree/main/examples/parsers/wav.js)
+
+A parser to decode wav files.
+It demonstrates the usage of charts.
+It works with the wav files in the testbinaries folder.
+It may or may not work with other wav files.
+
+![](help10wav.jpg)
+
+### [pic.js](https://github.com/maziac/binary-file-viewer/tree/main/examples/parsers/pic.js)
+
+A parser which decodes a proprietary picture file format.
+This file format was invented just to demonstrate how to use a canvas.
+
+![](help11pic.jpg)
+
 
