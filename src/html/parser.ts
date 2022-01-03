@@ -50,6 +50,15 @@ function assert(condition: boolean) {
 }
 
 
+/**
+ * Sends a command to the extension to ope or focus the used parser file.
+ */
+function openCustomParser() {
+	vscode.postMessage({
+		command: 'openCustomParser'
+	});
+}
+
 
 /**
  * Add a standard header, i.e. the size of the file.
@@ -82,7 +91,7 @@ function addStandardHeader() {
 		i = k;
 	i++;
 	const usedParser = filePathParser.substring(i);
-	html += '<span>Parser used: ' + usedParser + '</span>';
+	html += '<span>Parser used: <a href="#" onclick="openCustomParser()">' + usedParser + '</a></span>';
 
 	standardHeaderNode.innerHTML = html;
 }
@@ -93,7 +102,7 @@ function addStandardHeader() {
  * command to the webview, so that it displays the corresponding line
  * in the custom parser js file.
  */
-function linkToCustomParser(cell: HTMLTableCellElement) {
+function linkToCustomParserLine(cell: HTMLTableCellElement) {
 	const offset = (cell as any)['_customParserOffset'];
 	if (offset) {
 		vscode.postMessage({
@@ -160,7 +169,7 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 				lineNr,
 				colNr
 			};
-			offsetNode.setAttribute('onclick', 'linkToCustomParser(this)');
+			offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
 		}
 	}
 
@@ -206,21 +215,6 @@ function collapse(cell: HTMLTableCellElement) {
 			cell.dispatchEvent(event);
 		}
 	}
-
-	/*
-	const row = cell.parentElement as HTMLTableRowElement;
-	// Use next row as target.
-	const target_row = row.parentElement.children[row.rowIndex + 1] as HTMLTableRowElement;
-	if (target_row.style.display == 'table-row') {
-		cell.innerHTML = '+';
-		target_row.style.display = 'none';
-	} else {
-		cell.innerHTML = '-';
-		target_row.style.display = 'table-row';
-		const event = new CustomEvent('expand');
-		cell.dispatchEvent(event);
-	}
-	*/
 }
 
 

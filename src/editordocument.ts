@@ -81,6 +81,10 @@ export class EditorDocument implements vscode.CustomDocument {
 						// Display the given line (and column) in the parser (js) file
 						this.selectParserLine(message.offset);
 						break;
+					case 'openCustomParser':
+						// Display the parser (js) file
+						this.openCustomParser();
+						break;
 				}
 			});
 
@@ -200,7 +204,6 @@ export class EditorDocument implements vscode.CustomDocument {
 	}
 
 
-
 	/**
 	 * Display the given line (and column) in the parser (js) file.
 	 * The line is only selected if the file is already opened.
@@ -218,7 +221,7 @@ export class EditorDocument implements vscode.CustomDocument {
 						const text = doc.getText().split('\n');
 						const line = text[offset.lineNr];
 						// Search for closed bracket
-						let i = offset.colNr+1;
+						let i = offset.colNr + 1;
 						let bracketCount = 0;
 						const len = line.length;
 						while (i < len) {
@@ -247,5 +250,17 @@ export class EditorDocument implements vscode.CustomDocument {
 		}
 
 		// Nothing found
+	}
+
+
+	/**
+	 * Displays the parser (js) file.
+	 * Caleld if user clicks on file name in decoded file.
+	 */
+	protected openCustomParser() {
+		vscode.workspace.openTextDocument(this.parser.filePath)
+			.then(doc => {
+				vscode.window.showTextDocument(doc);
+			});
 	}
 }
