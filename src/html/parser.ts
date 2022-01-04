@@ -82,7 +82,7 @@ function addStandardHeader() {
 	}
 
 	// Add file size
-	let html = '<span>Filesize: ' + fileSize + ' Bytes' + humanString + ', </span>';
+	let html = '<span>File size: ' + fileSize + ' Bytes' + humanString + ', </span>';
 
 	// Used parser
 	let i = filePathParser.lastIndexOf('/');

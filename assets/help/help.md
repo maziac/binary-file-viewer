@@ -32,8 +32,8 @@ This *.js file consist of 2 stages. I.e. you basically register 2 functions:
 
 ### registerFileType
 
-The 'Binary File Viewer' itself registers inside vscode for every file type (*.*).
-I.e. whenever you select a file to be viewed the 'Binary File Viewer' will iterate through all of your js files until it finds one that returns true to idicate that it can decode the file.
+The 'Binary File Viewer' itself registers inside vscode for every file type (\*.*).
+I.e. whenever you select a file to be viewed the 'Binary File Viewer' will iterate through all of your js files until it finds one that returns true to indicate that it can decode the file.
 
 Here is an example that registers for 'wav' files by checking the file extension:
 ~~~js
@@ -53,7 +53,7 @@ For more complicated checks other arguments are passed:
 
 Although normally not required, ```fileData``` can be quite handy in some situations.
 With ```fileData```you can access the file contents and check e.g. the header of a file for certain data. E.g. some files carry an ID at the start of the file to identify the file type.
-E.g. a more enhanced version of the file type check for wav files could look like this:
+A more enhanced version of the file type check for wav files could look like this:
 ~~~js
 registerFileType((fileExt, filePath, fileData) => {
 	// Check for wav extension
@@ -108,7 +108,7 @@ The addRow parameters correspond exactly with the columns in the shown row.
 - ```shortDescription```: (Optional) A short description of the entry.
 
 The first 2 columns are automatically filled by the 'Binary File viewer':
-- Offset: Is the offset from the start of the file.
+- Offset: Is the offset from the start of the file. (Or the offset from the start of ```addDetails```, see later.)
 - Size: Is the size of the data object represented by the row.
 
 An important aspect of the size is that it is no parameter to the ```addRow```.
@@ -213,6 +213,7 @@ I.e. the next row can be decoded just like before with:
 
 ![](help2c.jpg)
 
+The offset shown in an ```addDetails``` section is always the offset from the beginning of the ```addDetails``` section.
 
 ### addMemDump
 
@@ -230,6 +231,7 @@ E.g.:
 ~~~
 
 results in:
+
 ![](help3.jpg)
 
 Note: Hovering above the values will give additional information about the relative and absolute offset.
@@ -256,7 +258,8 @@ You can display more than one series by simply adding another number array to th
 	addChart({
 		series: [
 			samples1,
-			samples2]
+			samples2
+		]
 	}, 'Chart');
 ~~~
 
@@ -293,7 +296,7 @@ E.g.:
 
 ### addCanvas
 
-For visualizing of embedded picture there exists a canvas object that you can draw to.
+For visualizing r.g. of embedded pictures there exists a canvas object that you can draw to.
 You create one with
 ~~~js
 	const ctx = addCanvas(1000, 300, 'My Canvas');
@@ -318,7 +321,7 @@ The example here creates a canvas object and draws a red rectangle inside:
 
 ## Navigation
 
-If you have the parser (js) file open and then click on the offset value of the decoded binary file, the function that was used to create the row will become selected.
+If you have the parser (*.js) file open and then click on the offset value of the decoded binary file, the function that was used to create the row will become selected.
 
 ![](help6.gif)
 

@@ -10,7 +10,7 @@ import {PackageInfo} from './packageinfo';
 import {HelpView} from './helpview';
 
 
-// Declare the providers to cahnge them on preferences change.
+// Declare the providers to change them on preferences change.
 let completionsProvider: CompletionProvider;
 
 
