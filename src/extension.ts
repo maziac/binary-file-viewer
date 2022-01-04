@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {CompletionProvider} from './completionprovider';
 import {EditorProvider} from './editorprovider';
-import {HoverProvider} from './HoverProvider';
+import {HoverProvider} from './hoverproviderr';
 import {ParserSelect} from './parserselect';
 import {SignatureProvider} from './signatureprovider';
 import {PackageInfo} from './packageinfo';
