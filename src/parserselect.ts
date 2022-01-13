@@ -48,6 +48,10 @@ export class ParserSelect {
 	// A copy of the array of parser folder from the settings.
 	protected static parserFolders: string[];
 
+	// Will be filled by init with all parser folders that are ot included in workspaces
+	// and can therefore not be observed.
+	protected static unobservedFolder: string[];
+
 
 	/**
 	 * Starts the file watcher for the given parser folders.
@@ -66,39 +70,48 @@ export class ParserSelect {
 			fileWatcher.stop();
 		}
 		this.fileWatchers = [];
+		this.unobservedFolder = [];
 
 		// Setup a file watcher on the 'parsers' directory
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
 		this.clearDiagnostics();
 		for (const folder of parserFolders) {
 			try {
-				// Truncate for the workspace
 				console.log('parserFolder:', folder);
-				//const relativePattern = new vscode.RelativePattern(folder, '*.js');
-				//console.log('  relativePattern:', relativePattern);
-				const pattern = path.join(folder, '*.js');
-				const fsWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-				fsWatcher.onDidChange(uri => {
-					console.log('ParserSelect : onDidChange : uri', uri);
-					// File modified
-					ParserSelect.clearDiagnostics();
-					ParserSelect.fileModified(uri);
-				});
-				fsWatcher.onDidCreate(uri => {
-					console.log('ParserSelect : onDidCreate : uri', uri);
-					// File modified
-					ParserSelect.clearDiagnostics();
-					ParserSelect.fileModified(uri);
-				});
-				fsWatcher.onDidDelete(uri => {
-					console.log('ParserSelect : onDidDelete : uri', uri);
-					// File modified
-					ParserSelect.clearDiagnostics();
-					ParserSelect.fileDeleted(uri);
-				});
 
-				// Read files initially.
-				this.readAllFiles(folder);
+				// Check if parser folder is included in work space
+				if (this.inWorkspace(folder)) {
+					// Is included in workspace: Truncate for the workspace
+					const pattern = new vscode.RelativePattern(folder, '*.js');
+					console.log('  relativePattern:', pattern);
+					//const pattern = path.join(folder, '*.js');
+					const fsWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+					fsWatcher.onDidChange(uri => {
+						console.log('ParserSelect : onDidChange : uri', uri);
+						// File modified
+						ParserSelect.clearDiagnostics();
+						ParserSelect.fileModified(uri);
+					});
+					fsWatcher.onDidCreate(uri => {
+						console.log('ParserSelect : onDidCreate : uri', uri);
+						// File modified
+						ParserSelect.clearDiagnostics();
+						ParserSelect.fileModified(uri);
+					});
+					fsWatcher.onDidDelete(uri => {
+						console.log('ParserSelect : onDidDelete : uri', uri);
+						// File modified
+						ParserSelect.clearDiagnostics();
+						ParserSelect.fileDeleted(uri);
+					});
+					// Read files initially.
+					this.fileParserMap = this.readAllFiles(folder);
+				}
+				else {
+					// Is not included in workspace. Save.
+					this.unobservedFolder.push(folder);
+				}
+
 			}
 			catch (e) {
 				console.log(e);
@@ -108,6 +121,22 @@ export class ParserSelect {
 		}
 		// Update any existing docs
 		this.updateAllOpenEditors(undefined);
+	}
+
+
+	/**
+	 * Checks if folder is in one of the workspace folders.
+	 * @param folder The folder path (absolute) to check.
+	 * @returns true if included in one of the workspaces.
+	 */
+	protected static inWorkspace(folder: string): boolean {
+		for (const ws of vscode.workspace.workspaceFolders) {
+			const path = ws.uri.fsPath;
+			if (folder.startsWith(path))
+				return true;	// Found
+		}
+		// Not found
+		return false;
 	}
 
 
@@ -215,9 +244,10 @@ export class ParserSelect {
 	protected static fileModified(uri: vscode.Uri) {
 		try {
 			// Read the file
-			//const filePath = path.join(event.directory, event.file);
 			const filePath = uri.fsPath;
-			this.readFile(filePath);
+			const parser = this.readFile(filePath);
+			if (parser)
+				this.fileParserMap.set(filePath, parser);
 			// Update the files. Since file type registration might have changed, all files need to be checked.
 			setTimeout(() => {
 				// In case of a rename, vscode does a MODIFIED (new file name) followed by a DELETED (old file name). This would result for a short while in 2 parsers for the same file name.
@@ -279,8 +309,10 @@ export class ParserSelect {
 	/**
 	 * Reads all files in the given path.
 	 * @param folderPath The folder to use.
+	 * @returns Map with filename -> contents association for the parser files.
 	 */
-	protected static readAllFiles(folderPath: string) {
+	protected static readAllFiles(folderPath: string): Map<string, string> {
+		const parserMap = new Map<string, string>();
 		try {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			let fullPath;
@@ -288,11 +320,15 @@ export class ParserSelect {
 				fullPath = path.join(folderPath, file.name);
 				if (file.isDirectory()) {
 					// Dig recursively
-					this.readAllFiles(fullPath);
+					const dirMap = this.readAllFiles(fullPath);
+					// Merge with map
+					dirMap.forEach((path, parser) => parserMap.set(path, parser));
 				}
 				else {
 					// Read file
-					this.readFile(fullPath);
+					const parser = this.readFile(fullPath);
+					if(parser != undefined)
+						parserMap.set(fullPath, parser);
 				}
 			}
 		}
@@ -300,17 +336,19 @@ export class ParserSelect {
 			console.log(e);
 			vscode.window.showErrorMessage(e.toString());
 		}
+		return parserMap;
 	}
 
 
 	/**
 	 * Reads the contents of a single file and adds it to the map.
 	 * @param filePath The full file path of the parser file to read.
+	 * @returns The parser contents. Or undefined in case of an error.
 	 */
-	protected static readFile(filePath: string) {
+	protected static readFile(filePath: string): string|undefined {
 		// Skip if not a js file
 		if (path.extname(filePath) != '.js')
-			return;
+			return undefined;
 
 		// Read file contents
 		try {
@@ -336,7 +374,7 @@ export class ParserSelect {
 				console.log(err);
 				// Show error
 				this.addDiagnosticsStack(err.stack, filePath);
-				return;
+				return undefined;
 			}
 
 			// Check if functions are used
@@ -349,15 +387,16 @@ export class ParserSelect {
 					// Output to vscode's PROBLEM area.
 					this.addDiagnosticsMessage("You need to register a parser via 'registerParser'.", filePath, 0);
 				}
-				return;
+				return undefined;
 			}
 
-			// If everything is fine, add to map
-			this.fileParserMap.set(filePath, fileContents);
+			// Return
+			return fileContents;
 		}
 		catch (e) {
 			console.log(e);
 			vscode.window.showErrorMessage(e.toString());
+			return undefined;
 		}
 	}
 
@@ -377,30 +416,39 @@ export class ParserSelect {
 		// Create file data object
 		const fileData = new FileData(filePath);
 
-		// Loop through all parsers
+		// Loop through all parsers, observed and unobserved
 		const foundParsers: ParserInfo[] = [];
 		for (const [parserFilePath, parser] of this.fileParserMap) {
 			// Run each parser 'registerFileType'
-			vmRunInNewContext(parser, {
-				registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => boolean) => {
-					try {
-						// Evaluate custom function
-						const found = func(fileExt, filePath, fileData);
-						if (found) {
-							foundParsers.push({contents: parser, filePath: parserFilePath});
-						}
-					}
-					catch (err) {
-						console.log(err);
-						// Show error
-						this.addDiagnosticsStack(err.stack, parserFilePath);
-						return;
-					}
-				},
-				registerParser: (func: () => void) => {
-					// Do nothing
+			try {
+				const found = this.runRegisterFileType(parser, fileExt, filePath, fileData);
+				if (found) {
+					foundParsers.push({contents: parser, filePath: parserFilePath});
 				}
-			});
+			}
+			catch (e) {
+				// Show error
+				this.addDiagnosticsStack(e.stack, parserFilePath);
+			}
+		}
+
+		// Now loop through all unobserved folders.
+		for (const folder of this.unobservedFolder) {
+			// Read each parser file.
+			const parserMap = this.readAllFiles(folder);
+			for (const [parserFilePath, parser] of parserMap) {
+				// Run each parser 'registerFileType'
+				try {
+					const found = this.runRegisterFileType(parser, fileExt, filePath, fileData);
+					if (found) {
+						foundParsers.push({contents: parser, filePath: parserFilePath});
+					}
+				}
+				catch (e) {
+					// Show error
+					this.addDiagnosticsStack(e.stack, parserFilePath);
+				}
+			}
 		}
 
 		// Close, in case it was opened.
@@ -426,6 +474,39 @@ export class ParserSelect {
 
 		// Returning the first one.
 		return foundParsers[0];
+	}
+
+
+	/**
+	 * Runs the 'registerFileType' and it's registered function to validate if the given file
+	 * is the right one for parsing.
+	 * @param parser The parser file contents (to be executed).
+	 * @param fileExt The file extension, e.g. "wav".
+	 * @param filePath The full absolute path.
+	 * @param fileData The contents of the file.
+	 * @returns true if the parser was registered for this file.
+	 */
+	protected static runRegisterFileType(parser: string, fileExt: string, filePath: string, fileData: FileData): boolean {
+		let found = false;
+
+		// Run 'registerFileType'
+		vmRunInNewContext(parser, {
+			registerFileType: (func: (fileExt: string, filePath: string, fileData: FileData) => boolean) => {
+				try {
+					// Evaluate custom function
+					found = func(fileExt, filePath, fileData);
+				}
+				catch (err) {
+					console.log(err);
+					throw err;
+				}
+			},
+			registerParser: (func: () => void) => {
+				// Do nothing
+			}
+		});
+
+		return found;
 	}
 
 
