@@ -1,5 +1,7 @@
 # The (Customizable) Binary File Viewer
 
+# Important note: At the moment this extension is only working on macOS. An update for Windows is planned.
+
 ## Support
 
 If you like the "Binary File Viewer" please consider supporting it.
