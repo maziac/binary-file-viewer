@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as path from 'path';
 import {vmRunInNewContext} from './scopelessfunctioncall';
 import {EditorDocument} from './editordocument';
 import {FileData} from './filedata';
+import {UnifiedPath} from './unifiedpath';
 
 
 /**
@@ -43,7 +43,7 @@ export class ParserSelect {
 	protected static fileParserMap = new Map<string, string>();
 
 	// An array with all the active file watchers.
-	protected static fileWatchers: any[] = [];
+	protected static fileWatchers: vscode.FileSystemWatcher[] = [];
 
 	// A copy of the array of parser folder from the settings.
 	protected static parserFolders: string[];
@@ -60,14 +60,14 @@ export class ParserSelect {
 	 */
 	public static init(parserFolders: string[]) {
 		// Remember
-		this.parserFolders = parserFolders;
+		this.parserFolders = UnifiedPath.getUnifiedPathArray(parserFolders);
 
 		// New parser map
 		this.fileParserMap.clear();
 
 		// Remove any previous watchers.
 		for (const fileWatcher of this.fileWatchers) {
-			fileWatcher.stop();
+			fileWatcher.dispose();
 		}
 		this.fileWatchers = [];
 		this.unobservedFolder = [];
@@ -75,7 +75,7 @@ export class ParserSelect {
 		// Setup a file watcher on the 'parsers' directory
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
 		this.clearDiagnostics();
-		for (const folder of parserFolders) {
+		for (const folder of this.parserFolders) {
 			try {
 				console.log('parserFolder:', folder);
 
@@ -86,6 +86,7 @@ export class ParserSelect {
 					console.log('  relativePattern:', pattern);
 					//const pattern = path.join(folder, '*.js');
 					const fsWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+					this.fileWatchers.push(fsWatcher);
 					fsWatcher.onDidChange(uri => {
 						console.log('ParserSelect : onDidChange : uri', uri);
 						// File modified
@@ -131,7 +132,7 @@ export class ParserSelect {
 	 */
 	protected static inWorkspace(folder: string): boolean {
 		for (const ws of vscode.workspace.workspaceFolders) {
-			const path = ws.uri.fsPath;
+			const path = UnifiedPath.getUnifiedPath(ws.uri.fsPath);
 			if (folder.startsWith(path))
 				return true;	// Found
 		}
@@ -317,7 +318,7 @@ export class ParserSelect {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			let fullPath;
 			for (const file of files) {
-				fullPath = path.join(folderPath, file.name);
+				fullPath = UnifiedPath.join(folderPath, file.name);
 				if (file.isDirectory()) {
 					// Dig recursively
 					const dirMap = this.readAllFiles(fullPath);
@@ -347,7 +348,7 @@ export class ParserSelect {
 	 */
 	protected static readFile(filePath: string): string|undefined {
 		// Skip if not a js file
-		if (path.extname(filePath) != '.js')
+		if (UnifiedPath.extname(filePath) != '.js')
 			return undefined;
 
 		// Read file contents
@@ -409,7 +410,7 @@ export class ParserSelect {
 	 */
 	public static selectParserFile(filePath: string): ParserInfo {
 		// Get the file extension
-		let fileExt = path.extname(filePath);
+		let fileExt = UnifiedPath.extname(filePath);
 		if (fileExt.length >= 1)
 			fileExt = fileExt.slice(1); 	// Remove the '.'
 
@@ -465,7 +466,7 @@ export class ParserSelect {
 			let msg = "Multiple parsers found for '" + filePath + "': ";
 			let sep = '';
 			for (const parser of foundParsers) {
-				msg += sep + path.basename(parser.filePath);
+				msg += sep + UnifiedPath.basename(parser.filePath);
 				sep = ', ';
 			}
 			msg += '. Choosing the first one.';

@@ -1,8 +1,8 @@
 {
     "name": "binary-file-viewer",
-    "displayName": "Binary File Viewer (macOS)",
-    "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file. At the moment it can only be used on macOS.",
-    "version": "1.0.2",
+    "displayName": "Binary File Viewer",
+    "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file.",
+    "version": "1.1.0",
     "publisher": "maziac",
     "author": {
         "name": "Thomas Busse"
