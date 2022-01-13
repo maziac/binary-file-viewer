@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.0.2
+- nfsw removed. Using vscode.FileSystemWatcher instead.
+
 # 1.0.1
 - Readme: Comment added that the extension can only be used on macOS at the moment.
 

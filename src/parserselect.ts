@@ -1,11 +1,9 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import {ActionType} from 'nsfw';
 import * as path from 'path';
 import {vmRunInNewContext} from './scopelessfunctioncall';
 import {EditorDocument} from './editordocument';
 import {FileData} from './filedata';
-const nsfw = require('nsfw');
 
 
 /**
@@ -52,7 +50,9 @@ export class ParserSelect {
 
 
 	/**
-	 * Initializes the path.
+	 * Starts the file watcher for the given parser folders.
+	 * Due to a restriction in vscode it is only possible to watch for files/folders
+	 * in the current workspaces.
 	 */
 	public static init(parserFolders: string[]) {
 		// Remember
@@ -72,22 +72,30 @@ export class ParserSelect {
 		this.clearDiagnostics();
 		for (const folder of parserFolders) {
 			try {
-				nsfw(folder,
-					function (events: any) {
-						//console.log(events);
-						// Loop array of events
-						ParserSelect.clearDiagnostics();
-						for (const event of events) {
-							ParserSelect.fileChanged(event);
-						}
-					}
-				)
-					.then(function (watcher: any) {
-						// Remember
-						ParserSelect.fileWatchers.push(watcher);
-						// And start watching
-						return watcher.start();
-					});
+				// Truncate for the workspace
+				console.log('parserFolder:', folder);
+				//const relativePattern = new vscode.RelativePattern(folder, '*.js');
+				//console.log('  relativePattern:', relativePattern);
+				const pattern = path.join(folder, '*.js');
+				const fsWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+				fsWatcher.onDidChange(uri => {
+					console.log('ParserSelect : onDidChange : uri', uri);
+					// File modified
+					ParserSelect.clearDiagnostics();
+					ParserSelect.fileModified(uri);
+				});
+				fsWatcher.onDidCreate(uri => {
+					console.log('ParserSelect : onDidCreate : uri', uri);
+					// File modified
+					ParserSelect.clearDiagnostics();
+					ParserSelect.fileModified(uri);
+				});
+				fsWatcher.onDidDelete(uri => {
+					console.log('ParserSelect : onDidDelete : uri', uri);
+					// File modified
+					ParserSelect.clearDiagnostics();
+					ParserSelect.fileDeleted(uri);
+				});
 
 				// Read files initially.
 				this.readAllFiles(folder);
@@ -201,45 +209,71 @@ export class ParserSelect {
 
 
 	/**
-	 * Called for every single file change.
+	 * Called for every modified file.
+	 * @param uri The file uri.
 	 */
-	protected static fileChanged(event: any) {
+	protected static fileModified(uri: vscode.Uri) {
 		try {
-			// Check type of change
-			if (event.action == ActionType.CREATED || event.action == ActionType.MODIFIED) {
-				// Read the file
-				const filePath = path.join(event.directory, event.file);
-				this.readFile(filePath);
-				// Update the files. Since file type registration might have changed, all files need to be checked.
-				setTimeout(() => {
-					// In case of a rename, vscode does a MODIFIED (new file name) followed by a DELETED (old file name). This would result for a short while in 2 parsers for the same file name.
-					// To avoid that (error message) the MODIFIED is delayed a little while.
-					this.updateAllOpenEditors(filePath);
-				}, 100);
-			}
-			else if (event.action == ActionType.DELETED) {
-				// Remove the file
-				const filePath = path.join(event.directory, event.file);
-				this.fileParserMap.delete(filePath);
-				// Update the files. It might be that no file is present anymore for the file type.
-				this.updateAllOpenEditors(undefined);
-			} else if (event.action == ActionType.RENAMED) {
-				// Note: Renaming in vscode results in: DELETED, CREATED.
-				// On macOS finder it is: RENAMED.
-				// Remove the old file name
-				const oldFilePath = path.join(event.directory, event.oldFile);
-				this.fileParserMap.delete(oldFilePath);
-				// Read the new file name
-				const newFilePath = path.join(event.newDirectory, event.newFile);
-				this.readFile(newFilePath);
-				// Update the files. It might be that no file is present anymore for the file type.
-				this.updateAllOpenEditors(newFilePath);	// 'newFilePath' to make sure the file is re-read to update the PROBLEM page.
-			}
+			// Read the file
+			//const filePath = path.join(event.directory, event.file);
+			const filePath = uri.fsPath;
+			this.readFile(filePath);
+			// Update the files. Since file type registration might have changed, all files need to be checked.
+			setTimeout(() => {
+				// In case of a rename, vscode does a MODIFIED (new file name) followed by a DELETED (old file name). This would result for a short while in 2 parsers for the same file name.
+				// To avoid that (error message) the MODIFIED is delayed a little while.
+				this.updateAllOpenEditors(filePath);
+			}, 100);
 		}
 		catch (e) {
 			console.log(e);
 		}
 	}
+
+
+	/**
+	 * Called for every deleted file.
+	 * @param uri The file uri.
+	 */
+	protected static fileDeleted(uri: vscode.Uri) {
+		try {
+			// Remove the file
+			//const filePath = path.join(event.directory, event.file);
+			const filePath = uri.fsPath;
+			this.fileParserMap.delete(filePath);
+			// Update the files. It might be that no file is present anymore for the file type.
+			this.updateAllOpenEditors(undefined);
+		}
+		catch (e) {
+			console.log(e);
+		}
+	}
+
+
+	/**
+	 * Called for every renamed file.
+	 * NOT USED.
+	 * @param uri The file uri.
+	 */
+	/*
+	protected static fileModified(uri: vscode.Uri) {
+		try {
+			// Note: Renaming in vscode results in: DELETED, CREATED.
+			// On macOS finder it is: RENAMED.
+			// Remove the old file name
+			const oldFilePath = path.join(event.directory, event.oldFile);
+			this.fileParserMap.delete(oldFilePath);
+			// Read the new file name
+			const newFilePath = path.join(event.newDirectory, event.newFile);
+			this.readFile(newFilePath);
+			// Update the files. It might be that no file is present anymore for the file type.
+			this.updateAllOpenEditors(newFilePath);	// 'newFilePath' to make sure the file is re-read to update the PROBLEM page.
+		}
+		catch (e) {
+			console.log(e);
+		}
+	}
+	*/
 
 
 	/**

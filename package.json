@@ -2,7 +2,7 @@
     "name": "binary-file-viewer",
     "displayName": "Binary File Viewer (macOS)",
     "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file. At the moment it can only be used on macOS.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "maziac",
     "author": {
         "name": "Thomas Busse"
@@ -215,7 +215,6 @@
         "chart.js": "^3.6.2",
         "chartjs-plugin-zoom": "^1.2.0",
         "hammerjs": "^2.0.8",
-        "nsfw": "^2.1.2",
         "path": "^0.12.7",
         "posthtml": "^0.16.5",
         "posthtml-toc": "^1.0.3",
