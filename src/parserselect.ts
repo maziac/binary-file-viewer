@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import {vmRunInNewContext} from './scopelessfunctioncall';
 import {EditorDocument} from './editordocument';
 import {FileData} from './filedata';
-import {UnifiedPath} from './unifiedpath';
+import * as OrigPath from 'path'
 
 
 /**
@@ -60,7 +60,7 @@ export class ParserSelect {
 	 */
 	public static init(parserFolders: string[]) {
 		// Remember
-		this.parserFolders = UnifiedPath.getUnifiedPathArray(parserFolders);
+		this.parserFolders = parserFolders;
 
 		// New parser map
 		this.fileParserMap.clear();
@@ -75,17 +75,21 @@ export class ParserSelect {
 		// Setup a file watcher on the 'parsers' directory
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
 		this.clearDiagnostics();
-		for (const folder of this.parserFolders) {
+		for (const folder of parserFolders) {
 			try {
 				console.log('parserFolder:', folder);
 
 				// Check if parser folder is included in work space
-				if (this.inWorkspace(folder)) {
-					// Is included in workspace: Truncate for the workspace
-					const pattern = new vscode.RelativePattern(folder, '*.js');
-					console.log('  relativePattern:', pattern);
-					//const pattern = path.join(folder, '*.js');
-					const fsWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+				const ws = this.getWorkspace(folder);
+				if(ws) {
+					// Is included in workspace: Observe folder
+					const relativePath = this.getRelativePath(ws.uri.fsPath, folder);
+					// Turn all backslashes into forward slashes
+					const pattern = relativePath.replace(/\\/g, '/');
+					const patternjs = pattern + '/*.js';
+					const relativePattern = new vscode.RelativePattern(ws, patternjs);
+					console.log('  relativePattern:', relativePattern);
+					const fsWatcher = vscode.workspace.createFileSystemWatcher(relativePattern);
 					this.fileWatchers.push(fsWatcher);
 					fsWatcher.onDidChange(uri => {
 						console.log('ParserSelect : onDidChange : uri', uri);
@@ -126,18 +130,37 @@ export class ParserSelect {
 
 
 	/**
+	 * Checks if child is sub file/folder of parent.
+	 * Can handle windows and posix:
+	 * 'C:\\Foo', 'c:\\foo\\Bar' => true
+	 * '/c/foo', '/c/foo/bar' => true
+	 * @param parent The parent dir.
+	 * @param child The child dir to test.
+	 * @returns The relative path or undefined if not included
+	 */
+	protected static getRelativePath(parent: string, child: string): string {
+		const relative = OrigPath.relative(parent, child);
+		const isIncluded = relative && !relative.startsWith('..') && !OrigPath.isAbsolute(relative);
+		if (isIncluded)
+			return relative;
+		// Not included
+		return undefined;
+	}
+
+
+	/**
 	 * Checks if folder is in one of the workspace folders.
 	 * @param folder The folder path (absolute) to check.
 	 * @returns true if included in one of the workspaces.
 	 */
-	protected static inWorkspace(folder: string): boolean {
+	protected static getWorkspace(folder: string): vscode.WorkspaceFolder {
 		for (const ws of vscode.workspace.workspaceFolders) {
-			const path = UnifiedPath.getUnifiedPath(ws.uri.fsPath);
-			if (folder.startsWith(path))
-				return true;	// Found
+			const path = ws.uri.fsPath;
+			if (this.getRelativePath(path, folder) != undefined)
+				return ws;	// Found
 		}
 		// Not found
-		return false;
+		return undefined;
 	}
 
 
@@ -318,7 +341,7 @@ export class ParserSelect {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			let fullPath;
 			for (const file of files) {
-				fullPath = UnifiedPath.join(folderPath, file.name);
+				fullPath = OrigPath.join(folderPath, file.name);
 				if (file.isDirectory()) {
 					// Dig recursively
 					const dirMap = this.readAllFiles(fullPath);
@@ -348,7 +371,7 @@ export class ParserSelect {
 	 */
 	protected static readFile(filePath: string): string|undefined {
 		// Skip if not a js file
-		if (UnifiedPath.extname(filePath) != '.js')
+		if (OrigPath.extname(filePath) != '.js')
 			return undefined;
 
 		// Read file contents
@@ -410,7 +433,7 @@ export class ParserSelect {
 	 */
 	public static selectParserFile(filePath: string): ParserInfo {
 		// Get the file extension
-		let fileExt = UnifiedPath.extname(filePath);
+		let fileExt = OrigPath.extname(filePath);
 		if (fileExt.length >= 1)
 			fileExt = fileExt.slice(1); 	// Remove the '.'
 
@@ -466,7 +489,7 @@ export class ParserSelect {
 			let msg = "Multiple parsers found for '" + filePath + "': ";
 			let sep = '';
 			for (const parser of foundParsers) {
-				msg += sep + UnifiedPath.basename(parser.filePath);
+				msg += sep + OrigPath.basename(parser.filePath);
 				sep = ', ';
 			}
 			msg += '. Choosing the first one.';

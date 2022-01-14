@@ -1,7 +1,7 @@
 /**
  * Select the 'pic' as file extension.
  * pic is a proprietary picture format that just carries the
- * width and height of the image and teh image data itself.
+ * width and height of the image and the image data itself.
  * Simple uncompressed RGB values.
  */
 registerFileType((fileExt, filePath, fileData) => {
