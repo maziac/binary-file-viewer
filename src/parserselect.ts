@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import {vmRunInNewContext} from './scopelessfunctioncall';
 import {EditorDocument} from './editordocument';
 import {FileData} from './filedata';
-import * as OrigPath from 'path'
+import * as path from 'path';
 
 
 /**
@@ -46,6 +46,8 @@ export class ParserSelect {
 	protected static fileWatchers: vscode.FileSystemWatcher[] = [];
 
 	// A copy of the array of parser folder from the settings.
+	// Only used for 'isParser' for hover, completion and signature provider.
+	// Stores the path with lower case drive letter. (Fromat used by vscode for comparison, document filter etc.)
 	protected static parserFolders: string[];
 
 	// Will be filled by init with all parser folders that are ot included in workspaces
@@ -59,9 +61,6 @@ export class ParserSelect {
 	 * in the current workspaces.
 	 */
 	public static init(parserFolders: string[]) {
-		// Remember
-		this.parserFolders = parserFolders;
-
 		// New parser map
 		this.fileParserMap.clear();
 
@@ -71,11 +70,26 @@ export class ParserSelect {
 		}
 		this.fileWatchers = [];
 		this.unobservedFolder = [];
+		this.parserFolders = [];
 
 		// Setup a file watcher on the 'parsers' directory
 		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
 		this.clearDiagnostics();
-		for (const folder of parserFolders) {
+		for (const parserFolder of parserFolders) {
+			// Check for absolute path
+			if(!parserFolder || !path.isAbsolute(parserFolder)) {
+				vscode.window.showErrorMessage("Path is not an absolute path: '" + parserFolder + "'.");
+				continue;
+			}
+
+			// Make sure that on windows the drive letter is always lower case.
+			// As parserFolder is an absolute path it either starts with the drive letter
+			// or '/'.
+			const folder = this.lowerCaseDriveLetter(parserFolder);
+
+			// Remember
+			this.parserFolders.push(folder);	// Store with lower case drive letter.
+
 			try {
 				console.log('parserFolder:', folder);
 
@@ -130,6 +144,21 @@ export class ParserSelect {
 
 
 	/**
+	 * Make sure that on windows the drive letter is always lower case.
+	 * As path is an absolute path it either starts with the drive letter
+	 * or '/'.
+	 * @param path An absolute path, e.g. "C:\Folder".
+	 * @returns E.g. "c:\Folder".
+	 */
+	protected static lowerCaseDriveLetter(path: string): string {
+		if(!path)
+			return path;
+		const s = path[0].toLowerCase() + path.substring(1);
+		return s;
+	}
+
+
+	/**
 	 * Checks if child is sub file/folder of parent.
 	 * Can handle windows and posix:
 	 * 'C:\\Foo', 'c:\\foo\\Bar' => true
@@ -139,8 +168,8 @@ export class ParserSelect {
 	 * @returns The relative path or undefined if not included
 	 */
 	protected static getRelativePath(parent: string, child: string): string {
-		const relative = OrigPath.relative(parent, child);
-		const isIncluded = relative && !relative.startsWith('..') && !OrigPath.isAbsolute(relative);
+		const relative = path.relative(parent, child);
+		const isIncluded = relative && !relative.startsWith('..') && !path.isAbsolute(relative);
 		if (isIncluded)
 			return relative;
 		// Not included
@@ -268,7 +297,7 @@ export class ParserSelect {
 	protected static fileModified(uri: vscode.Uri) {
 		try {
 			// Read the file
-			const filePath = uri.fsPath;
+			const filePath = this.lowerCaseDriveLetter(uri.fsPath);
 			const parser = this.readFile(filePath);
 			if (parser)
 				this.fileParserMap.set(filePath, parser);
@@ -332,7 +361,7 @@ export class ParserSelect {
 
 	/**
 	 * Reads all files in the given path.
-	 * @param folderPath The folder to use.
+	 * @param folderPath The folder to use. An absolute path.
 	 * @returns Map with filename -> contents association for the parser files.
 	 */
 	protected static readAllFiles(folderPath: string): Map<string, string> {
@@ -341,7 +370,7 @@ export class ParserSelect {
 			const files = fs.readdirSync(folderPath, {withFileTypes: true});
 			let fullPath;
 			for (const file of files) {
-				fullPath = OrigPath.join(folderPath, file.name);
+				fullPath = path.join(folderPath, file.name);
 				if (file.isDirectory()) {
 					// Dig recursively
 					const dirMap = this.readAllFiles(fullPath);
@@ -371,7 +400,7 @@ export class ParserSelect {
 	 */
 	protected static readFile(filePath: string): string|undefined {
 		// Skip if not a js file
-		if (OrigPath.extname(filePath) != '.js')
+		if (path.extname(filePath) != '.js')
 			return undefined;
 
 		// Read file contents
@@ -433,7 +462,7 @@ export class ParserSelect {
 	 */
 	public static selectParserFile(filePath: string): ParserInfo {
 		// Get the file extension
-		let fileExt = OrigPath.extname(filePath);
+		let fileExt = path.extname(filePath);
 		if (fileExt.length >= 1)
 			fileExt = fileExt.slice(1); 	// Remove the '.'
 
@@ -489,7 +518,7 @@ export class ParserSelect {
 			let msg = "Multiple parsers found for '" + filePath + "': ";
 			let sep = '';
 			for (const parser of foundParsers) {
-				msg += sep + OrigPath.basename(parser.filePath);
+				msg += sep + path.basename(parser.filePath);
 				sep = ', ';
 			}
 			msg += '. Choosing the first one.';
@@ -565,16 +594,16 @@ export class ParserSelect {
 	/**
 	 * Check if the given document matches one of the parser folder paths.
 	 * @param document The document e.g. from a document from one of the providers.
-	 * @returns true if document is  a parser file.
+	 * @returns true if document is a parser file.
 	 */
 	public static isParser(document: vscode.TextDocument): boolean {
-		// Note: I cannot compare the fileParserMap as the map contains onl valid files (without errors).
+		// Note: I cannot compare the fileParserMap as the map contains only valid files (without errors).
 
 		// First check for right path
-		for (const pattern of this.parserFolders) {
-			const docFilter: vscode.DocumentFilter = {pattern: pattern + '/**/*.js'};
+		for (const parserFolder of this.parserFolders) {
+			const docFilter: vscode.DocumentFilter = {pattern: parserFolder + '/**/*.js'};
 			if (vscode.languages.match(docFilter, document) > 0) {
-				return	true;
+				return true;
 			}
 		}
 		// Not found
