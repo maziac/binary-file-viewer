@@ -21,7 +21,7 @@ export class SignatureProvider implements vscode.SignatureHelpProvider {
 	 */
 	provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.SignatureHelpContext): vscode.ProviderResult<vscode.SignatureHelp> {
 		// First check for right path
-		if (!ParserSelect.isParser(document))
+		if (!ParserSelect.isParserDoc(document.uri))
 			return undefined;
 
 		const line = document.lineAt(position).text;

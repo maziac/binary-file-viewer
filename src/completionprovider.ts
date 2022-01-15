@@ -19,7 +19,7 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
         //console.log('CompletionProvider : provideCompletionItems');
 
         // First check for right path
-        if (!ParserSelect.isParser(document))
+        if (!ParserSelect.isParserDoc(document.uri))
             return undefined;
         //console.log('CompletionProvider : b');
 

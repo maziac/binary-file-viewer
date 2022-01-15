@@ -30,7 +30,7 @@ export class HoverProvider implements vscode.HoverProvider {
      */
     public async provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Hover> {
         // First check for right path
-        if (!ParserSelect.isParser(document))
+        if (!ParserSelect.isParserDoc(document.uri))
             return undefined;
 
 
