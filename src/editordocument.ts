@@ -14,9 +14,6 @@ export class EditorDocument implements vscode.CustomDocument {
 	// The used parser file.
 	public parser: ParserInfo;
 
-	// If no parser is found this html is presented instead.
-	public errorHtml: string;
-
 	// Remember the webviewPanel for sending updates.
 	public webviewPanel: vscode.WebviewPanel;
 
@@ -111,7 +108,7 @@ export class EditorDocument implements vscode.CustomDocument {
 		else {
 			// Get all tried parsers.
 			html = '<html><body>Binary-File-Viewer: No parser available.<br>';
-			const parserPaths = ParserSelect.getParserFilePaths();
+			const parserPaths = ParserSelect.getTestedParserFilePaths();
 			if (parserPaths.length > 0) {
 				html += 'Tried parser(s):';
 				for (const parserPath of parserPaths)
@@ -176,10 +173,10 @@ export class EditorDocument implements vscode.CustomDocument {
 	/**
 	 * Update the parser.
 	 * Checks beforehand if an update is necessary.
+	 * An update is done if the contents or the filepath (rename) is different.
 	 * @param parser The new ParserInfo.
-	 * @param updateInAnyCase If true the file is re-parsed even if the contents did not change.
 	 */
-	public updateParser(parser: ParserInfo, updateInAnyCase: boolean) {
+	public updateParser(parser: ParserInfo) {
 		// If this.parser is undefined there was no parser found in the past.
 		if (!this.parser) {
 			// No previous parser
@@ -194,7 +191,7 @@ export class EditorDocument implements vscode.CustomDocument {
 			}
 			else {
 				// New parser might be different
-				if (updateInAnyCase || (this.parser.contents != parser.contents)) {
+				if ((this.parser.contents != parser.contents) || (this.parser.filePath != parser.filePath)) {
 					// Yes it's different, use the new parser
 					this.sendParserToWebView(parser, this.webviewPanel);
 				}

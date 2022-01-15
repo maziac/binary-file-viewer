@@ -38,21 +38,13 @@ export class ParserSelect {
 	// The diagnostics collection.
 	public static diagnosticsCollection = vscode.languages.createDiagnosticCollection("Binary File Viewer");
 
-
-	// Filename -> contents association for the parser files.
-	protected static fileParserMap = new Map<string, string>();
-
-	// An array with all the active file watchers.
-	protected static fileWatchers: vscode.FileSystemWatcher[] = [];
-
 	// A copy of the array of parser folder from the settings.
 	// Only used for 'isParser' for hover, completion and signature provider.
 	// Stores the path with lower case drive letter. (Fromat used by vscode for comparison, document filter etc.)
 	protected static parserFolders: string[];
 
-	// Will be filled by init with all parser folders that are ot included in workspaces
-	// and can therefore not be observed.
-	protected static unobservedFolder: string[];
+	// Collect the tested parsers for error reporting in 'selectParser'.
+	protected static testedParserFilePaths: string[];
 
 
 	/**
@@ -61,19 +53,11 @@ export class ParserSelect {
 	 * in the current workspaces.
 	 */
 	public static init(parserFolders: string[]) {
-		// New parser map
-		this.fileParserMap.clear();
-
-		// Remove any previous watchers.
-		for (const fileWatcher of this.fileWatchers) {
-			fileWatcher.dispose();
-		}
-		this.fileWatchers = [];
-		this.unobservedFolder = [];
+		// Init
 		this.parserFolders = [];
+		this.testedParserFilePaths = [];
 
-		// Setup a file watcher on the 'parsers' directory
-		// Note: vscode's createFileSystemWatcher can only watch for changes in the workspace.
+		// Loop thorugh parser folders and adjust the path
 		this.clearDiagnostics();
 		for (const parserFolder of parserFolders) {
 			// Check for absolute path
@@ -89,57 +73,54 @@ export class ParserSelect {
 
 			// Remember
 			this.parserFolders.push(folder);	// Store with lower case drive letter.
+		}
 
-			try {
-				console.log('parserFolder:', folder);
+		// Update any existing docs
+		this.updateAllOpenEditors();
+	}
 
-				// Check if parser folder is included in work space
-				const ws = this.getWorkspace(folder);
-				if(ws) {
-					// Is included in workspace: Observe folder
-					const relativePath = this.getRelativePath(ws.uri.fsPath, folder);
-					// Turn all backslashes into forward slashes
-					const pattern = relativePath.replace(/\\/g, '/');
-					const patternjs = pattern + '/*.js';
-					const relativePattern = new vscode.RelativePattern(ws, patternjs);
-					console.log('  relativePattern:', relativePattern);
-					const fsWatcher = vscode.workspace.createFileSystemWatcher(relativePattern);
-					this.fileWatchers.push(fsWatcher);
-					fsWatcher.onDidChange(uri => {
-						console.log('ParserSelect : onDidChange : uri', uri);
-						// File modified
-						ParserSelect.clearDiagnostics();
-						ParserSelect.fileModified(uri);
-					});
-					fsWatcher.onDidCreate(uri => {
-						console.log('ParserSelect : onDidCreate : uri', uri);
-						// File modified
-						ParserSelect.clearDiagnostics();
-						ParserSelect.fileModified(uri);
-					});
-					fsWatcher.onDidDelete(uri => {
-						console.log('ParserSelect : onDidDelete : uri', uri);
-						// File modified
-						ParserSelect.clearDiagnostics();
-						ParserSelect.fileDeleted(uri);
-					});
-					// Read files initially.
-					this.fileParserMap = this.readAllFiles(folder);
-				}
-				else {
-					// Is not included in workspace. Save.
-					this.unobservedFolder.push(folder);
-				}
 
-			}
-			catch (e) {
-				console.log(e);
-				// Output to vscode's PROBLEM area.
-				this.addDiagnosticsMessage('' + e, folder + '/', 0);
+	/**
+	 * Check if the given uri is a parser uri.
+	 * I.e. that it is a js file ad that it is contained in a parser folder.
+	 * @param uri The uri to test.
+	 * @returns true if it is a parser doc.
+	 */
+	public static isParserDoc(uri: vscode.Uri): boolean {
+		// Check if js file in right folder
+		const filePath = uri.fsPath;
+		for (const parserFolder of this.parserFolders) {
+			// Check path
+			const relPath = this.getRelativePath(parserFolder, filePath)
+			if (!relPath)
+				continue;
+			// Check extension
+			if (path.extname(filePath) != '.js')
+				continue;
+			// Path and extension ok: It's a parser file.
+			return true;
+		}
+		// Not found
+		return false;
+	}
+
+
+	/**
+	 * Text documents have been created. Not so important, but can e.g. happen by
+	 * an undo. Check if it is a js parser file and update the file viewers.
+	 * @param doc The deleted doc.
+	 */
+	public static updateIfParserFile(uris: readonly vscode.Uri[]) {
+		// Check if js file in right folder
+		for (const uri of uris) {
+			// Check if js file in right folder
+			if (this.isParserDoc(uri)) {
+				// Found
+				ParserSelect.clearDiagnostics();
+				this.updateAllOpenEditors();
+				break;	// Stop here, one update is enough
 			}
 		}
-		// Update any existing docs
-		this.updateAllOpenEditors(undefined);
 	}
 
 
@@ -151,7 +132,7 @@ export class ParserSelect {
 	 * @returns E.g. "c:\Folder".
 	 */
 	protected static lowerCaseDriveLetter(path: string): string {
-		if(!path)
+		if (!path)
 			return path;
 		const s = path[0].toLowerCase() + path.substring(1);
 		return s;
@@ -290,74 +271,6 @@ export class ParserSelect {
 	}
 
 
-	/**
-	 * Called for every modified file.
-	 * @param uri The file uri.
-	 */
-	protected static fileModified(uri: vscode.Uri) {
-		try {
-			// Read the file
-			const filePath = this.lowerCaseDriveLetter(uri.fsPath);
-			const parser = this.readFile(filePath);
-			if (parser)
-				this.fileParserMap.set(filePath, parser);
-			// Update the files. Since file type registration might have changed, all files need to be checked.
-			setTimeout(() => {
-				// In case of a rename, vscode does a MODIFIED (new file name) followed by a DELETED (old file name). This would result for a short while in 2 parsers for the same file name.
-				// To avoid that (error message) the MODIFIED is delayed a little while.
-				this.updateAllOpenEditors(filePath);
-			}, 100);
-		}
-		catch (e) {
-			console.log(e);
-		}
-	}
-
-
-	/**
-	 * Called for every deleted file.
-	 * @param uri The file uri.
-	 */
-	protected static fileDeleted(uri: vscode.Uri) {
-		try {
-			// Remove the file
-			//const filePath = path.join(event.directory, event.file);
-			const filePath = uri.fsPath;
-			this.fileParserMap.delete(filePath);
-			// Update the files. It might be that no file is present anymore for the file type.
-			this.updateAllOpenEditors(undefined);
-		}
-		catch (e) {
-			console.log(e);
-		}
-	}
-
-
-	/**
-	 * Called for every renamed file.
-	 * NOT USED.
-	 * @param uri The file uri.
-	 */
-	/*
-	protected static fileModified(uri: vscode.Uri) {
-		try {
-			// Note: Renaming in vscode results in: DELETED, CREATED.
-			// On macOS finder it is: RENAMED.
-			// Remove the old file name
-			const oldFilePath = path.join(event.directory, event.oldFile);
-			this.fileParserMap.delete(oldFilePath);
-			// Read the new file name
-			const newFilePath = path.join(event.newDirectory, event.newFile);
-			this.readFile(newFilePath);
-			// Update the files. It might be that no file is present anymore for the file type.
-			this.updateAllOpenEditors(newFilePath);	// 'newFilePath' to make sure the file is re-read to update the PROBLEM page.
-		}
-		catch (e) {
-			console.log(e);
-		}
-	}
-	*/
-
 
 	/**
 	 * Reads all files in the given path.
@@ -461,6 +374,8 @@ export class ParserSelect {
 	 * @returns the parser contents and its file path on success. Otherwise undefined.
 	 */
 	public static selectParserFile(filePath: string): ParserInfo {
+		this.testedParserFilePaths = [];
+
 		// Get the file extension
 		let fileExt = path.extname(filePath);
 		if (fileExt.length >= 1)
@@ -469,29 +384,15 @@ export class ParserSelect {
 		// Create file data object
 		const fileData = new FileData(filePath);
 
-		// Loop through all parsers, observed and unobserved
+		// Loop through all parsers and read them.
 		const foundParsers: ParserInfo[] = [];
-		for (const [parserFilePath, parser] of this.fileParserMap) {
-			// Run each parser 'registerFileType'
-			try {
-				const found = this.runRegisterFileType(parser, fileExt, filePath, fileData);
-				if (found) {
-					foundParsers.push({contents: parser, filePath: parserFilePath});
-				}
-			}
-			catch (e) {
-				// Show error
-				this.addDiagnosticsStack(e.stack, parserFilePath);
-			}
-		}
-
-		// Now loop through all unobserved folders.
-		for (const folder of this.unobservedFolder) {
+		for (const folder of this.parserFolders) {
 			// Read each parser file.
 			const parserMap = this.readAllFiles(folder);
 			for (const [parserFilePath, parser] of parserMap) {
 				// Run each parser 'registerFileType'
 				try {
+					this.testedParserFilePaths.push(parserFilePath);
 					const found = this.runRegisterFileType(parser, fileExt, filePath, fileData);
 					if (found) {
 						foundParsers.push({contents: parser, filePath: parserFilePath});
@@ -571,13 +472,13 @@ export class ParserSelect {
 	 * @param changedFilePath This file was the originator for the call.
 	 * The doc is updated also if the file contents actually did not change.
 	 */
-	public static updateAllOpenEditors(changedFilePath: string) {
+	// TODO: REMOVE changedFilePath
+	public static updateAllOpenEditors(changedFilePath?: string) {
 		const docs = EditorDocument.getDocuments();
 		for (const doc of docs) {
 			const filePath = doc.uri.fsPath;
 			const parser = this.selectParserFile(filePath);
-			const updateInAnyCase = (changedFilePath == parser?.filePath);
-			doc.updateParser(parser, updateInAnyCase);
+			doc.updateParser(parser);
 		}
 	}
 
@@ -585,9 +486,8 @@ export class ParserSelect {
 	/**
 	 * @returns All available parser file paths.
 	 */
-	public static getParserFilePaths(): string[] {
-		const parserPaths: string[] = Array.from(this.fileParserMap.keys());
-		return parserPaths;
+	public static getTestedParserFilePaths(): string[] {
+		return this.testedParserFilePaths;
 	}
 
 

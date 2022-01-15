@@ -69,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!parser) {
             // Get all tried parsers.
             let msg = "Binary-File-Viewer: No parser available for '" + path.basename(filePath) + "'.\n";
-            const parserPaths = ParserSelect.getParserFilePaths();
+            const parserPaths = ParserSelect.getTestedParserFilePaths();
             if (parserPaths.length > 0) {
                 msg += "Tried parser(s): ";
                 for (const parserPath of parserPaths)
@@ -83,6 +83,29 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand('vscode.openWith', uri, 'binary-file-viewer.viewer');
     }));
 
+    // Register for text document changes.
+    vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
+        //ParserSelect.textDocModified(doc);
+        ParserSelect.updateIfParserFile([doc.uri]);
+    });
+    vscode.workspace.onDidDeleteFiles((e: vscode.FileDeleteEvent) => {
+        //ParserSelect.textDocsDeleted(e.files);
+        ParserSelect.updateIfParserFile(e.files);
+    });
+    vscode.workspace.onDidCreateFiles((e: vscode.FileCreateEvent) => {
+        //ParserSelect.textDocsCreated(e.files);
+        ParserSelect.updateIfParserFile(e.files);
+    });
+    vscode.workspace.onDidRenameFiles((e: vscode.FileRenameEvent) => {
+        //ParserSelect.textDocsRenamed(e.files);
+        // Merge old and new names
+        const merged: vscode.Uri[] = [];
+        for (const renamedFile of e.files) {
+            merged.push(renamedFile.newUri);
+            merged.push(renamedFile.oldUri);
+        }
+        ParserSelect.updateIfParserFile(merged);
+    });
 
     // Check for every change.
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
