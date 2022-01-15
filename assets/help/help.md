@@ -1,5 +1,7 @@
 # The Binary File Viewer
 
+You can use "CTRL-F" for searching this help.
+
 ## Support
 
 If you like the "Binary File Viewer" please consider supporting it.

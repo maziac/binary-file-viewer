@@ -40,7 +40,6 @@ export class ParserSelect {
 
 	// A copy of the array of parser folder from the settings.
 	// Only used for 'isParser' for hover, completion and signature provider.
-	// Stores the path with lower case drive letter. (Fromat used by vscode for comparison, document filter etc.)
 	protected static parserFolders: string[];
 
 	// Collect the tested parsers for error reporting in 'selectParser'.
@@ -66,13 +65,8 @@ export class ParserSelect {
 				continue;
 			}
 
-			// Make sure that on windows the drive letter is always lower case.
-			// As parserFolder is an absolute path it either starts with the drive letter
-			// or '/'.
-			const folder = this.lowerCaseDriveLetter(parserFolder);
-
 			// Remember
-			this.parserFolders.push(folder);	// Store with lower case drive letter.
+			this.parserFolders.push(parserFolder);	// Store with lower case drive letter.
 		}
 
 		// Update any existing docs
@@ -131,12 +125,14 @@ export class ParserSelect {
 	 * @param path An absolute path, e.g. "C:\Folder".
 	 * @returns E.g. "c:\Folder".
 	 */
+	/* At the moment this is not required:
 	protected static lowerCaseDriveLetter(path: string): string {
 		if (!path)
 			return path;
 		const s = path[0].toLowerCase() + path.substring(1);
 		return s;
 	}
+	*/
 
 
 	/**
@@ -154,22 +150,6 @@ export class ParserSelect {
 		if (isIncluded)
 			return relative;
 		// Not included
-		return undefined;
-	}
-
-
-	/**
-	 * Checks if folder is in one of the workspace folders.
-	 * @param folder The folder path (absolute) to check.
-	 * @returns true if included in one of the workspaces.
-	 */
-	protected static getWorkspace(folder: string): vscode.WorkspaceFolder {
-		for (const ws of vscode.workspace.workspaceFolders) {
-			const path = ws.uri.fsPath;
-			if (this.getRelativePath(path, folder) != undefined)
-				return ws;	// Found
-		}
-		// Not found
 		return undefined;
 	}
 
@@ -269,7 +249,6 @@ export class ParserSelect {
 		lineNr += lineOffset;
 		this.addDiagnosticsMessage(msg, filePath, lineNr - 1, colNr, colWidth);
 	}
-
 
 
 	/**
@@ -472,7 +451,6 @@ export class ParserSelect {
 	 * @param changedFilePath This file was the originator for the call.
 	 * The doc is updated also if the file contents actually did not change.
 	 */
-	// TODO: REMOVE changedFilePath
 	public static updateAllOpenEditors(changedFilePath?: string) {
 		const docs = EditorDocument.getDocuments();
 		for (const doc of docs) {
@@ -497,8 +475,6 @@ export class ParserSelect {
 	 * @returns true if document is a parser file.
 	 */
 	public static isParser(document: vscode.TextDocument): boolean {
-		// Note: I cannot compare the fileParserMap as the map contains only valid files (without errors).
-
 		// First check for right path
 		for (const parserFolder of this.parserFolders) {
 			const docFilter: vscode.DocumentFilter = {pattern: parserFolder + '/**/*.js'};
