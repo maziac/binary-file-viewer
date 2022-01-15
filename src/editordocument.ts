@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import {ParserInfo, ParserSelect} from './parserselect';
+import {parse} from 'path/posix';
 
 
 /**
@@ -81,6 +82,11 @@ export class EditorDocument implements vscode.CustomDocument {
 					case 'openCustomParser':
 						// Display the parser (js) file
 						this.openCustomParser();
+						break;
+					case 'reload':
+						// Reload/re-parse the file
+						const parser = ParserSelect.selectParserFile(filePath);
+						this.updateParser(parser);
 						break;
 				}
 			});

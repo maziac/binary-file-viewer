@@ -54,7 +54,7 @@ export class FunctionDocumentation {
 		['Function registerParser',
 			[
 				{
-					func: ['addStandardHeader', 'Add a standard header. This includes the size of the file.']
+					func: ['addStandardHeader', 'Adds a standard header. This includes the size of the file.']
 				},
 				{
 					func: ['read', 'Advances the offset (from previous call) and stores the size for reading.'],

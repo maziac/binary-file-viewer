@@ -51,7 +51,7 @@ function assert(condition: boolean) {
 
 
 /**
- * Sends a command to the extension to ope or focus the used parser file.
+ * Sends a command to the extension to open or focus the used parser file.
  */
 function openCustomParser() {
 	vscode.postMessage({
@@ -61,7 +61,17 @@ function openCustomParser() {
 
 
 /**
- * Add a standard header, i.e. the size of the file.
+ * Sends a command to the extension to reload and re-parse the file.
+ */
+function reloadFile() {
+	vscode.postMessage({
+		command: 'reload'
+	});
+}
+
+
+/**
+ * Adds a standard header, i.e. the size of the file.
  */
 function addStandardHeader() {
 	// Calculate human readable file size
@@ -454,7 +464,10 @@ function parseStart() {
 
 	// Create table with header row
 	lastNode.innerHTML = `
-	<div></div>
+	<div>
+		<span></span>
+		<span></span>
+	</div>
 	<table>
 		<tr>
 			<th class="collapse"></td>
@@ -465,8 +478,12 @@ function parseStart() {
 			<th class="description">Description</th>
 		</tr>
 	</table>`;
+	const startNode = lastNode.children[0];
 	// For the standard header
-	standardHeaderNode = lastNode.children[0];
+	standardHeaderNode = startNode.children[0];
+	// The reload button
+	const reloadNode = startNode.children[1];
+	reloadNode.innerHTML = '<button onclick="reloadFile()">Reload</button>';
 	// Use table
 	lastNode = lastNode.children[1];
 
