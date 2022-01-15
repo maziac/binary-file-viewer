@@ -76,7 +76,6 @@ To use the 'Binary File Viewer' as default for some file extension:
 This extension makes heavy use of the "[chart.js](https://www.chartjs.org)", the "[chartjs-plugin-zoom](https://github.com/chartjs/chartjs-plugin-zoom)" and the "[hammer.js](https://github.com/hammerjs/hammer.js/tree/master/)" libraries.
 
 Further used libraries are:
-- [nsfw](https://github.com/axosoft/node-simple-file-watcher)
 - [path](https://github.com/jinder/path)
 - [posthtml-toc](https://github.com/posthtml/posthtml-toc)
 - [posthtml](https://github.com/posthtml/posthtml)

@@ -55,15 +55,17 @@ The just added row gets another embedded table. The current row is remembered an
 
 # Filewatcher
 
-The js files are observed for changes. Version 1.0.0 had the nsfw filewatcher which was working fine but was a binary package. I.e. it included only the macOS binary.
+The js files have been observed for changes in the past. Version 1.0.0 used the nsfw filewatcher which was working fine but was a binary package. I.e. it included only the macOS binary.
 Therefore on Windows it was not working.
-So I exchanged it with the vscode.workspace.FileSystemWatcher.
-Unfortunately this one is not able to watch for changes in directories that are not included in the workspace folders.
+
+In order to support also windows the nsfw was dropped beginning with version 1.1.0 and instead the vscode API was used.
+Unfortunately this API is not able to watch for changes in directories that are not included in the workspace folders, i.e. in one vscode window.
 Therefore the js files are only checked for changes when they are opened inside the vscode itself. And only in the same vscode window.
 I.e. during development of the parser js file it is still possible to work side-by-side with the parser and the binary file.
 But in normal operation (when the parser js files are not open or open in another vscode window) there will be no update of the binary file view if the parser changes.
-For this it is checked on startup which of the parser folders are included in the workspace and which not.
-The included ones are observed, the others are put in a 'unobservedFolder' array.
-When a binary file is opened all files in the unobserved folders are read and parsed.
+
+Therefore, whenever a binary file is opened all parser files are re-read from the file system because they might have changed meanwhile.
+The file view also has a 'reload' button to manually initiate a reload.
+
 
 
