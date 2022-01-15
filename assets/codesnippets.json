@@ -4,6 +4,7 @@
 			"bfv",
 			"Binary File Viewer"
 		],
+		"scope": "javascript",
 		"body": [
 			"/**",
  			" * Select the files for which the parser should work.",
@@ -27,6 +28,6 @@
 			"});",
 			""
 		],
-		"description": "The parser template."
+		"description": "The binary file viewer parser template."
 	}
 }
