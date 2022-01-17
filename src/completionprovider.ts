@@ -40,11 +40,6 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
         const completions = this.search(label);
         //console.log('CompletionProvider : provideCompletionItems : completions', completions.map(val => val.label));
 
-        /*
-        const debug: string[] = completions.map(val => val.label as string);
-        console.log('CompletionProvider : provideCompletionItems : debug', debug);
-        */
-
         // Search proposals
         return completions;
     }
@@ -63,6 +58,8 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
                 if (funcName.toLowerCase().startsWith(label))
                     findings.push({
                         label: funcName,
+                        //detail: 'binary-file-viewer',
+                        detail: 'Binary File Viewer',
                         documentation: funcDoc.func[1],
                         kind: vscode.CompletionItemKind.Function,
                     });
