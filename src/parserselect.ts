@@ -267,7 +267,7 @@ export class ParserSelect {
 					// Dig recursively
 					const dirMap = this.readAllFiles(fullPath);
 					// Merge with map
-					dirMap.forEach((path, parser) => parserMap.set(path, parser));
+					dirMap.forEach((parser, path) => parserMap.set(path, parser));
 				}
 				else {
 					// Read file

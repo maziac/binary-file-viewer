@@ -1,6 +1,7 @@
 # Changelog
 
 # 1.1.1
+- Fixed: sub directories in parser folders are now correctly searched.
 - Added 'description' to completion item labels.
 
 # 1.1.0
