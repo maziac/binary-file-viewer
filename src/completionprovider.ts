@@ -55,11 +55,13 @@ export class CompletionProvider implements vscode.CompletionItemProvider {
         for (const [, funcDocs] of FunctionDocumentation.funcDocs) {
             for (const funcDoc of funcDocs) {
                 const funcName = funcDoc.func[0];
+                const cLabel: vscode.CompletionItemLabel = {
+                    label: funcName,
+                    description: 'Binary File Viewer'
+                };
                 if (funcName.toLowerCase().startsWith(label))
                     findings.push({
-                        label: funcName,
-                        //detail: 'binary-file-viewer',
-                        detail: 'Binary File Viewer',
+                        label: cLabel,
                         documentation: funcDoc.func[1],
                         kind: vscode.CompletionItemKind.Function,
                     });

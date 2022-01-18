@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.1.1
+- Added 'description' to completion item labels.
+
 # 1.1.0
 - nfsw removed. Using vscode API instead. With this Windows and Linux will be supported as well.
 - 'Reload' button added.

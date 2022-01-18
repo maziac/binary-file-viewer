@@ -131,7 +131,7 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
 
 /**
  * Checks the folder path of the configuration.
- * @returns An array with paths that point to a directory. All other paths are eliminated.
+ * @returns An array with paths that points to a directory. All other paths are eliminated.
  * For the wrong paths an error message is shown.
  */
 function getParserPaths() {
