@@ -1,6 +1,7 @@
 # Changelog
 
 # 1.1.1
+- Fixed readBits byte offset calculation.
 - Fixed: sub directories in parser folders are now correctly searched.
 - Added 'description' to completion item labels.
 

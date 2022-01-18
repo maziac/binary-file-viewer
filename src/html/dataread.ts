@@ -88,11 +88,9 @@ function convertToHexString(value: number, size: number): string {
 
 
 /**
- * Advances the offset (from previous call) and
- * stores the size for reading.
- * @param size The number of bytes to read. If undefined, all remaining data is read.
+ * Corrects the bit offsets before reading a byte.
  */
-function read(size?: number) {
+function correctBitOffsets() {
 	// Offsets
 	lastOffset += lastSize;
 	lastBitOffset += lastBitSize;
@@ -101,8 +99,21 @@ function read(size?: number) {
 		lastOffset++;
 	}
 
+	lastBitOffset = 0;
 	lastBitSize = 0;
-	lastSize = 0;	// In case of an error later on
+	lastSize = 0;
+}
+
+
+/**
+ * Advances the offset (from previous call) and
+ * stores the size for reading.
+ * @param size The number of bytes to read. If undefined, all remaining data is read.
+ */
+function read(size?: number) {
+	// Offsets
+	correctBitOffsets();
+
 	if (size == undefined)
 		size = dataBuffer.length - lastOffset;
 	else if (lastOffset + size > dataBuffer.length)
@@ -118,7 +129,9 @@ function read(size?: number) {
  * @param value The value to search for. Searches byte-wise. Defaults to 0.
  */
 function readUntil(value: number = 0) {
-	lastOffset += lastSize;
+	// Offsets
+	correctBitOffsets();
+
 	let i = lastOffset;
 	const len = dataBuffer.length;
 	while (true) {

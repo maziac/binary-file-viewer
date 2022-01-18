@@ -459,6 +459,8 @@ function parseStart() {
 	lastOffset = 0;
 	startOffset = lastOffset;
 	lastSize = 0;
+	lastBitOffset = 0;
+	lastBitSize = 0;
 	lastNode = document.getElementById("div_root");
 	lastNode.innerHTML = '';	// Remove any previous data
 
