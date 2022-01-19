@@ -69,6 +69,14 @@ export class FunctionDocumentation {
 					]
 				},
 				{
+					func: ['readRowWithDetails', "Reads data and creates a row with expandable details. Use this for expandable rows where the size is not clear until the details have been parsed."],
+					params: [
+						['name', 'string', "The name of the value."],
+						['func', '() => {value?: string | number, description?: string} | void, opened = false)', "The function to call to parse/decode the data. The function can return an object which is used for the row's 'value' and 'description'."],
+						['opened', 'boolean', "true=the details are opened on initial parsing. false (default)=The details are initially closed."]
+					]
+				},
+				{
 					func: ['readBits', 'Advances the offset (from previous call) bitwise and stores the size for reading.'],
 					params: [
 						['size', 'number', 'The number of bits to read.']
@@ -85,14 +93,14 @@ export class FunctionDocumentation {
 					params: [
 						['name', 'string', "The name of the value."],
 						['value?', 'string|number', "(Optional) The value to display."],
-						['shortDescription?', 'string', "(Optional) A short description of the entry"]
+						['description?', 'string', "(Optional) A description of the entry"]
 					]
 				},
 				{
 					func: ['addDetails', "Parses the details of an object.\nParsing starts where the last 'read' started.\nParsing is done either immediately or delayed, i.e.on opening the section."],
 					params: [
 						['func', '() => void', "The function to call to parse/decode the data."],
-						['opened', 'boolean', "true=the details are opened on initial parsing. false(default)=The parsing is not done immediately but is postponed until the section is expanded."]
+						['opened', 'boolean', "true=the details are opened on initial parsing. false (default)=The parsing is not done immediately but is postponed until the section is expanded."]
 					]
 				},
 				{

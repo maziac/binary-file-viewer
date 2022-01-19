@@ -91,8 +91,7 @@ Basically you add a row for each decoded value in a table.
 ![](help1.jpg)
 
 The above output is achieved with the following 4 lines of code:
-~~~
-
+~~~js
 registerParser(() => {
 	read(4);
 	addRow('RIFF id', getStringValue(), 'RIFF file description header');
@@ -125,26 +124,26 @@ The reading starts at the last position. I.e. for the first ```read```at offset 
 All of the ```get...``` functions work on the data of the previous ```read```.
 
 This example reads in a single byte:
-~~~
-read(1);
-const val = getNumberValue();
+~~~js
+	read(1);
+	const val = getNumberValue();
 ~~~
 
 Because the size was 1, ```getNumberValue```will return only 1 byte.
 
 In the next example a word, i.e. a 2 byte number, is read:
 
-~~~
-read(2);
-const val = getNumberValue();
+~~~js
+	read(2);
+	const val = getNumberValue();
 ~~~
 
 The ```get...``` functions do not change the file offset in any way.
 I.e. in the following example:
-~~~
-read(2);
-const val1 = getNumberValue();
-const val2 = getNumberValue();
+~~~js
+	read(2);
+	const val1 = getNumberValue();
+	const val2 = getNumberValue();
 ~~~
 
 ```val1``` and ```val2``` are the same values. They are read from the same file data offsets.
@@ -225,7 +224,7 @@ If you just want to output a memory dump of a region you can use ```addMemDump``
 If you additionally put it into ```addDetails```you can make it expandable.
 
 E.g.:
-~~~
+~~~js
 	read(1000);
 	addRow('Mem Dump');
 	addDetails(() => {
@@ -239,6 +238,45 @@ results in:
 ![](help3.jpg)
 
 Note: Hovering above the values will give additional information about the relative and absolute offset.
+
+
+### readRowWithDetails
+
+```readRowWithDetails``` combines ```addRow``` and ```addDetails```.
+But it is not just a shortcut for both commands. Its behavior is slightly different.
+
+Whenever the size of a group of data is known in advance, e.g. by a length field in the binary, ```addRow``` and ```addDetails``` are fine to use.
+If ```addDetails``` is initially closed the parsing is delayed until the section is opened which is good for the performance.
+
+But in some case the size is not known beforehand and requires decoding of the complete data group.
+In these cases ```readRowWithDetails``` is the right choice. The 'details' are parsed in any case even if initially closed.
+The name and offset field of the main row are set at the start of the call to this function but the size, the value and the description field are set at the end.
+I.e. the size is automatically calculated by adding all of the ```read``` sizes inside the details.
+And the value and description can be returned by the arrow function. I.e. you can use some of the values decoded inside the details to show up in the (summary) main row if you like.
+You can also decide to return nothing. Then the value and description fields stay empty.
+
+Example:
+~~~js
+	readRowWithDetails('Palette', () => {
+		read(2);
+		const count = getNumberValue();
+		for(let i = 0; i < count; i++) {
+			read(1);
+			addRow('Red', getNumberValue());
+			read(1);
+			addRow('Green', getNumberValue());
+			read(1);
+			addRow('Blue', getNumberValue());
+		}
+		return {
+			value: '' + count + ' Colors',
+			description: 'The color palette.'
+		};
+});
+~~~
+
+Important: With ```addDetails``` the current read pointer is put on a stack and popped when the arrow function ends.
+With ```readRowWithDetails``` this is different (therefore the name starts with 'read'): The (main) read pointer is incremented which each ```read```.
 
 
 ### addChart

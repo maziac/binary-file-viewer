@@ -90,7 +90,7 @@ function convertToHexString(value: number, size: number): string {
 /**
  * Corrects the bit offsets before reading a byte.
  */
-function correctBitOffsets() {
+function correctBitByteOffsets() {
 	// Offsets
 	lastOffset += lastSize;
 	lastBitOffset += lastBitSize;
@@ -112,7 +112,7 @@ function correctBitOffsets() {
  */
 function read(size?: number) {
 	// Offsets
-	correctBitOffsets();
+	correctBitByteOffsets();
 
 	if (size == undefined)
 		size = dataBuffer.length - lastOffset;
@@ -130,7 +130,7 @@ function read(size?: number) {
  */
 function readUntil(value: number = 0) {
 	// Offsets
-	correctBitOffsets();
+	correctBitByteOffsets();
 
 	let i = lastOffset;
 	const len = dataBuffer.length;

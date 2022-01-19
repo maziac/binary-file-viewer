@@ -219,6 +219,111 @@ function addDescription(longDescription: string) {
 
 
 /**
+ * Reads (data) and creates a new row for the table.
+ * The detaisl are always parsed immediately.
+ * @param name The name of the value.
+ * @param opened true=the details are opened on initial parsing.
+ * false (default)=The details are initially closed.
+ */
+function readRowWithDetails(name: string, func: () => {value: string | number, description: string}, opened = false) {
+	// Correct the offset to be after lastSize
+	correctBitByteOffsets();
+	// Remember
+	const beginOffset = lastOffset;
+	// TODO: share code with addRow;
+	// Create new node
+	const node = document.createElement("TR") as HTMLTableRowElement;
+	const relOffset = getRelOffset();
+	const relOffsetHex = convertToHexString(relOffset, 4);
+	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
+	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
+	if (startOffset) {
+		// Is a relative index, so show also the absolute index as hover.
+		const lastOffsetHex = convertToHexString(lastOffset, 4);
+		hoverOffset += `\nAbsolute:\nDec: ${lastOffset}, Hex: ${lastOffsetHex}`;
+	}
+
+	const html = `
+	<td class="collapse"></td>
+	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
+	<td class="size"></td>
+	<td class="name">${name}</td>
+	<td class="value"></td>
+	<td class="description"></td>
+`;
+	node.innerHTML = html;
+
+	// Get child objects
+	const cells = node.cells;
+	lastCollapsibleNode = cells[0];
+	const offsetNode = cells[1];
+	const sizeNode = node.children[2] as HTMLTableCellElement;
+	const valueNode = node.children[4];
+	const descriptionNode = node.children[5];
+
+	// Get stack trace for link to custom parser file.
+	// Note: takes about 0.03ms
+	// TODO: used in 2 places
+	try {
+		// Throw some exception to get the stack trace
+		throw new Error();
+	}
+	catch (e) {
+		// Parse the stack trace
+		const stack = e.stack.split('\n');
+		const customLine: string = stack[2];
+		const match = /.*>:(\d+):(\d+)/.exec(customLine);
+		if (match) {
+			// Line
+			const lineNr = parseInt(match[1]) - 4;
+			// Column
+			const colNr = parseInt(match[2]) - 1;
+			// Create link: If the offset is clicked the line in the user's js file is selected.
+			(offsetNode as any)['_customParserOffset'] = {
+				lineNr,
+				colNr
+			};
+			offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
+		}
+	}
+
+	// Append it / Insert new row
+	lastNode.appendChild(node);
+
+	// Save
+	const bakStartOffset = startOffset;
+
+	// "Indent"
+	beginDetails(opened);
+	// Add details immediately
+	lastSize = 0;
+	lastBitSize = 0;
+	startOffset = lastOffset;
+	const result = func();
+	// Unindent
+	endDetails();
+
+	// Set size (also for hover)
+	const endOffset = lastOffset + lastSize;
+	const size = endOffset - beginOffset;
+	sizeNode.innerHTML = '' + size;
+	const sizeHex = convertToHexString(lastSize, 4);
+	sizeNode.title = "Size\nHex: "+ sizeHex;
+
+	// Set row value and description
+	if (result) {
+		if (result.value)
+			valueNode.innerHTML = '' + result.value;
+		if (result.description)
+			descriptionNode.innerHTML = '' + result.description;
+	}
+
+	// Restore
+	startOffset = bakStartOffset;
+}
+
+
+/**
  * Converts \n into <br>.
  */
 function convertLineBreaks(s: string) {
@@ -524,6 +629,7 @@ function parseStart() {
 			read,
 			readUntil,
 			readBits,
+			readRowWithDetails,
 			setEndianness,
 			addRow,
 			addDetails,
