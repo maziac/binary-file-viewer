@@ -138,14 +138,32 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
 	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
 	if (startOffset) {
-		// Is a relative index, so show also the absolute index.
+		// Is a relative index, so show also the absolute index as hover.
 		const lastOffsetHex = convertToHexString(lastOffset, 4);
 		hoverOffset += `\nAbsolute:\nDec: ${lastOffset}, Hex: ${lastOffsetHex}`;
 	}
+	// Get bit range (displayed e.g. as "+5:7-3" with 7-3 being the bit range) if any.
+	let sizeString;
+	if (lastBitSize == 0) {
+		// Bytes used, not bits.
+		sizeString = lastSize.toString();
+	}
+	else {
+		// Yes, bits used
+		if (lastBitSize == 1) {
+			// Special case: only one bit
+			sizeString = '.' + lastBitOffset;
+		}
+		else {
+			// A range
+			sizeString = '.' + (lastBitOffset+lastBitSize-1) + '-' + lastBitOffset;
+		}
+	}
+
 	const html = `
 	<td class="collapse"></td>
 	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
-	<td class="size" title="Size\nHex: ${lastSizeHex}">${lastSize}</td>
+	<td class="size" title="Size\nHex: ${lastSizeHex}">${sizeString}</td>
 	<td class="name">${name}</td>
 	<td class="value">${value}</td>
 	<td class="description">${shortDescription}</td>
@@ -320,6 +338,7 @@ function addDetails(func: () => void, opened = false) {
 			startOffset = lastOffset;
 			lastSize = 0;
 			lastBitSize = 0;
+			lastBitOffset = 0;
 			lastNode = bakLastNode;
 			lastCollapsibleNode = undefined;
 			try {

@@ -52,7 +52,7 @@ td {
 
 /* Class for the offset */
 .offset {
-	min-width: 3em;
+	min-width: 4em;
 	max-width: 10vw;
 	text-align: right;
 	color: var(--vscode-terminal-ansiYellow);

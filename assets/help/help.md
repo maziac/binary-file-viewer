@@ -155,6 +155,8 @@ const val2 = getNumberValue();
 Similar to ```read``` you can use ```readBits``` to read an amount of bits.
 After usage of ```readBits``` the ```get...``` functions will operate on the bits instead of the bytes.
 
+If bits are read the display of the size changes and displays an additional dot, e.g. ".5" for bit 5 or ".7-4" to indicate the bit range 7-4.
+
 Note: If you read at least one bit of a byte, the next ```read``` will start on the next byte.
 
 ### Endianness
