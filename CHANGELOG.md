@@ -1,6 +1,7 @@
 # Changelog
 
 # 1.1.1
+- Improved display of bit ranges (e.g. ".7-4") in the 'size' column.
 - Fixed readBits byte offset calculation.
 - Fixed: sub directories in parser folders are now correctly searched.
 - Added 'description' to completion item labels.

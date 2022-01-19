@@ -133,7 +133,7 @@ export class FunctionDocumentation {
 				{
 					func: ['addChart', 'Creates a chart. E.g. a line chart or a bar chart.\nUse this to visualize series data.'],
 					params: [
-						['config', "{type:'line'|'bar', series:(number[]|Series)[]}", "series: An array which contains either number arrays(obtained by 'getData') or 'Series' structures if you need more control.\nA Series structure contains:\n- samples: The data number array.\n- label: A name for the data series.\n- color: The color of the data series, e.g. 'green'."],
+						['config', "{type?:'line'|'bar', series:(number[]|Series)[]}", "type: A line or bar chart. Defaults to 'line'.\n'series': An array which contains either number arrays(obtained by 'getData') or 'Series' structures if you need more control.\nA Series structure contains:\n- samples: The data number array.\n- label: A name for the data series.\n- color: The color of the data series, e.g. 'green'."],
 						['name', 'string', "The name of the chart."]
 					]
 				},

@@ -78,16 +78,26 @@ function addChart(config: ChartConfig, name?: string) {
 	if (cfg.type == undefined)
 		cfg.type = 'line';
 	if (cfg.type != 'line' && cfg.type != 'bar')
-		throw new Error("addChart: Expecting type 'line' or 'bar', not '"+cfg.type+"'");
+		throw new Error("addChart: Expecting type 'line' or 'bar', not '" + cfg.type + "'.");
+	// Check series
 	if (cfg.series == undefined)
-		throw new Error("addChart: No 'series' defined");
+		throw new Error("addChart: No 'series' defined.");
+	if (!Array.isArray(cfg.series))
+		throw new Error("addChart: 'series' is not an array.");
+	if (cfg.series.length == 0)
+		throw new Error("addChart: 'series' is empty.");
 
-	// Get the max length data series
+	// Get the max length data series and
+	// check each item in series
 	let maxLength = 0;
 	for (const series of cfg.series) {
 		let samples = (series as Series).samples;
-		if (!samples)
-			samples = series as number[];
+		if (!samples) {
+			// Check if number array
+			if (!Array.isArray(series))
+				throw new Error("addChart: 'series' contains not a 'Series' type item nor a number array.");
+			samples = series; // as number[];
+		}
 		if (samples.length > maxLength)
 			maxLength = samples.length;
 	}
