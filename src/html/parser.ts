@@ -645,7 +645,8 @@ function parseStart() {
 			addChart,
 			getData,
 			createSeries,
-			addCanvas
+			addCanvas,
+			dbgStop
 		});
 	}
 	catch (e) {
@@ -735,4 +736,13 @@ function get(target: any, key: any) {
 	if (key === Symbol.unscopables)
 		return undefined;
 	return target[key]
+}
+
+
+/**
+ * Stops the execution of the parser with an exception.
+ * Used for debugging the parser script.
+ */
+function dbgStop() {
+	throw Error("dbgStop: Script stopped.");
 }

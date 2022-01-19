@@ -1,7 +1,5 @@
 # The (Customizable) Binary File Viewer
 
-Note: The 'Binary File Viewer' now supports macOS, Windows and Linux.
-
 ## Support
 
 If you like the "Binary File Viewer" please consider supporting it.

@@ -1,5 +1,9 @@
 # Changelog
 
+# 1.3.0
+- New commands:
+	- dbgStop: Stops execution of the parser.
+
 # 1.2.0
 - New API function: 'readRowWithDetails' for cases where the size of a row is not known in advance.
 - Improved display of bit ranges (e.g. ".7-4") in the 'size' column.

@@ -172,6 +172,9 @@ export class FunctionDocumentation {
 						['height', 'number', "The physical height in pixel."],
 						['name?', 'string', "Optional. A name (title) to show above the canvas."]
 					]
+				},
+				{
+					func: ['dbgStop', 'Stops the execution of the parser script.\nCan be used for debugging the script.']
 				}
 			]
 		]

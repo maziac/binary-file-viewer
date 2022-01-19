@@ -230,8 +230,6 @@ export class ParserSelect {
 		if (colNr == undefined) {
 			// Type b
 			msg = stacks[i + 1];
-			if (i > 0)
-				msg += ' (Probably an error in the passed arguments.)';
 			// Get column
 			if (i + 2 < stacks.length) {
 				colNr = stacks[i + 2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
@@ -241,8 +239,6 @@ export class ParserSelect {
 		else {
 			// Type a
 			msg = stacks[0];
-			if (i > 1)
-				msg += ' (Probably an error in the passed arguments.)';
 		}
 
 		// Output to vscode's PROBLEM area.
