@@ -27,7 +27,16 @@ registerParser(() => {
 	read(1);
 	addRow('BYTE 1', getHexValue());
 
-
+	read(1);
+	addRow('Flags', getHex0xValue());
+	addDetails(() => {
+		readBits(1);
+		addRow('Flag 0', getNumberValue(), 'Bit 0');
+		readBits(3);
+		addRow('Count', getNumberValue(), 'Bits 1-3');
+		readBits(4);
+		addRow('Reserved');
+	}, true);
 });
 
 
