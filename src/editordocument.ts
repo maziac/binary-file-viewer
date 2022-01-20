@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import {ParserInfo, ParserSelect} from './parserselect';
-import {parse} from 'path/posix';
+
+
 
 
 /**
@@ -21,6 +22,9 @@ export class EditorDocument implements vscode.CustomDocument {
 
 	// Keeps the list of open documents. Used in case a parser is updated.
 	protected static documentList = new Set<EditorDocument>();
+
+	// Create a channel for logging (dbgLog).
+	protected static outChannel = vscode.window.createOutputChannel("Binary File Viewer");
 
 
 	/**
@@ -87,6 +91,10 @@ export class EditorDocument implements vscode.CustomDocument {
 						// Reload/re-parse the file
 						const parser = ParserSelect.selectParserFile(filePath);
 						this.updateParser(parser);
+						break;
+					case 'dbgLog':
+						// Print log into OUTPUT pane
+						EditorDocument.outChannel.appendLine(message.arguments);
 						break;
 				}
 			});

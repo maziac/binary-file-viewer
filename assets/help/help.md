@@ -363,17 +363,25 @@ The example here creates a canvas object and draws a red rectangle inside:
 
 ### Debugging
 
-#### dbgStop
+For debugging purposes there exist 2 commands.
 
 Use
 ~~~
 	dbgStop();
 ~~~
+
 to stop the execution of the parser.
 
-Sometimes, during development of the parser this can be helpful.
+```dbgLog``` can be used to log texts and values.
+E.g.
+~~~
+	dbgLog("Counter:", counter);
+~~~
 
-#### dbglog
+I.e. the use is similar to ```console.log``` but in contrast ```dbgLog``` is not able to print complex data like objects.
+
+The output goes into the OUTPUT pane under "Binary File Viewer".
+
 
 ## Navigation
 

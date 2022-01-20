@@ -1,8 +1,9 @@
 # Changelog
 
 # 1.3.0
-- New commands:
+- New API commands:
 	- dbgStop: Stops execution of the parser.
+	- dbgLog: Logs to the OUTPUT pane.
 
 # 1.2.0
 - New API function: 'readRowWithDetails' for cases where the size of a row is not known in advance.

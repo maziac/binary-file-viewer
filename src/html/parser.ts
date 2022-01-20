@@ -177,28 +177,25 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	//lastValueNode = cells[3];
 
 	// Get stack trace for link to custom parser file.
-	// Note: takes about 0.03ms
-	try {
-		// Throw some exception to get the stack trace
-		throw new Error();
-	}
-	catch (e) {
-		// Parse the stack trace
-		const stack = e.stack.split('\n');
-		const customLine: string = stack[2];
-		const match = /.*>:(\d+):(\d+)/.exec(customLine);
-		if (match) {
-			// Line
-			const lineNr = parseInt(match[1]) - 4;
-			// Column
-			const colNr = parseInt(match[2]) - 1;
-			// Create link: If the offset is clicked the line in the user's js file is selected.
-			(offsetNode as any)['_customParserOffset'] = {
-				lineNr,
-				colNr
-			};
-			offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
-		}
+	// Note: takes about 0.009 ms
+	//console.time();
+	const errFileLocation = new Error();
+	//console.timeEnd();
+	// Parse the stack trace
+	const stack = errFileLocation.stack.split('\n');
+	const customLine: string = stack[2];
+	const match = /.*>:(\d+):(\d+)/.exec(customLine);
+	if (match) {
+		// Line
+		const lineNr = parseInt(match[1]) - 4;
+		// Column
+		const colNr = parseInt(match[2]) - 1;
+		// Create link: If the offset is clicked the line in the user's js file is selected.
+		(offsetNode as any)['_customParserOffset'] = {
+			lineNr,
+			colNr
+		};
+		offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
 	}
 
 	// Append it / Insert new row
@@ -264,27 +261,22 @@ function readRowWithDetails(name: string, func: () => {value: string | number, d
 	// Get stack trace for link to custom parser file.
 	// Note: takes about 0.03ms
 	// TODO: used in 2 places
-	try {
-		// Throw some exception to get the stack trace
-		throw new Error();
-	}
-	catch (e) {
-		// Parse the stack trace
-		const stack = e.stack.split('\n');
-		const customLine: string = stack[2];
-		const match = /.*>:(\d+):(\d+)/.exec(customLine);
-		if (match) {
-			// Line
-			const lineNr = parseInt(match[1]) - 4;
-			// Column
-			const colNr = parseInt(match[2]) - 1;
-			// Create link: If the offset is clicked the line in the user's js file is selected.
-			(offsetNode as any)['_customParserOffset'] = {
-				lineNr,
-				colNr
-			};
-			offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
-		}
+	const errFileLocation = new Error();
+	// Parse the stack trace
+	const stack = errFileLocation.stack.split('\n');
+	const customLine: string = stack[2];
+	const match = /.*>:(\d+):(\d+)/.exec(customLine);
+	if (match) {
+		// Line
+		const lineNr = parseInt(match[1]) - 4;
+		// Column
+		const colNr = parseInt(match[2]) - 1;
+		// Create link: If the offset is clicked the line in the user's js file is selected.
+		(offsetNode as any)['_customParserOffset'] = {
+			lineNr,
+			colNr
+		};
+		offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
 	}
 
 	// Append it / Insert new row
@@ -625,6 +617,8 @@ function parseStart() {
 				// I.e. custom parsing is started:
 				func();
 			},
+
+			// API
 			addStandardHeader,
 			read,
 			readUntil,
@@ -646,7 +640,11 @@ function parseStart() {
 			getData,
 			createSeries,
 			addCanvas,
-			dbgStop
+			dbgStop,
+			dbgLog,
+
+			// Standard
+			Math,
 		});
 	}
 	catch (e) {
@@ -688,13 +686,6 @@ window.addEventListener('message', event => {	// NOSONAR
 			} break;
 	}
 });
-
-// At the end send a message to indicate that the webview is ready to receive
-// data.
-vscode.postMessage({
-	command: 'ready'
-});
-
 
 
 /**
@@ -744,5 +735,41 @@ function get(target: any, key: any) {
  * Used for debugging the parser script.
  */
 function dbgStop() {
-	throw Error("dbgStop: Script stopped.");
+	const e = Error("dbgStop: Script stopped.");
+	if (e.stack) {
+		// Remove the "Error: " from the message string.
+		const msg = e.stack.replace(/^Error: /, '');
+		e.stack = msg;
+	}
+	throw e;
 }
+
+
+
+/**
+ * Redirects console output to the extension to print it.
+ */
+function dbgLog() {
+	// Convert arguments to string
+	let argsString = '';
+	for (const arg of arguments) {
+		argsString += '\t' + arg;
+	}
+	// Print log into OUTPUT pane
+	vscode.postMessage({
+		command: 'dbgLog',
+		arguments: argsString
+	});
+}
+
+
+
+
+//----------------------------------------------------------
+
+// At the end send a message to indicate that the webview is ready to receive
+// data.
+vscode.postMessage({
+	command: 'ready'
+});
+

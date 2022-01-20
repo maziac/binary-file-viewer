@@ -175,6 +175,13 @@ export class FunctionDocumentation {
 				},
 				{
 					func: ['dbgStop', 'Stops the execution of the parser script.\nCan be used for debugging the script.']
+				},
+				{
+					func: ['dbgLog', 'Outputs into the OUTPUT pane under "Binary File Viewer". Use this for logging purposes.'],
+					params: [
+						['...args', 'various', "You can give several arguments with data you want to log. But it will not print more complex data like objects."
+						]
+					]
 				}
 			]
 		]
