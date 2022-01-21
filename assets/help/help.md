@@ -399,7 +399,7 @@ Just save your parser file to update the decoded file.
 ![](help7a.gif)
 
 This does work only if both, the parser file and the decoded file, are open in the same vscode window.
-If the parser file is opened in another vscode window or in a completey different editor and changed, the binary file view will not be updated automatically.
+If the parser file is opened in another vscode window or in a completely different editor and changed, the binary file view will not be updated automatically.
 
 For these case you can press the 'Reload' button in the binary file view.
 ![](help7b.jpg)

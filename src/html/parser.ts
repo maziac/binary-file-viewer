@@ -217,7 +217,7 @@ function addDescription(longDescription: string) {
 
 /**
  * Reads (data) and creates a new row for the table.
- * The detaisl are always parsed immediately.
+ * The details are always parsed immediately.
  * @param name The name of the value.
  * @param opened true=the details are opened on initial parsing.
  * false (default)=The details are initially closed.

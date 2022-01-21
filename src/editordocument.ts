@@ -194,19 +194,23 @@ export class EditorDocument implements vscode.CustomDocument {
 		// If this.parser is undefined there was no parser found in the past.
 		if (!this.parser) {
 			// No previous parser
-			if (parser)
+			if (parser) {
+				ParserSelect.clearDiagnostics();
 				this.setHtml(parser);
+			}
 		}
 		else {
 			// Previous parser exists
 			if (!parser) {
 				// But not anymore
+				ParserSelect.clearDiagnostics();
 				this.setHtml(parser);
 			}
 			else {
 				// New parser might be different
 				if ((this.parser.contents != parser.contents) || (this.parser.filePath != parser.filePath)) {
 					// Yes it's different, use the new parser
+					ParserSelect.clearDiagnostics();
 					this.sendParserToWebView(parser, this.webviewPanel);
 				}
 				this.parser = parser;

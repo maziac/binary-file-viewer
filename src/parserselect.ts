@@ -56,7 +56,7 @@ export class ParserSelect {
 		this.parserFolders = [];
 		this.testedParserFilePaths = [];
 
-		// Loop thorugh parser folders and adjust the path
+		// Loop through parser folders and adjust the path
 		this.clearDiagnostics();
 		for (const parserFolder of parserFolders) {
 			// Check for absolute path
@@ -110,7 +110,6 @@ export class ParserSelect {
 			// Check if js file in right folder
 			if (this.isParserDoc(uri)) {
 				// Found
-				ParserSelect.clearDiagnostics();
 				this.updateAllOpenEditors();
 				break;	// Stop here, one update is enough
 			}
