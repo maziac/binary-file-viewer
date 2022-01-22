@@ -97,7 +97,7 @@ registerParser(() => {
 	addRow('RIFF id', getStringValue(), 'RIFF file description header');
 
 	read(4);
-	addRow('File size', getNumberValue(), 'The file size LESS the size of the "RIFF" description (4 bytes) and the size of file description (4 bytes).');
+	addRow('File size', getHexOxValue(), 'The file size LESS the size of the "RIFF" description (4 bytes) and the size of file description (4 bytes).');
 }
 ~~~
 
@@ -115,6 +115,7 @@ The first 2 columns are automatically filled by the 'Binary File viewer':
 An important aspect of the size is that it is no parameter to the ```addRow```.
 In fact it is directly used from the previous ```read```.
 
+Note: If you pass the string returned by getDecimalValue, getHex*Value or getBitsValue to ```addRow``` you can also hover over the 'Value' cell. For a decimal value the hover will show the hex value and vice versa.
 
 ### read
 

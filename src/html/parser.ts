@@ -136,7 +136,7 @@ function formatAs(value: number, format: string) {
  * @param shortDescription (Optional) A short description of the entry.
  * @param valueHover (Optional) Is displayed on hovering over the 'value'.
  */
-function addRow(name: string, value: String | string | number = '', shortDescription = '', valueHover: string | number = '') { // NOSONAR
+function addRow(name: string, value: String | string | number = '', shortDescription = '', valueHover?: string | number) { // NOSONAR
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
@@ -183,10 +183,12 @@ function addRow(name: string, value: String | string | number = '', shortDescrip
 	const offsetNode = cells[1];
 
 	// Add hover text if available
-	const hoverValue = (value as any).hoverValue;
+	let hoverValue = valueHover;
+	if (hoverValue == undefined)
+		hoverValue = (value as any).hoverValue;
 	if (hoverValue != undefined) {
 		const valueNode = cells[4];
-		valueNode.title = hoverValue;
+		valueNode.title = '' + hoverValue;
 	}
 
 	// Get stack trace for link to custom parser file.
@@ -235,7 +237,7 @@ function addDescription(longDescription: string) {
  * @param opened true=the details are opened on initial parsing.
  * false (default)=The details are initially closed.
  */
-function readRowWithDetails(name: string, func: () => {value: string | number, description: string}, opened = false) {
+function readRowWithDetails(name: string, func: () => {value: string | number, description: string, valueHover: string | number}, opened = false) {
 	// Check if overridden
 	if (dbgOverrideDetailsOpen != undefined) {
 		opened = overrideDetailsOpen;
@@ -322,10 +324,20 @@ function readRowWithDetails(name: string, func: () => {value: string | number, d
 
 	// Set row value and description
 	if (result) {
-		if (result.value)
-			valueNode.innerHTML = '' + result.value;
 		if (result.description)
 			descriptionNode.innerHTML = '' + result.description;
+		const value = result.value;
+		if (value) {
+			valueNode.innerHTML = '' + value;
+			// Add hover text if available
+			let hoverValue = result.valueHover;
+			if (hoverValue == undefined)
+				hoverValue = (value as any).hoverValue;
+			if (hoverValue != undefined) {
+				const valueNode = cells[4];
+				valueNode.title = '' + hoverValue;
+			}
+		}
 	}
 
 	// Restore
