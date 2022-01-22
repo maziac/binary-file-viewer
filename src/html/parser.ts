@@ -35,7 +35,7 @@ var standardHeaderNode: HTMLDivElement;
 
 // Overrides the open/closed state for the details.
 // Used for debugging.
-var overrideDetailsOpen: boolean | undefined = undefined;
+var overrideDetailsOpen: boolean | undefined;
 
 
 /**
@@ -606,6 +606,7 @@ function addMemDump() {
  */
 function parseStart() {
 	// Reset
+	overrideDetailsOpen = undefined;
 	littleEndian = true;
 	lastOffset = 0;
 	startOffset = lastOffset;
