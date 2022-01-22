@@ -295,7 +295,8 @@ function getBitsValue(): String {	// NOSONAR
 	}
 	// Add hover property
 	const sc = new String(bits);	// NOSONAR
-	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, 4);
+	const size = Math.ceil(countOfBits / 4);
+	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, size);
 	return sc;
 }
 
@@ -306,9 +307,14 @@ function getBitsValue(): String {	// NOSONAR
 function getDecimalValue(): String {	// NOSONAR
 	const val = getNumberValue();
 	const s = val.toString();
+	// Get size for hex conversion
+	let size = 2*lastSize;
+	if (size == 0) {
+		size = Math.ceil(lastBitSize / 4);
+	}
 	// Add hover property
 	const sc = new String(s);	// NOSONAR
-	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, 4);
+	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, size);
 	return sc;
 
 }
