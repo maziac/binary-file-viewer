@@ -4,6 +4,7 @@
 - New API commands:
 	- dbgStop: Stops execution of the parser.
 	- dbgLog: Logs to the OUTPUT pane.
+	- dbgOverrideDetailsOpen: Override temporarily the initial open state for 'detail' commands.
 
 # 1.2.0
 - New API function: 'readRowWithDetails' for cases where the size of a row is not known in advance.

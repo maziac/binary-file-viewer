@@ -157,7 +157,7 @@ export class FunctionDocumentation {
 				},
 				{
 					func: ['createSeries', 'Creates a series from a number array.\nAdds a label and a color.'],
-					return: ['Series', 'A Series object with samples, label and color info.\n~~~\ninterface Series {\n  samples: number[],\n  label: string,\n  color: string\n~~~\n}'],
+					return: ['Series', 'A Series object with samples, label and color info.\n~~~js\ninterface Series {\n  samples: number[],\n  label: string,\n  color: string\n~~~\n}'],
 					params: [
 						['samples', 'number[]', "The data number array."],
 						['color?', 'string', "Optional. The color to use."],
@@ -180,6 +180,13 @@ export class FunctionDocumentation {
 					func: ['dbgLog', 'Outputs into the OUTPUT pane under "Binary File Viewer". Use this for logging purposes.'],
 					params: [
 						['...args', 'various', "You can give several arguments with data you want to log. But it will not print more complex data like objects."
+						]
+					]
+				},
+				{
+					func: ['dbgOverrideDetailsOpen', "Overrides the open/closed state of following 'details' commands. Can be used for debugging purposes to e.g.temporary open all 'details' during parsing.Removing the need to manually open the 'details' on each change in the parser js file."],
+					params: [
+						['open', 'boolean', "- true: All following 'details' commands will be initially open. Regardless of the individual setting.\n- false: All following 'details' commands will be initially closed. Regardless of the individual setting.\n- undefined: Switch back to normal behavior.The individual setting will be used."
 						]
 					]
 				}

@@ -30,12 +30,12 @@ var lastNode: any;
 // The current row's cell that contains the collapsible icon (+)
 var lastCollapsibleNode: HTMLTableCellElement;
 
-// The last node used for the value.
-//var lastValueNode: any;
-
 // The node used for the standard header.
 var standardHeaderNode: HTMLDivElement;
 
+// Overrides the open/closed state for the details.
+// Used for debugging.
+var overrideDetailsOpen: boolean | undefined = undefined;
 
 
 /**
@@ -223,6 +223,11 @@ function addDescription(longDescription: string) {
  * false (default)=The details are initially closed.
  */
 function readRowWithDetails(name: string, func: () => {value: string | number, description: string}, opened = false) {
+	// Check if overridden
+	if (dbgOverrideDetailsOpen != undefined) {
+		opened = overrideDetailsOpen;
+	}
+
 	// Correct the offset to be after lastSize
 	correctBitByteOffsets();
 	// Remember
@@ -405,6 +410,11 @@ function endDetails() {
  * section is expanded.
  */
 function addDetails(func: () => void, opened = false) {
+	// Check if overridden
+	if (dbgOverrideDetailsOpen != undefined) {
+		opened = overrideDetailsOpen;
+	}
+
 	// "Indent"
 	beginDetails(opened);
 
@@ -642,9 +652,10 @@ function parseStart() {
 			addCanvas,
 			dbgStop,
 			dbgLog,
+			dbgOverrideDetailsOpen,
 
 			// Standard
-			Math,
+			Math
 		});
 	}
 	catch (e) {
@@ -762,6 +773,20 @@ function dbgLog() {
 	});
 }
 
+
+/**
+ * Overrides the open/closed state of following 'details' commands.
+ * Can be used for debugging purposes to e.g. temporary open all
+ * 'details' during parsing. Removing the need to manually open the
+ * 'details' on each change in the parser js file.
+ * @param open Is a boolean:
+ * true: All following 'details' commands will be initially open. Regardless of the individual setting.
+ * false: All following 'details' commands will be initially closed. Regardless of the individual setting.
+ * undefined: Switch back to normal behavior. The individual setting will be used.
+ */
+function dbgOverrideDetailsOpen(open: boolean | undefined) {
+	overrideDetailsOpen = open;
+}
 
 
 

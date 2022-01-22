@@ -382,6 +382,8 @@ I.e. the use is similar to ```console.log``` but in contrast ```dbgLog``` is not
 
 The output goes into the OUTPUT pane under "Binary File Viewer".
 
+With ```dbgOverrideDetailsOpen``` you can control/override the open/close state of the following 'details' commands, i.e. ```addDetails``` and ```readRowWithDetails```.
+
 
 ## Navigation
 
