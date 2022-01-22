@@ -122,14 +122,21 @@ function linkToCustomParserLine(cell: HTMLTableCellElement) {
 	}
 }
 
+function formatAs(value: number, format: string) {
+	if (format == 'int') {
+		return {
+			value: value, hoverValue: '0x' + convertToHexString(value, 4)};
+	}
+}
 
 /**
  * Creates a new row for the table.
  * @param name The name of the value.
  * @param value (Optional) The value to display.
  * @param shortDescription (Optional) A short description of the entry.
+ * @param valueHover (Optional) Is displayed on hovering over the 'value'.
  */
-function addRow(name: string, value: string|number = '', shortDescription = '') {
+function addRow(name: string, value: String | string | number = '', shortDescription = '', valueHover: string | number = '') { // NOSONAR
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
@@ -174,7 +181,13 @@ function addRow(name: string, value: string|number = '', shortDescription = '') 
 	const cells = node.cells;
 	lastCollapsibleNode = cells[0];
 	const offsetNode = cells[1];
-	//lastValueNode = cells[3];
+
+	// Add hover text if available
+	const hoverValue = (value as any).hoverValue;
+	if (hoverValue != undefined) {
+		const valueNode = cells[4];
+		valueNode.title = hoverValue;
+	}
 
 	// Get stack trace for link to custom parser file.
 	// Note: takes about 0.009 ms

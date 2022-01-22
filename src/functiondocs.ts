@@ -93,7 +93,8 @@ export class FunctionDocumentation {
 					params: [
 						['name', 'string', "The name of the value."],
 						['value?', 'string|number', "(Optional) The value to display."],
-						['description?', 'string', "(Optional) A description of the entry"]
+						['description?', 'string', "(Optional) A description of the entry"],
+						['valueHover?', 'string|number', "(Optional) Is displayed on hovering over the 'value'."],
 					]
 				},
 				{

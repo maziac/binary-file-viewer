@@ -219,6 +219,7 @@ function getData(sampleSize = 1, offset = 0, format = 'u', skip = 0): number[] {
  * Reads the value from the buffer.
  * Also supports reading bits.
  * Either lastSize or lastBitSize is != 0.
+ * @returns A number (not a String).
  */
 function getNumberValue(): number {
 	let value = 0;
@@ -263,12 +264,15 @@ function getNumberValue(): number {
 	return value;
 }
 
+
 /**
  * Reads the bits from the dataBuffer.
  * Either lastSize or lastBitSize is != 0.
  * @returns E.g. '001101'
  */
-function getBitsValue(): string {
+function getBitsValue(): String {	// NOSONAR
+	let val = 0;
+	let posValue = 1;
 	let bits = '';
 	let mask = 0x01 << lastBitOffset;
 	let i = lastOffset;
@@ -278,6 +282,10 @@ function getBitsValue(): string {
 			bits = "_" + bits;
 		const bit = (dataBuffer[i] & mask) ? '1' : '0';
 		bits = bit + bits;
+		// Also calculate value for hex (hover) conversion
+		if (bit == '1')
+			val += posValue;
+		posValue *= 2;
 		// Next
 		mask <<= 1;
 		if (mask >= 0x100) {
@@ -285,35 +293,50 @@ function getBitsValue(): string {
 			i++;
 		}
 	}
-	return bits;
+	// Add hover property
+	const sc = new String(bits);	// NOSONAR
+	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, 4);
+	return sc;
 }
 
 
 /**
  * @returns The value from the dataBuffer as decimal string.
  */
-function getDecimalValue(): string {
+function getDecimalValue(): String {	// NOSONAR
 	const val = getNumberValue();
-	return val.toString();
+	const s = val.toString();
+	// Add hover property
+	const sc = new String(s);	// NOSONAR
+	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, 4);
+	return sc;
+
 }
 
 
 /**
  * @returns The value from the dataBuffer as hex string.
  */
-function getHexValue(): string {
+function getHexValue(): String {	// NOSONAR
 	const val = getNumberValue();
 	let s = val.toString(16).toUpperCase();
 	s = s.padStart(lastSize * 2, '0');
-	return s;
+	// Add hover property
+	const sc = new String(s);	// NOSONAR
+	(sc as any).hoverValue = 'Dec: ' + val;
+	return sc;
 }
 
 
 /**
  * @returns The value from the dataBuffer as hex string + "0x" in front.
  */
-function getHex0xValue(): string {
-	return '0x' + getHexValue();
+function getHex0xValue(): String {	// NOSONAR
+	const hsc = getHexValue();
+	// Copy hover property
+	const sc = new String('0x' + hsc);	// NOSONAR
+	(sc as any).hoverValue = (hsc as any).hoverValue;
+	return sc;
 }
 
 

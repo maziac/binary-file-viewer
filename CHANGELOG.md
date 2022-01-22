@@ -5,6 +5,7 @@
 	- dbgStop: Stops execution of the parser.
 	- dbgLog: Logs to the OUTPUT pane.
 	- dbgOverrideDetailsOpen: Override temporarily the initial open state for 'detail' commands.
+- Automatic hovers for 'Value' cells if getDecimalValue, getHex*Value or getBitsValue is used. Depending on the chosen type the different format for displaying the hover value is selected.
 
 # 1.2.0
 - New API function: 'readRowWithDetails' for cases where the size of a row is not known in advance.
