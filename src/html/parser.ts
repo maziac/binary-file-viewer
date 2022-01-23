@@ -42,7 +42,6 @@ var overrideDetailsOpen: boolean | undefined;
  * Used internally while creating rows.
  */
 interface RowNodes {
-	lastCollapsibleNode: HTMLTableCellElement,
 	offsetNode: HTMLTableCellElement,
 	sizeNode: HTMLTableCellElement,
 	valueNode: HTMLTableCellElement,
@@ -170,9 +169,11 @@ function addEmptyRow(name: string): RowNodes {
 	// Get child objects
 	const cells = node.cells;
 
+	// Remember
+	lastCollapsibleNode = cells[0] as HTMLTableCellElement;
+
 	// return
 	return {
-		lastCollapsibleNode: cells[0] as HTMLTableCellElement,
 		offsetNode: cells[1] as HTMLTableCellElement,
 		sizeNode: node.children[2] as HTMLTableCellElement,
 		valueNode: node.children[4] as HTMLTableCellElement,
@@ -193,21 +194,22 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
 	row.descriptionNode.innerHTML = description;
 	// Get bit range (displayed e.g. as "+5:7-3" with 7-3 being the bit range) or use size in bytes
 	let lastSizeHex;
-	let sizeString;
-	if (lastBitSize == 0) {
-		// Bytes used, not bits.
+	let sizeString = '';
+	if (lastSize > 0) {
+		// Bytes used
 		sizeString = lastSize.toString();
-		lastSizeHex = 'Hex: ' + convertToHexString(lastSize, 4);
+		if(lastBitSize > 0)
+			lastSizeHex = 'Hex: ' + convertToHexString(lastSize, 4);
 	}
-	else {
+	if(lastBitSize > 0) {
 		// Yes, bits used
 		if (lastBitSize == 1) {
 			// Special case: only one bit
-			sizeString = '.' + lastBitOffset;
+			sizeString += '.' + lastBitOffset;
 		}
 		else {
 			// A range
-			sizeString = '.' + (lastBitOffset + lastBitSize - 1) + '-' + lastBitOffset;
+			sizeString += '.' + (lastBitOffset + lastBitSize - 1) + '-' + lastBitOffset;
 		}
 	}
 	row.sizeNode.innerHTML = sizeString;
@@ -246,9 +248,6 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
 		};
 		row.offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
 	}
-
-	// Remember
-	lastCollapsibleNode = row.lastCollapsibleNode;
 }
 
 
@@ -274,7 +273,7 @@ function addRow(name: string, value: String | string | number = '', description 
  */
 function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false) {	// NOSONAR
 	// Check if overridden
-	if (dbgOverrideDetailsOpen != undefined) {
+	if (overrideDetailsOpen != undefined) {
 		opened = overrideDetailsOpen;
 	}
 
@@ -298,10 +297,11 @@ function readRowWithDetails(name: string, func: () => {value: String | string | 
 	// Unindent
 	endDetails();
 
-	// Calculate size form what has been used in details
+	// Calculate size from what has been used in details
 	const endOffset = lastOffset + lastSize;
 	lastSize = endOffset - beginOffset;
 	lastOffset = beginOffset;
+
 	// Restore
 	startOffset = bakStartOffset;
 
@@ -404,7 +404,7 @@ function endDetails() {
  */
 function addDetails(func: () => void, opened = false) {
 	// Check if overridden
-	if (dbgOverrideDetailsOpen != undefined) {
+	if (overrideDetailsOpen != undefined) {
 		opened = overrideDetailsOpen;
 	}
 
