@@ -103,10 +103,10 @@ registerParser(() => {
 
 The addRow parameters correspond exactly with the columns in the shown row.
 
-```addRow(name: string, value?: string|number, shortDescription?: string)```
+```addRow(name: string, value?: string|number, description?: string)```
 - ```name```: The name of the value.
 - ```value```: (Optional) The value to display.
-- ```shortDescription```: (Optional) A short description of the entry.
+- ```description```: (Optional) A short description of the entry.
 
 The first 2 columns are automatically filled by the 'Binary File viewer':
 - Offset: Is the offset from the start of the file. (Or the offset from the start of ```addDetails```, see later.)

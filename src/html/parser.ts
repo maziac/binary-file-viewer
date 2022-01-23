@@ -39,6 +39,18 @@ var overrideDetailsOpen: boolean | undefined;
 
 
 /**
+ * Used internally while creating rows.
+ */
+interface RowNodes {
+	lastCollapsibleNode: HTMLTableCellElement,
+	offsetNode: HTMLTableCellElement,
+	sizeNode: HTMLTableCellElement,
+	valueNode: HTMLTableCellElement,
+	descriptionNode: HTMLTableCellElement
+}
+
+
+/**
  * Call to check a value.
  * Does nothing.
  * You can set a breakpoint here.
@@ -122,132 +134,14 @@ function linkToCustomParserLine(cell: HTMLTableCellElement) {
 	}
 }
 
-function formatAs(value: number, format: string) {
-	if (format == 'int') {
-		return {
-			value: value, hoverValue: '0x' + convertToHexString(value, 4)};
-	}
-}
 
 /**
- * Creates a new row for the table.
- * @param name The name of the value.
- * @param value (Optional) The value to display.
- * @param shortDescription (Optional) A short description of the entry.
- * @param valueHover (Optional) Is displayed on hovering over the 'value'.
+ * Adds an (almost) empty row. Value and size have to be added later.
+ * This is a function used by addRow and readRowWithDetails.
+ * @param name The name of the value (the row).
+ * @returns The created cells.
  */
-function addRow(name: string, value: String | string | number = '', shortDescription = '', valueHover?: string | number) { // NOSONAR
-	// Create new node
-	const node = document.createElement("TR") as HTMLTableRowElement;
-	const relOffset = getRelOffset();
-	const relOffsetHex = convertToHexString(relOffset, 4);
-	const lastSizeHex = convertToHexString(lastSize, 4);
-	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
-	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
-	if (startOffset) {
-		// Is a relative index, so show also the absolute index as hover.
-		const lastOffsetHex = convertToHexString(lastOffset, 4);
-		hoverOffset += `\nAbsolute:\nDec: ${lastOffset}, Hex: ${lastOffsetHex}`;
-	}
-	// Get bit range (displayed e.g. as "+5:7-3" with 7-3 being the bit range) if any.
-	let sizeString;
-	if (lastBitSize == 0) {
-		// Bytes used, not bits.
-		sizeString = lastSize.toString();
-	}
-	else {
-		// Yes, bits used
-		if (lastBitSize == 1) {
-			// Special case: only one bit
-			sizeString = '.' + lastBitOffset;
-		}
-		else {
-			// A range
-			sizeString = '.' + (lastBitOffset+lastBitSize-1) + '-' + lastBitOffset;
-		}
-	}
-
-	const html = `
-	<td class="collapse"></td>
-	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
-	<td class="size" title="Size\nHex: ${lastSizeHex}">${sizeString}</td>
-	<td class="name">${name}</td>
-	<td class="value">${value}</td>
-	<td class="description">${shortDescription}</td>
-`;
-	node.innerHTML = html;
-
-	// Get child objects
-	const cells = node.cells;
-	lastCollapsibleNode = cells[0];
-	const offsetNode = cells[1];
-
-	// Add hover text if available
-	let hoverValue = valueHover;
-	if (hoverValue == undefined)
-		hoverValue = (value as any).hoverValue;
-	if (hoverValue != undefined) {
-		const valueNode = cells[4];
-		valueNode.title = '' + hoverValue;
-	}
-
-	// Get stack trace for link to custom parser file.
-	// Note: takes about 0.009 ms
-	//console.time();
-	const errFileLocation = new Error();
-	//console.timeEnd();
-	// Parse the stack trace
-	const stack = errFileLocation.stack.split('\n');
-	const customLine: string = stack[2];
-	const match = /.*>:(\d+):(\d+)/.exec(customLine);
-	if (match) {
-		// Line
-		const lineNr = parseInt(match[1]) - 4;
-		// Column
-		const colNr = parseInt(match[2]) - 1;
-		// Create link: If the offset is clicked the line in the user's js file is selected.
-		(offsetNode as any)['_customParserOffset'] = {
-			lineNr,
-			colNr
-		};
-		offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
-	}
-
-	// Append it / Insert new row
-	lastNode.appendChild(node);
-}
-
-
-/**
- * Adds a long description.
- * Will be shown when expanded.
- */
-function addDescription(longDescription: string) {
-	//lastLongDescriptionNode.innerHTML = longDescription;
-	beginDetails(false);
-	createDescription(convertLineBreaks(longDescription));
-	endDetails();
-}
-
-
-/**
- * Reads (data) and creates a new row for the table.
- * The details are always parsed immediately.
- * @param name The name of the value.
- * @param opened true=the details are opened on initial parsing.
- * false (default)=The details are initially closed.
- */
-function readRowWithDetails(name: string, func: () => {value: string | number, description: string, valueHover: string | number}, opened = false) {
-	// Check if overridden
-	if (dbgOverrideDetailsOpen != undefined) {
-		opened = overrideDetailsOpen;
-	}
-
-	// Correct the offset to be after lastSize
-	correctBitByteOffsets();
-	// Remember
-	const beginOffset = lastOffset;
-	// TODO: share code with addRow;
+function addEmptyRow(name: string): RowNodes {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
@@ -270,18 +164,72 @@ function readRowWithDetails(name: string, func: () => {value: string | number, d
 `;
 	node.innerHTML = html;
 
+	// Append it / Insert new row
+	lastNode.appendChild(node);
+
 	// Get child objects
 	const cells = node.cells;
-	lastCollapsibleNode = cells[0];
-	const offsetNode = cells[1];
-	const sizeNode = node.children[2] as HTMLTableCellElement;
-	const valueNode = node.children[4];
-	const descriptionNode = node.children[5];
+
+	// return
+	return {
+		lastCollapsibleNode: cells[0] as HTMLTableCellElement,
+		offsetNode: cells[1] as HTMLTableCellElement,
+		sizeNode: node.children[2] as HTMLTableCellElement,
+		valueNode: node.children[4] as HTMLTableCellElement,
+		descriptionNode: node.children[5] as HTMLTableCellElement,
+	}
+}
+
+
+/**
+ * Completes the row with data.
+ * This is a function used by addRow and readRowWithDetails.
+ * @param value (Optional) The value to display.
+ * @param description (Optional) A short description of the entry.
+ * @param valueHover (Optional) Is displayed on hovering over the 'value'.
+ */
+function makeRowComplete(row: RowNodes, value: String | string | number = '', description = '', valueHover?: string | number) {	// NOSONAR
+	// Short description
+	row.descriptionNode.innerHTML = description;
+	// Get bit range (displayed e.g. as "+5:7-3" with 7-3 being the bit range) or use size in bytes
+	let lastSizeHex;
+	let sizeString;
+	if (lastBitSize == 0) {
+		// Bytes used, not bits.
+		sizeString = lastSize.toString();
+		lastSizeHex = 'Hex: ' + convertToHexString(lastSize, 4);
+	}
+	else {
+		// Yes, bits used
+		if (lastBitSize == 1) {
+			// Special case: only one bit
+			sizeString = '.' + lastBitOffset;
+		}
+		else {
+			// A range
+			sizeString = '.' + (lastBitOffset + lastBitSize - 1) + '-' + lastBitOffset;
+		}
+	}
+	row.sizeNode.innerHTML = sizeString;
+	if(lastSizeHex)
+		row.sizeNode.title = lastSizeHex;
+
+	// Add value
+	row.valueNode.innerHTML = '' + value;
+
+	// Add hover text if available
+	let hoverValue = valueHover;
+	if (hoverValue == undefined)
+		hoverValue = (value as any).hoverValue;
+	if (hoverValue != undefined) {
+		row.valueNode.title = '' + hoverValue;
+	}
 
 	// Get stack trace for link to custom parser file.
-	// Note: takes about 0.03ms
-	// TODO: used in 2 places
+	// Note: takes about 0.009 ms
+	//console.time();
 	const errFileLocation = new Error();
+	//console.timeEnd();
 	// Parse the stack trace
 	const stack = errFileLocation.stack.split('\n');
 	const customLine: string = stack[2];
@@ -292,17 +240,52 @@ function readRowWithDetails(name: string, func: () => {value: string | number, d
 		// Column
 		const colNr = parseInt(match[2]) - 1;
 		// Create link: If the offset is clicked the line in the user's js file is selected.
-		(offsetNode as any)['_customParserOffset'] = {
+		(row.offsetNode as any)['_customParserOffset'] = {
 			lineNr,
 			colNr
 		};
-		offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
+		row.offsetNode.setAttribute('onclick', 'linkToCustomParserLine(this)');
 	}
 
-	// Append it / Insert new row
-	lastNode.appendChild(node);
+	// Remember
+	lastCollapsibleNode = row.lastCollapsibleNode;
+}
+
+
+/**
+ * Creates a new row for the table.
+ * @param name The name of the value.
+ * @param value (Optional) The value to display.
+ * @param description (Optional) A short description of the entry.
+ * @param valueHover (Optional) Is displayed on hovering over the 'value'.
+ */
+function addRow(name: string, value: String | string | number = '', description = '', valueHover?: string | number) { // NOSONAR
+	const row = addEmptyRow(name);
+	makeRowComplete(row, value, description, valueHover);
+}
+
+
+/**
+ * Reads (data) and creates a new row for the table.
+ * The details are always parsed immediately.
+ * @param name The name of the value.
+ * @param opened true=the details are opened on initial parsing.
+ * false (default)=The details are initially closed.
+ */
+function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false) {	// NOSONAR
+	// Check if overridden
+	if (dbgOverrideDetailsOpen != undefined) {
+		opened = overrideDetailsOpen;
+	}
+
+	// Correct the offset to be after lastSize
+	correctBitByteOffsets();
+
+	// Add row
+	const row = addEmptyRow(name);
 
 	// Save
+	const beginOffset = lastOffset;
 	const bakStartOffset = startOffset;
 
 	// "Indent"
@@ -315,33 +298,18 @@ function readRowWithDetails(name: string, func: () => {value: string | number, d
 	// Unindent
 	endDetails();
 
-	// Set size (also for hover)
+	// Calculate size form what has been used in details
 	const endOffset = lastOffset + lastSize;
-	const size = endOffset - beginOffset;
-	sizeNode.innerHTML = '' + size;
-	const sizeHex = convertToHexString(lastSize, 4);
-	sizeNode.title = "Size\nHex: "+ sizeHex;
-
-	// Set row value and description
-	if (result) {
-		if (result.description)
-			descriptionNode.innerHTML = '' + result.description;
-		const value = result.value;
-		if (value) {
-			valueNode.innerHTML = '' + value;
-			// Add hover text if available
-			let hoverValue = result.valueHover;
-			if (hoverValue == undefined)
-				hoverValue = (value as any).hoverValue;
-			if (hoverValue != undefined) {
-				const valueNode = cells[4];
-				valueNode.title = '' + hoverValue;
-			}
-		}
-	}
-
+	lastSize = endOffset - beginOffset;
+	lastOffset = beginOffset;
 	// Restore
 	startOffset = bakStartOffset;
+
+	// Set size etc
+	if (result)
+		makeRowComplete(row, result.value, result.description, result.valueHover);
+	else
+		makeRowComplete(row);
 }
 
 
@@ -671,7 +639,6 @@ function parseStart() {
 			convertToHexString,
 			getStringValue,
 			addMemDump,
-			addDescription,
 			addChart,
 			getData,
 			createSeries,

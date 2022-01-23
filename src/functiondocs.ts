@@ -72,7 +72,7 @@ export class FunctionDocumentation {
 					func: ['readRowWithDetails', "Reads data and creates a row with expandable details. Use this for expandable rows where the size is not clear until the details have been parsed."],
 					params: [
 						['name', 'string', "The name of the value."],
-						['func', '() => {value?: string | number, description?: string, valueHover: string | number} | void, opened = false)', "The function to call to parse/decode the data. The function can return an object which is used for the row's 'value' and 'description'."],
+						['func', '() => {value?: string | number, description?: string, valueHover?: string | number} | void, opened = false)', "The function to call to parse/decode the data. The function can return an object which is used for the row's 'value' and 'description'."],
 						['opened', 'boolean', "true=the details are opened on initial parsing. false (default)=The details are initially closed."]
 					]
 				},
