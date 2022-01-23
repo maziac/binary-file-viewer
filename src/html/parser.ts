@@ -30,6 +30,10 @@ var lastNode: any;
 // The current row's cell that contains the collapsible icon (+)
 var lastCollapsibleNode: HTMLTableCellElement;
 
+// The current row's cell that contains the value. Can be used to
+// add a value later.
+var lastValueNode: HTMLTableCellElement;
+
 // The node used for the standard header.
 var standardHeaderNode: HTMLDivElement;
 
@@ -135,6 +139,27 @@ function linkToCustomParserLine(cell: HTMLTableCellElement) {
 
 
 /**
+ * Sets the value of the current cell.
+ * Normally you can set the value directly in 'addRow' or 'readRowWithDetails'.
+ * This command can be used for special cases where the value is not known at the time the both functions are called.
+ * @param value The value to set.
+ * @param valueHover (Optional) Is displayed on hovering over the 'value'.
+ */
+function setRowValue(value: String | string | number, valueHover?: string | number) {	// NOSONAR
+	// Set value
+	if (lastValueNode)
+		lastValueNode.innerHTML = '' + value;
+	// Add hover text if available
+	let hoverValue = valueHover;
+	if (hoverValue == undefined)
+		hoverValue = (value as any).hoverValue;
+	if (hoverValue != undefined) {
+		lastValueNode.title = '' + hoverValue;
+	}
+}
+
+
+/**
  * Adds an (almost) empty row. Value and size have to be added later.
  * This is a function used by addRow and readRowWithDetails.
  * @param name The name of the value (the row).
@@ -171,13 +196,14 @@ function addEmptyRow(name: string): RowNodes {
 
 	// Remember
 	lastCollapsibleNode = cells[0] as HTMLTableCellElement;
+	lastValueNode = cells[4] as HTMLTableCellElement;
 
 	// return
 	return {
 		offsetNode: cells[1] as HTMLTableCellElement,
-		sizeNode: node.children[2] as HTMLTableCellElement,
-		valueNode: node.children[4] as HTMLTableCellElement,
-		descriptionNode: node.children[5] as HTMLTableCellElement,
+		sizeNode: cells[2] as HTMLTableCellElement,
+		valueNode: cells[4] as HTMLTableCellElement,
+		descriptionNode: cells[5] as HTMLTableCellElement,
 	}
 }
 
@@ -301,9 +327,14 @@ function readRowWithDetails(name: string, func: () => {value: String | string | 
 	const endOffset = lastOffset + lastSize;
 	lastSize = endOffset - beginOffset;
 	lastOffset = beginOffset;
+	lastBitSize += lastBitOffset;
+	lastSize += Math.floor(lastBitSize / 8);
+	lastBitSize = lastBitSize % 8;
+	lastBitOffset = 0;
 
 	// Restore
 	startOffset = bakStartOffset;
+	lastValueNode = row.valueNode;
 
 	// Set size etc
 	if (result)
@@ -638,6 +669,7 @@ function parseStart() {
 			getDecimalValue,
 			convertToHexString,
 			getStringValue,
+			setRowValue,
 			addMemDump,
 			addChart,
 			getData,

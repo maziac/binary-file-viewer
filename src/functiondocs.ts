@@ -157,6 +157,13 @@ export class FunctionDocumentation {
 					]
 				},
 				{
+					func: ['setRowValue', "Sets the 'value' cell of the current row. Normally you can set the value directly in 'addRow' or 'readRowWithDetails'. This command can be used for special cases where the value is not known at the time the both functions are called."],
+					params: [
+						['value', 'String | string | number', "The value to set."],
+						['valueHover?', 'string|number', "(Optional) Is displayed on hovering over the 'value'."]
+					]
+				},
+				{
 					func: ['createSeries', 'Creates a series from a number array.\nAdds a label and a color.'],
 					return: ['Series', 'A Series object with samples, label and color info.\n~~~js\ninterface Series {\n  samples: number[],\n  label: string,\n  color: string\n~~~\n}'],
 					params: [
