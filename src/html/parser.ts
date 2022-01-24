@@ -449,6 +449,7 @@ function addDetails(func: () => void, opened = false) {
 	const bakLastBitSize = lastBitSize;
 	const bakStartOffset = startOffset;
 	const bakLastNode = lastNode;
+	const bakLastValueNode = lastValueNode;
 	const bakLastCollapsibleNode = lastCollapsibleNode;
 
 	// Delayed or not
@@ -492,6 +493,7 @@ function addDetails(func: () => void, opened = false) {
 	lastBitSize = bakLastBitSize;
 	startOffset = bakStartOffset;
 	lastCollapsibleNode = bakLastCollapsibleNode;
+	lastValueNode = bakLastValueNode;
 
 	// Close/leave
 	endDetails();
@@ -678,9 +680,12 @@ function parseStart() {
 			dbgStop,
 			dbgLog,
 			dbgOverrideDetailsOpen,
+			endOfFile,
 
 			// Standard
-			Math
+			Math,
+			String,
+			Number
 		});
 	}
 	catch (e) {

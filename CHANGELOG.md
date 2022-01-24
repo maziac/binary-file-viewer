@@ -1,5 +1,9 @@
 # Changelog
 
+# 1.4.0
+- New API commands:
+	- endOfFile: returns true if end of file reached.
+
 # 1.3.0
 - New API commands:
 	- dbgStop: Stops execution of the parser.

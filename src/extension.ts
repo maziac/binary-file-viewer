@@ -18,6 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Init package info
     PackageInfo.init(context);
 
+
     /*
     const sc = new String('abcd');	// NOSONAR
     // Add hover property

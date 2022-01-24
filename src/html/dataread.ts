@@ -106,6 +106,14 @@ function correctBitByteOffsets() {
 
 
 /**
+ * @returns true if end of file reached.
+ */
+function endOfFile(): boolean {
+	return (lastOffset + lastSize >= dataBuffer.length);
+}
+
+
+/**
  * Advances the offset (from previous call) and
  * stores the size for reading.
  * @param size The number of bytes to read. If undefined, all remaining data is read.
@@ -116,8 +124,10 @@ function read(size?: number) {
 
 	if (size == undefined)
 		size = dataBuffer.length - lastOffset;
+	else if (typeof size != 'number')
+		throw new Error("read: 'size' is not a number");
 	else if (lastOffset + size > dataBuffer.length)
-		throw new Error("read: Reading more data than available (size=" + size + ").");
+		throw new Error("read: Reading more data than available (size=" + size + " at offset=" + lastOffset + ").");
 	lastSize = size;
 }
 

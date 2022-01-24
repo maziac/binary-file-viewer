@@ -83,6 +83,10 @@ export class FunctionDocumentation {
 					]
 				},
 				{
+					func: ['endOfFile', "Checks if the parsed file has reached it's end."],
+					return: ['boolean', "true if end of file reached."],
+				},
+				{
 					func: ['setEndianness', 'Set the endianness for data reads.'],
 					params: [
 						['endianness', 'string', "Either 'little'(default ) or 'big'."]
