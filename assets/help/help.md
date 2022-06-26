@@ -386,6 +386,12 @@ The output goes into the OUTPUT pane under "Binary File Viewer".
 With ```dbgOverrideDetailsOpen``` you can control/override the open/close state of the following 'details' commands, i.e. ```addDetails``` and ```readRowWithDetails```.
 
 
+## Parser Path
+
+The path(s) to your parser file(s) can be changed in the settings:
+![](help_settings.jpg)
+
+
 ## Navigation
 
 If you have the parser (*.js) file open and then click on the offset value of the decoded binary file, the function that was used to create the row will become selected.

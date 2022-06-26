@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.4.1
+- Parser path explanation added to the help page.
+
 # 1.4.0
 - New API commands:
 	- endOfFile: returns true if end of file reached.
