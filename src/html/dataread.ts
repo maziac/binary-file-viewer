@@ -276,6 +276,26 @@ function getNumberValue(): number {
 
 
 /**
+ * Reads the value from the buffer.
+ * Also supports reading bits.
+ * Either lastSize or lastBitSize is != 0.
+ * @returns A number (not a String), if highest bit is set it is a negative number.
+ * E.g. if lastSize is 1 and the data is 0x81 it returns -127.
+ */
+function getSignedNumberValue(): number {
+	let value = getNumberValue();
+
+	const bitSize = (lastSize) ? lastSize * 8 : lastBitSize;
+	// Turn into negative if bigger than half of the maximum
+	const max = 0b01 << bitSize;
+	if (value >= (max >> 1))
+		value -= max;
+
+	return value;
+}
+
+
+/**
  * Reads the bits from the dataBuffer.
  * Either lastSize or lastBitSize is != 0.
  * @returns E.g. '001101'
@@ -378,7 +398,7 @@ function convertBitsToString(value: number, size: number): string {
 	s = s.padStart(size * 8, '0');
 	s = s.replace(/.{4}/g, '$&_');
 	// Remove last '_'
-	s = s.substr(0, s.length - 1);
+	s = s.substring(0, s.length - 1);
 	return s;
 }
 

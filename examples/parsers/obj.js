@@ -37,6 +37,13 @@ registerParser(() => {
 		readBits(4);
 		addRow('Reserved');
 	}, true);
+
+	read(2);
+	addRow('As hex', getHex0xValue());
+	addRow('As signed (positive)', getSignedNumberValue());
+	read(2);
+	addRow('As hex', getHex0xValue());
+	addRow('As signed (negative)', getSignedNumberValue());
 });
 
 

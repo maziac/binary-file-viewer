@@ -665,6 +665,7 @@ function parseStart() {
 			addRow,
 			addDetails,
 			getNumberValue,
+			getSignedNumberValue,
 			getBitsValue,
 			getHexValue,
 			getHex0xValue,

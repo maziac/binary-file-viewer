@@ -120,7 +120,7 @@ Note: If you pass the string returned by getDecimalValue, getHex*Value or getBit
 ### read
 
 As you have seen before: with ```read``` you will read in data from the file.
-The reading starts at the last position. I.e. for the first ```read```at offset 0 or for the following ```read``` after the previous ```read```.
+The reading starts at the last position. I.e. for the first ```read``` at offset 0 or for the following ```read``` after the previous ```read```.
 
 All of the ```get...``` functions work on the data of the previous ```read```.
 

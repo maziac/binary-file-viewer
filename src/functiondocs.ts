@@ -121,6 +121,10 @@ export class FunctionDocumentation {
 					return: ['number', "The decoded number."]
 				},
 				{
+					func: ['getSignedNumberValue', 'The value from the dataBuffer as signed number value.'],
+					return: ['number', "The decoded number. (If the highest bit is set the number is interpreted as negative number.)"]
+				},
+				{
 					func: ['getBitsValue', 'The bits from the dataBuffer.'],
 					return: ['string', "E.g. '001101'"]
 				},
