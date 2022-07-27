@@ -137,8 +137,12 @@ export class FunctionDocumentation {
 					return: ['string', "E.g. '0x7FA0'"]
 				},
 				{
-					func: ['getDecimalValue', 'The value from the dataBuffer as decimal string.'],
+					func: ['getDecimalValue', 'The value from the dataBuffer as decimal string. Interprets the value as unsigned int. Hovering will show the hex value.'],
 					return: ['string', "E.g. '5768'"]
+				},
+				{
+					func: ['getSignedDecimalValue', 'The value from the dataBuffer as decimal string. Interprets the value as signed int. Hovering will show the hex value.'],
+					return: ['string', "E.g. '-1234'"]
 				},
 				{
 					func: ['getStringValue', 'The value from the dataBuffer as string.'],

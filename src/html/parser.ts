@@ -670,6 +670,7 @@ function parseStart() {
 			getHexValue,
 			getHex0xValue,
 			getDecimalValue,
+			getSignedDecimalValue,
 			convertToHexString,
 			getStringValue,
 			setRowValue,

@@ -40,10 +40,14 @@ registerParser(() => {
 
 	read(2);
 	addRow('As hex', getHex0xValue());
-	addRow('As signed (positive)', getSignedNumberValue());
+	addRow('As getDecimalValue', getDecimalValue());
+	addRow('As getSignedNumberValue (positive)', getSignedNumberValue());
+	addRow('As getSignedDecimalValue (positive) with hover', getSignedDecimalValue());
 	read(2);
 	addRow('As hex', getHex0xValue());
-	addRow('As signed (negative)', getSignedNumberValue());
+	addRow('As getDecimalValue', getDecimalValue());
+	addRow('As getSignedNumberValue (negative)', getSignedNumberValue());
+	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
 });
 
 

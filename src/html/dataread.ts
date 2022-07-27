@@ -332,13 +332,13 @@ function getBitsValue(): String {	// NOSONAR
 
 
 /**
- * @returns The value from the dataBuffer as decimal string.
+ * @returns The value from the dataBuffer as positive decimal string.
  */
 function getDecimalValue(): String {	// NOSONAR
 	const val = getNumberValue();
 	const s = val.toString();
 	// Get size for hex conversion
-	let size = 2*lastSize;
+	let size = 2 * lastSize;
 	if (size == 0) {
 		size = Math.ceil(lastBitSize / 4);
 	}
@@ -346,7 +346,32 @@ function getDecimalValue(): String {	// NOSONAR
 	const sc = new String(s);	// NOSONAR
 	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, size);
 	return sc;
+}
 
+
+/**
+ * @returns The value from the dataBuffer as positive decimal string.
+ */
+function getSignedDecimalValue(): String {	// NOSONAR
+	const unsignedValue = getNumberValue();
+
+	let signedValue = unsignedValue;
+	const bitSize = (lastSize) ? lastSize * 8 : lastBitSize;
+	// Turn into negative if bigger than half of the maximum
+	const max = 0b01 << bitSize;
+	if (signedValue >= (max >> 1))
+		signedValue -= max;
+
+	const s = signedValue.toString();
+	// Get size for hex conversion
+	let size = 2 * lastSize;
+	if (size == 0) {
+		size = Math.ceil(lastBitSize / 4);
+	}
+	// Add hover property
+	const sc = new String(s);	// NOSONAR
+	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(unsignedValue, size);
+	return sc;
 }
 
 
@@ -401,6 +426,7 @@ function convertBitsToString(value: number, size: number): string {
 	s = s.substring(0, s.length - 1);
 	return s;
 }
+
 
 /**
  * @returns The value from the dataBuffer as bit string. e.g. "0011_0101"
