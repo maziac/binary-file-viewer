@@ -287,9 +287,9 @@ function getSignedNumberValue(): number {
 
 	const bitSize = (lastSize) ? lastSize * 8 : lastBitSize;
 	// Turn into negative if bigger than half of the maximum
-	const max = 0b01 << bitSize;
-	if (value >= (max >> 1))
-		value -= max;
+	const max = Math.pow(2, bitSize - 1);
+	if (value >= max)
+		value -= 2 * max;
 
 	return value;
 }
@@ -358,9 +358,9 @@ function getSignedDecimalValue(): String {	// NOSONAR
 	let signedValue = unsignedValue;
 	const bitSize = (lastSize) ? lastSize * 8 : lastBitSize;
 	// Turn into negative if bigger than half of the maximum
-	const max = 0b01 << bitSize;
-	if (signedValue >= (max >> 1))
-		signedValue -= max;
+	const max = Math.pow(2, bitSize - 1);
+	if (signedValue >= max)
+		signedValue -= 2 * max;
 
 	const s = signedValue.toString();
 	// Get size for hex conversion
