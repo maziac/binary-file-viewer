@@ -255,8 +255,67 @@ suite('Functions', () => {
 				// positive
 				dataBuffer = new Uint8Array([0, 0b10110110, 0b10010010, 0b11111010]);
 				assert.equal(getSignedNumberValue(), 0b010100100101011011); // 01 01001001 01011011
-
 			});
+		});
+	});
+
+	suite('getDecimalValue()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('getSignedDecimalValue()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('getHexValue()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('getHex0xValue()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('bitValue()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('convertBitsToString()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('bitsValue()', () => {
+		test('?', () => {
+			assert.equal(false, true);
+		});
+	});
+
+	suite('getStringValue()', () => {
+		setup(() => {
+			lastOffset = 0;
+		});
+
+		test('1 char', () => {
+			dataBuffer = new TextEncoder().encode("A");
+			lastSize = dataBuffer.length;
+			assert.equal(getStringValue(), 'A');
+		});
+
+		test('3 chars', () => {
+			dataBuffer = new TextEncoder().encode("ABC");
+			lastSize = dataBuffer.length;
+			assert.equal(getStringValue(), 'ABC');
 		});
 	});
 });
