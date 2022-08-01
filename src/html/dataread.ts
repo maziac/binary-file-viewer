@@ -74,20 +74,6 @@ function arrayBufferToBase64(buffer: any) {
 
 
 /**
- * Converts the given number value into a hex string.
- * @param value The value to convert.
- * @param size The number of digits (e.g. 2 or 4)
- * @returns E.g. "0F" or "12FA"
- */
-function convertToHexString(value: number, size: number): string {
-	if (value == undefined)
-		return "".padStart(size, '?');
-	const s = value.toString(16).toUpperCase().padStart(size, '0');
-	return s;
-}
-
-
-/**
  * Corrects the bit offsets before reading a byte.
  */
 function correctBitByteOffsets() {
@@ -225,6 +211,26 @@ function getData(sampleSize = 1, offset = 0, format = 'u', skip = 0): number[] {
 }
 
 
+/*
+--------------------------------------
+Copy from here to end for unit tests:
+*/
+
+
+/**
+ * Converts the given number value into a hex string.
+ * @param value The value to convert.
+ * @param size The number of digits (e.g. 2 or 4)
+ * @returns E.g. "0F" or "12FA"
+ */
+function convertToHexString(value: number, size: number): string {
+	if (value == undefined)
+		return "".padStart(size, '?');
+	const s = value.toString(16).toUpperCase().padStart(size, '0');
+	return s;
+}
+
+
 /**
  * Reads the value from the buffer.
  * Also supports reading bits.
@@ -330,7 +336,7 @@ function getSignedNumberValue(): number {
 			const bitNegative = ((255 - data) & mask) ? 1 : 0;
 			valueNeg -= factor * bitNegative;
 			bit = (data & mask) ? 1 : 0;
-			value -= factor * bit;
+			value += factor * bit;
 			factor *= 2;
 			// Next
 			mask <<= 1;
