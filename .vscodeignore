@@ -1,7 +1,7 @@
 .vscode/
 .vscode-test/
 out/test/
-test/
+tests/
 src/
 examples/
 design/
