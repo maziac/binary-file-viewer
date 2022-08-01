@@ -283,15 +283,71 @@ function getNumberValue(): number {
  * E.g. if lastSize is 1 and the data is 0x81 it returns -127.
  */
 function getSignedNumberValue(): number {
-	let value = getNumberValue();
 
-	const bitSize = (lastSize) ? lastSize * 8 : lastBitSize;
-	// Turn into negative if bigger than half of the maximum
-	const max = Math.pow(2, bitSize - 1);
-	if (value >= max)
-		value -= 2 * max;
+	// Byte wise
+	if (lastSize) {
+		// Check last bit
+		const maxByteOffset = (littleEndian) ? lastSize - 1 : 0;
+		const lastByte = dataBuffer[lastOffset + maxByteOffset];
+		if (lastByte <= 127) {
+			// Is a positive number
+			return getNumberValue();
+		}
 
-	return value;
+		// Is a negative number
+		let value = 0;
+		let factor = 1;
+		if (littleEndian) {
+			// Little endian
+			for (let i = 0; i < lastSize; i++) {
+				value -= factor * (255 - dataBuffer[lastOffset + i]);
+				factor *= 256;
+			}
+		}
+		else {
+			// Big endian
+			for (let i = lastSize - 1; i >= 0; i--) {
+				value -= factor * (255 - dataBuffer[lastOffset + i]);
+				factor *= 256;
+			}
+		}
+		value--;
+		return value;
+	}
+
+	// Or bitwise
+	else if (lastBitSize) {
+		// Is a negative number
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let i = lastOffset;
+		let value = 0;
+		let valueNeg = 0;
+		let bit;
+		for (let k = 0; k < lastBitSize; k++) {
+			const data = dataBuffer[i];
+			// Calculates negative and positive number in parallel
+			const bitNegative = ((255 - data) & mask) ? 1 : 0;
+			valueNeg -= factor * bitNegative;
+			bit = (data & mask) ? 1 : 0;
+			value -= factor * bit;
+			factor *= 2;
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				mask = 0x01;
+				i++;
+			}
+		}
+		// Check if neg or pos
+		if (bit) {
+			// Negative
+			valueNeg--;
+			return valueNeg;
+		}
+		// Positive
+		return value;
+	}
 }
 
 
@@ -335,16 +391,10 @@ function getBitsValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as positive decimal string.
  */
 function getDecimalValue(): String {	// NOSONAR
-	const val = getNumberValue();
-	const s = val.toString();
-	// Get size for hex conversion
-	let size = 2 * lastSize;
-	if (size == 0) {
-		size = Math.ceil(lastBitSize / 4);
-	}
+	const value = getNumberValue();
 	// Add hover property
-	const sc = new String(s);	// NOSONAR
-	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, size);
+	const sc = new String(value);	// NOSONAR
+	(sc as any).hoverValue = 'Hex: ' + getHex0xValue();
 	return sc;
 }
 
@@ -353,24 +403,10 @@ function getDecimalValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as positive decimal string.
  */
 function getSignedDecimalValue(): String {	// NOSONAR
-	const unsignedValue = getNumberValue();
-
-	let signedValue = unsignedValue;
-	const bitSize = (lastSize) ? lastSize * 8 : lastBitSize;
-	// Turn into negative if bigger than half of the maximum
-	const max = Math.pow(2, bitSize - 1);
-	if (signedValue >= max)
-		signedValue -= 2 * max;
-
-	const s = signedValue.toString();
-	// Get size for hex conversion
-	let size = 2 * lastSize;
-	if (size == 0) {
-		size = Math.ceil(lastBitSize / 4);
-	}
+	const value = getSignedNumberValue();
 	// Add hover property
-	const sc = new String(s);	// NOSONAR
-	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(unsignedValue, size);
+	const sc = new String(value);	// NOSONAR
+	(sc as any).hoverValue = 'Hex: ' + getHex0xValue();
 	return sc;
 }
 
@@ -379,12 +415,15 @@ function getSignedDecimalValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as hex string.
  */
 function getHexValue(): String {	// NOSONAR
-	const val = getNumberValue();
+	// Read value directly to overcome rounding issues
+	// TODO: Also bits
+	let val = 0;
 	let s = val.toString(16).toUpperCase();
 	s = s.padStart(lastSize * 2, '0');
 	// Add hover property
 	const sc = new String(s);	// NOSONAR
-	(sc as any).hoverValue = 'Dec: ' + val;
+	const decVal = getNumberValue();
+	(sc as any).hoverValue = 'Dec: ' + decVal;
 	return sc;
 }
 

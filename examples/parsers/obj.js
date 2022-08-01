@@ -62,10 +62,35 @@ registerParser(() => {
 	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
 
 	read(1);
-	addRow('0xFF as hex', getHex0xValue());
+	addRow('0xFE as hex', getHex0xValue());
 	addRow('As getDecimalValue', getDecimalValue());
 	addRow('As getSignedNumberValue (negative)', getSignedNumberValue());
 	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
+
+	read(8);
+	addRow('FFFFFFFFFFFFFFFD (-3) as hex', getHex0xValue());
+	addRow('As getDecimalValue', getDecimalValue());
+	addRow('As getSignedNumberValue (negative)', getSignedNumberValue());
+	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
+
+	read(1);
+
+	read(8);
+	addRow('-30000 as hex', getHex0xValue());
+	addRow('As getDecimalValue', getDecimalValue());
+	addRow('As getSignedNumberValue (negative)', getSignedNumberValue());
+	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
+
+	read(1);
+
+	read(8);
+	addRow('-300000 as hex', getHex0xValue());
+	addRow('As getDecimalValue', getDecimalValue());
+	addRow('As getSignedNumberValue (negative)', getSignedNumberValue());
+	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
+
+
+
 });
 
 
