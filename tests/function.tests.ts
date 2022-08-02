@@ -259,6 +259,34 @@ suite('Functions', () => {
 		});
 	});
 
+	suite('getBitsValue()', () => {
+		setup(() => {
+			lastOffset = 1;
+			lastSize = 0;
+			lastBitOffset = 0;
+			lastBitSize = 0;
+			littleEndian = true;
+		});
+
+		test('lastSize = 2', () => {
+			dataBuffer = new Uint8Array([0, 0x0F, 0x12]);
+			lastSize = dataBuffer.length - 1;
+			const s: any = getBitsValue();
+			assert.equal(s.toString(), '00010010_00001111');
+			assert.equal(s.hoverValue, 'Hex: 0x120F');
+		});
+
+		test('lastBitSize = 19', () => {
+			dataBuffer = new Uint8Array([0, 0x0F, 0x12, 0xFB]);
+			lastSize = 0;
+			lastBitSize = 19;
+			lastBitOffset = 4;
+			const s: any = getBitsValue();
+			assert.equal(s.toString(), '111_10110001_00100000');
+			assert.equal(s.hoverValue, 'Hex: 0x7B120');
+		});
+	});
+
 	suite('_getDecimalValue()', () => {
 		setup(() => {
 			lastOffset = 1;
@@ -353,13 +381,139 @@ suite('Functions', () => {
 		});
 	});
 
+	suite('_getSignedDecimalValue()', () => {
+		setup(() => {
+			lastOffset = 1;
+			lastSize = 0;
+			lastBitOffset = 0;
+			lastBitSize = 0;
+			littleEndian = true;
+		});
+
+		suite('little endian', () => {
+			test('1 byte', () => {
+				dataBuffer = new Uint8Array([0, 0x0F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '15');
+
+				dataBuffer = new Uint8Array([0, 0x9F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '-97');
+			});
+
+			test('3 bytes', () => {
+				dataBuffer = new Uint8Array([0, 0x0F, 0x12, 0x7B]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '8065551');
+
+				dataBuffer = new Uint8Array([0, 0x0F, 0x12, 0x8B]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '-7663089');
+			});
+
+			test('10 bytes', () => {
+				dataBuffer = new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '597028895935846336369167');
+
+				dataBuffer = new Uint8Array([0, 0xFD, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '-3');
+			});
+		});
+
+		suite('big endian', () => {
+			setup(() => {
+				littleEndian = false;
+			});
+
+			test('1 byte', () => {
+				dataBuffer = new Uint8Array([0, 0x0F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '15');
+
+				dataBuffer = new Uint8Array([0, 0x9F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '-97');
+			});
+
+			test('3 bytes', () => {
+				dataBuffer = new Uint8Array([0, 0x7B, 0x12, 0x0F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '8065551');
+
+				dataBuffer = new Uint8Array([0, 0x8B, 0x12, 0x0F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '-7663089');
+			});
+
+			test('10 bytes', () => {
+				dataBuffer = new Uint8Array([0, 0x7E, 0x6D, 0x00, 0x55, 0x3A, 0xFE, 0x40, 0x7B, 0x12, 0x0F]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '597028895935846336369167');
+
+				dataBuffer = new Uint8Array([0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD]);
+				lastSize = dataBuffer.length - 1;
+				assert.equal(_getSignedDecimalValue(), '-3');
+			});
+		});
+
+		suite('bits', () => {
+			setup(() => {
+				// Endianness does not matter.
+				lastBitOffset = 2;
+				lastSize = 0;
+			});
+
+			test('In 1 byte', () => {
+				dataBuffer = new Uint8Array([0, 0b11110110]);
+				lastBitSize = 5;
+				assert.equal(_getDecimalValue(), '29');	// '11101'
+			});
+
+			test('Through 2 bytes', () => {
+				dataBuffer = new Uint8Array([0, 0b11110110, 0b11111110]);
+				lastBitSize = 9;
+				assert.equal(_getDecimalValue(), '445'); // '110111101'
+			});
+
+			test('Through 3 bytes', () => {
+				dataBuffer = new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]);
+				lastBitSize = 18;
+				assert.equal(_getDecimalValue(), '255165'); // '11'1110 0100'1011 1101'
+			});
+
+			test('8 bit', () => {
+				dataBuffer = new Uint8Array([0, 0b00110110, 0b00]);
+				lastBitSize = 8;
+				assert.equal(_getDecimalValue(), '13'); // '0000 1101'
+			});
+		});
+	});
+
 	suite('getDecimalValue()', () => {
 		test('value + hover', () => {
 			dataBuffer = new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]);
 			lastSize = dataBuffer.length - 1;
-			const s: String = getDecimalValue();	// NOSONAR
+			const s: any = getDecimalValue();
 			assert.equal(s.toString(), '597028895935846336369167');
-			assert.equal((s as any).hoverValue, 'Hex: 0x7E6D00553AFE407B120F');
+			assert.equal(s.hoverValue, 'Hex: 0x7E6D00553AFE407B120F');
+		});
+	});
+
+	suite('getSignedDecimalValue()', () => {
+		test('value + hover', () => {
+			dataBuffer = new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]);
+			lastSize = dataBuffer.length - 1;
+			let s: any = getSignedDecimalValue();
+			assert.equal(s.toString(), '597028895935846336369167');
+			assert.equal(s.hoverValue, 'Hex: 0x7E6D00553AFE407B120F');
+
+			dataBuffer = new Uint8Array([0, 0xFD, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+			lastSize = dataBuffer.length - 1;
+			s = getSignedDecimalValue();
+			assert.equal(s.toString(), '-3');
+			assert.equal(s.hoverValue, 'Hex: 0xFFFFFFFFFFFFFFFD');
 		});
 	});
 
@@ -477,19 +631,7 @@ suite('Functions', () => {
 		});
 	});
 
-	suite('bitValue()', () => {
-		test('?', () => {
-			assert.equal(false, true);
-		});
-	});
-
 	suite('convertBitsToString()', () => {
-		test('?', () => {
-			assert.equal(false, true);
-		});
-	});
-
-	suite('bitsValue()', () => {
 		test('?', () => {
 			assert.equal(false, true);
 		});
@@ -514,6 +656,9 @@ suite('Functions', () => {
 	});
 });
 
+
+
+const BigInt256 = BigInt(256);
 
 
 /**
@@ -627,7 +772,7 @@ function getSignedNumberValue(): number {
 		let factor = 1;
 		let i = lastOffset;
 		let value = 0;
-		let valueNeg = 0;
+		let valueNeg = -1;
 		let bit;
 		for (let k = 0; k < lastBitSize; k++) {
 			const data = dataBuffer[i];
@@ -647,7 +792,6 @@ function getSignedNumberValue(): number {
 		// Check if neg or pos
 		if (bit) {
 			// Negative
-			valueNeg--;
 			return valueNeg;
 		}
 		// Positive
@@ -662,12 +806,13 @@ function getSignedNumberValue(): number {
  * @returns E.g. '001101'
  */
 function getBitsValue(): String {	// NOSONAR
-	let val = 0;
+	let value = 0;
 	let posValue = 1;
 	let bits = '';
 	let mask = 0x01 << lastBitOffset;
 	let i = lastOffset;
 	const countOfBits = lastBitSize + lastSize * 8;
+	let s = '';
 	for (let k = 0; k < countOfBits; k++) {
 		if (k > 0 && (k % 8 == 0))
 			bits = "_" + bits;
@@ -675,8 +820,15 @@ function getBitsValue(): String {	// NOSONAR
 		bits = bit + bits;
 		// Also calculate value for hex (hover) conversion
 		if (bit == '1')
-			val += posValue;
+			value += posValue;
 		posValue *= 2;
+		if (posValue >= 256) {
+			// Store hex byte
+			s = value.toString(16).toUpperCase().padStart(2, '0') + s;
+			// Next
+			posValue = 1;
+			value = 0;
+		}
 		// Next
 		mask <<= 1;
 		if (mask >= 0x100) {
@@ -684,10 +836,15 @@ function getBitsValue(): String {	// NOSONAR
 			i++;
 		}
 	}
+
+	// Add last hex byte
+	if (posValue != 1) {
+		s = value.toString(16).toUpperCase() + s;
+	}
+
 	// Add hover property
 	const sc = new String(bits);	// NOSONAR
-	const size = Math.ceil(countOfBits / 4);
-	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, size);
+	(sc as any).hoverValue = 'Hex: 0x' + s;
 	return sc;
 }
 
@@ -706,14 +863,14 @@ function _getDecimalValue(): string {	// NOSONAR
 		if (littleEndian) {
 			// Little endian
 			for (let i = lastSize - 1; i >= 0; i--) {
-				bValue *= BigInt(256);
+				bValue *= BigInt256;
 				bValue += BigInt(dataBuffer[lastOffset + i]);
 			}
 		}
 		else {
 			// Big endian
 			for (let i = 0; i < lastSize; i++) {
-				bValue *= BigInt(256);
+				bValue *= BigInt256;
 				bValue += BigInt(dataBuffer[lastOffset + i]);
 			}
 		}
@@ -736,7 +893,87 @@ function _getDecimalValue(): string {	// NOSONAR
 				// Next
 				factor = 1;
 				value = 0;
-				bigFactor *= BigInt(256);
+				bigFactor *= BigInt256;
+			}
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				// Next
+				mask = 0x01;
+				i++;
+			}
+		}
+
+		// Add last byte
+		if (factor != 1) {
+			bValue += bigFactor * BigInt(value);
+		}
+	}
+
+	const s = bValue.toString();
+	return s;
+}
+
+
+/**
+ * This function is internally used.
+ * @returns The value from the dataBuffer as dec string primitive.
+ * The returned value is accurate. I.e. it uses BigInt internally.
+ */
+function _getSignedDecimalValue(): string {
+	// Check last bit
+	const maxByteOffset = (littleEndian) ? lastSize - 1 : 0;
+	const lastByte = dataBuffer[lastOffset + maxByteOffset];
+	if (lastByte <= 127) {
+		// Is a positive number
+		return _getDecimalValue();
+	}
+	// The value is negative.
+
+	// Read value directly to overcome rounding issues
+	let bValue: bigint = BigInt(0);
+
+	// Byte wise
+	if (lastSize) {
+		let bFactor: bigint = BigInt(1);
+		if (littleEndian) {
+			// Little endian
+			for (let i = 0; i < lastSize; i++) {
+				const data = 255 - dataBuffer[lastOffset + i];
+				bValue -= bFactor * BigInt(data);
+				bFactor *= BigInt256;
+			}
+		}
+		else {
+			// Big endian
+			for (let i = lastSize - 1; i >= 0; i--) {
+				const data = 255 - dataBuffer[lastOffset + i];
+				bValue -= bFactor * BigInt(data);
+				bFactor *= BigInt256;
+			}
+		}
+		bValue -= BigInt(1);
+	}
+
+	// Or bitwise
+	else if (lastBitSize) {
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let bigFactor: bigint = BigInt(1);
+		let i = lastOffset;
+		let value = -1;
+		for (let k = 0; k < lastBitSize; k++) {
+			const data = dataBuffer[i];
+			const bit = ((255 - data) & mask) ? 1 : 0;
+			value += factor * bit;
+			factor *= 2;
+			if (factor >= 256) {
+				// Add byte
+				bValue -= bigFactor * BigInt(value);
+				// Next
+				factor = 1;
+				value = 0;
+				bigFactor *= BigInt256;
 			}
 			// Next
 			mask <<= 1;
@@ -774,7 +1011,7 @@ function getDecimalValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as positive decimal string.
  */
 function getSignedDecimalValue(): String {	// NOSONAR
-	const value = getSignedNumberValue();
+	const value = _getSignedDecimalValue();
 	// Add hover property
 	const sc = new String(value);	// NOSONAR
 	(sc as any).hoverValue = 'Hex: ' + getHex0xValue();

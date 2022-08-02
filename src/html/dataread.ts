@@ -472,17 +472,6 @@ function getHex0xValue(): String {	// NOSONAR
 
 
 /**
- * @param bit The bit to test
- * @returns The bit value (0 or 1) from the dataBuffer as string.
- */
-function bitValue(bit: number): string {
-	const val = getNumberValue();
-	const result = (val & (1 << bit)) ? '1' : '0';
-	return result;
-}
-
-
-/**
  * Converts a value into a bit string.
  * @param value The value to convert.
  * @param size The size of the value, e.g. 1 byte o r 2 bytes.
