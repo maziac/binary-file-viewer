@@ -18,45 +18,6 @@ export function activate(context: vscode.ExtensionContext) {
     // Init package info
     PackageInfo.init(context);
 
-
-    let value = 0xFFFFFFFFFFFFFFFD;
-    const lastSize = 8;
-    const bitSize = lastSize * 8;
-
-    /*
-    // Turn into negative if bigger than half of the maximum
-    const max = Math.pow(2, bitSize - 1);
-    if (value >= max) {
-        value -= max;
-        value -= max;
-    }
-    const maxNumber = Number.MAX_SAFE_INTEGER;
-    console.log(value, maxNumber, maxNumber.toString(16));
-    */
-
-
-    // Little endian
-    const dataBuffer = [0xFD, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
-    const lastOffset = 0;
-    let factor = 1;
-    value = 0;
-    for (let i = 0; i < lastSize; i++) {
-        value += factor * (255 - dataBuffer[lastOffset + i]);
-        factor *= 256;
-    }
-    value++;
-    console.log(value);
-
-    /**
-     * MAX_SAFE_INTEGER:    9007199254740991
-     * max:                 9223372036854776000
-     * value:               18446744073709552000
-    /*
-    const sc = new String('abcd');	// NOSONAR
-    // Add hover property
-    (sc as any).hoverValue = 5;
-*/
-
     // Log the extension dir
     //console.log(context.extension.id + ' folder: ' + context.extensionPath);
 

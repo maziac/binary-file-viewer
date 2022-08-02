@@ -83,7 +83,7 @@ suite('Functions', () => {
 				littleEndian = false;
 			});
 
-			test('1 byte', () => {
+			test('1 byte', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 254]);
 				lastSize = dataBuffer.length - 1;
 				assert.equal(getNumberValue(), 254);
@@ -260,7 +260,7 @@ suite('Functions', () => {
 	});
 
 	suite('getBitsValue()', () => {
-		setup(() => {
+		setup(() => {	// NOSONAR
 			lastOffset = 1;
 			lastSize = 0;
 			lastBitOffset = 0;
@@ -288,7 +288,7 @@ suite('Functions', () => {
 	});
 
 	suite('_getDecimalValue()', () => {
-		setup(() => {
+		setup(() => {	// NOSONAR
 			lastOffset = 1;
 			lastSize = 0;
 			lastBitOffset = 0;
@@ -325,7 +325,7 @@ suite('Functions', () => {
 				littleEndian = false;
 			});
 
-			test('1 byte', () => {
+			test('1 byte', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0x0F]);
 				lastSize = dataBuffer.length - 1;
 				assert.equal(_getDecimalValue(), '15');
@@ -382,7 +382,7 @@ suite('Functions', () => {
 	});
 
 	suite('_getSignedDecimalValue()', () => {
-		setup(() => {
+		setup(() => {	// NOSONAR
 			lastOffset = 1;
 			lastSize = 0;
 			lastBitOffset = 0;
@@ -427,7 +427,7 @@ suite('Functions', () => {
 				littleEndian = false;
 			});
 
-			test('1 byte', () => {
+			test('1 byte', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0x0F]);
 				lastSize = dataBuffer.length - 1;
 				assert.equal(_getSignedDecimalValue(), '15');
@@ -458,32 +458,32 @@ suite('Functions', () => {
 			});
 		});
 
-		suite('bits', () => {
+		suite('bits', () => {	// NOSONAR
 			setup(() => {
 				// Endianness does not matter.
 				lastBitOffset = 2;
 				lastSize = 0;
 			});
 
-			test('In 1 byte', () => {
+			test('In 1 byte', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0b11110110]);
 				lastBitSize = 5;
 				assert.equal(_getDecimalValue(), '29');	// '11101'
 			});
 
-			test('Through 2 bytes', () => {
+			test('Through 2 bytes', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0b11110110, 0b11111110]);
 				lastBitSize = 9;
 				assert.equal(_getDecimalValue(), '445'); // '110111101'
 			});
 
-			test('Through 3 bytes', () => {
+			test('Through 3 bytes', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]);
 				lastBitSize = 18;
 				assert.equal(_getDecimalValue(), '255165'); // '11'1110 0100'1011 1101'
 			});
 
-			test('8 bit', () => {
+			test('8 bit', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0b00110110, 0b00]);
 				lastBitSize = 8;
 				assert.equal(_getDecimalValue(), '13'); // '0000 1101'
@@ -518,7 +518,7 @@ suite('Functions', () => {
 	});
 
 	suite('_getHexValue()', () => {
-		setup(() => {
+		setup(() => {	// NOSONAR
 			lastOffset = 1;
 			lastSize = 0;
 			lastBitOffset = 0;
@@ -555,7 +555,7 @@ suite('Functions', () => {
 				littleEndian = false;
 			});
 
-			test('1 byte', () => {
+			test('1 byte', () => {	// NOSONAR
 				dataBuffer = new Uint8Array([0, 0x0F]);
 				lastSize = dataBuffer.length - 1;
 				assert.equal(_getHexValue(), '0F');
@@ -628,12 +628,6 @@ suite('Functions', () => {
 			const s: String = getHex0xValue();	// NOSONAR
 			assert.equal(s.toString(), '0x7E6D00553AFE407B120F');
 			assert.equal((s as any).hoverValue, 'Dec: 597028895935846336369167');
-		});
-	});
-
-	suite('convertBitsToString()', () => {
-		test('?', () => {
-			assert.equal(false, true);
 		});
 	});
 
@@ -1101,42 +1095,6 @@ function getHex0xValue(): String {	// NOSONAR
 	const sc = new String('0x' + s);	// NOSONAR
 	(sc as any).hoverValue = 'Dec: ' + _getDecimalValue();
 	return sc;
-}
-
-
-/**
- * @param bit The bit to test
- * @returns The bit value (0 or 1) from the dataBuffer as string.
- */
-function bitValue(bit: number): string {
-	const val = getNumberValue();
-	const result = (val & (1 << bit)) ? '1' : '0';
-	return result;
-}
-
-
-/**
- * Converts a value into a bit string.
- * @param value The value to convert.
- * @param size The size of the value, e.g. 1 byte o r 2 bytes.
- * @returns The value from the dataBuffer as bit string. e.g. "0011_0101"
- */
-function convertBitsToString(value: number, size: number): string {
-	let s = value.toString(2);
-	s = s.padStart(size * 8, '0');
-	s = s.replace(/.{4}/g, '$&_');
-	// Remove last '_'
-	s = s.substring(0, s.length - 1);
-	return s;
-}
-
-
-/**
- * @returns The value from the dataBuffer as bit string. e.g. "0011_0101"
- */
-function bitsValue(): string {
-	const val = getNumberValue();
-	return convertBitsToString(val, lastSize);
 }
 
 
