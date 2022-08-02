@@ -117,11 +117,11 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['getNumberValue', 'The value from the dataBuffer as number value. Note: For numbers higher than 2^53 - 1 (9.007.199.254.740.991) the value becomes inaccurate.'],
+					func: ['getNumberValue', 'The value from the dataBuffer as number value. Note: For numbers bigger than 2^53 - 1 (9.007.199.254.740.991) the value becomes inaccurate.'],
 					return: ['number', "The decoded number."]
 				},
 				{
-					func: ['getSignedNumberValue', 'The value from the dataBuffer as signed number value. Note: For numbers higher than 2^53 - 1 (9.007.199.254.740.991) the value becomes inaccurate.'],
+					func: ['getSignedNumberValue', 'The value from the dataBuffer as signed number value. Note: For numbers out of the range [2^53 - 1, -(2^53 - 1)] (+/-9.007.199.254.740.991) the value becomes inaccurate.'],
 					return: ['number', "The decoded number. (If the highest bit is set the number is interpreted as negative number.)"]
 				},
 				{
@@ -137,7 +137,7 @@ export class FunctionDocumentation {
 					return: ['string', "E.g. '0x7FA0'"]
 				},
 				{
-					func: ['getDecimalValue', 'The value from the dataBuffer as decimal string. Interprets the value as unsigned int. Hovering will show the hex value. Note: For numbers higher than 2^53 - 1 (9.007.199.254.740.991) the value becomes inaccurate.'],
+					func: ['getDecimalValue', 'The value from the dataBuffer as decimal string. Interprets the value as unsigned int. Hovering will show the hex value.'],
 					return: ['string', "E.g. '5768'"]
 				},
 				{

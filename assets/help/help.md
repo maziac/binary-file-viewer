@@ -362,6 +362,15 @@ The example here creates a canvas object and draws a red rectangle inside:
 ![](help5.jpg)
 
 
+### Accuracy
+
+Function that return a number (```getNumberValue()```, ```getSignedNumbervalue()```) work with javascript's number precision. I.e. integer values are only safe up to the range 2^53-1 >= n >= -(2^53 - 1).
+So any 4 byte value will be accurately represented but if you e.g. try to use 8 byte integer values those will be inaccurate.
+
+In contrast the functions that return strings (```getHexValue()```, ```getDecimalValue()```, ```getSignedDecimalValue()```etc.) are accurate no matter how big the number is.
+They are either implemented directly with a byte to string conversion or use the js BigInt type internally.
+
+
 ### Debugging
 
 For debugging purposes there exist 2 commands.

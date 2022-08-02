@@ -2,8 +2,10 @@
 
 # 1.5.0
 - 2 new API functions:
-	- getSignedNumberValue(): As getNumberValue but interprets the value as signed int.
-	- getSignedDecimalValue(): As getDecimalValue but interprets the value as signed int. Returns a string (e.g. "-1234") and adds a hex hover.
+	- getSignedNumberValue(): As getNumberValue() but interprets the value as signed int.
+	- getSignedDecimalValue(): As getDecimalValue() but interprets the value as signed int.
+	- Both commands returns a string (e.g. "-1234") and add a hex hover.
+- Functions returning a string are accurate now, no matter how big the number is.
 
 # 1.4.1
 - Parser path explanation added to the help page.
