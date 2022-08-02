@@ -418,14 +418,39 @@ function getSignedDecimalValue(): String {	// NOSONAR
 
 
 /**
+ * This function is internally used.
+ * @returns The value from the dataBuffer as hex string primitive.
+ */
+function _getHexValue(): string {	// NOSONAR
+	// Read value directly to overcome rounding issues
+	let s = '';
+	// Byte wise
+	if (lastSize) {
+		let factor = 1;
+		if (littleEndian) {
+			// Little endian
+			for (let i = lastSize - 1; i >= 0; i--) {
+				s += dataBuffer[lastOffset + i].toString(16).toUpperCase().padStart(2, '0');
+			}
+		}
+		else {
+			// Big endian
+			for (let i = 0; i < lastSize; i++) {
+				s += dataBuffer[lastOffset + i].toString(16).toUpperCase().padStart(2, '0');
+			}
+		}
+	}
+
+	return s;
+}
+
+
+/**
  * @returns The value from the dataBuffer as hex string.
  */
 function getHexValue(): String {	// NOSONAR
-	// Read value directly to overcome rounding issues
-	// TODO: Also bits
-	let val = 0;
-	let s = val.toString(16).toUpperCase();
-	s = s.padStart(lastSize * 2, '0');
+	let s = _getHexValue();
+
 	// Add hover property
 	const sc = new String(s);	// NOSONAR
 	const decVal = getNumberValue();
