@@ -217,6 +217,10 @@ Copy from here to end for unit tests:
 */
 
 
+
+const BigInt256 = BigInt(256);
+
+
 /**
  * Converts the given number value into a hex string.
  * @param value The value to convert.
@@ -328,7 +332,7 @@ function getSignedNumberValue(): number {
 		let factor = 1;
 		let i = lastOffset;
 		let value = 0;
-		let valueNeg = 0;
+		let valueNeg = -1;
 		let bit;
 		for (let k = 0; k < lastBitSize; k++) {
 			const data = dataBuffer[i];
@@ -348,7 +352,6 @@ function getSignedNumberValue(): number {
 		// Check if neg or pos
 		if (bit) {
 			// Negative
-			valueNeg--;
 			return valueNeg;
 		}
 		// Positive
@@ -363,12 +366,13 @@ function getSignedNumberValue(): number {
  * @returns E.g. '001101'
  */
 function getBitsValue(): String {	// NOSONAR
-	let val = 0;
+	let value = 0;
 	let posValue = 1;
 	let bits = '';
 	let mask = 0x01 << lastBitOffset;
 	let i = lastOffset;
 	const countOfBits = lastBitSize + lastSize * 8;
+	let s = '';
 	for (let k = 0; k < countOfBits; k++) {
 		if (k > 0 && (k % 8 == 0))
 			bits = "_" + bits;
@@ -376,8 +380,15 @@ function getBitsValue(): String {	// NOSONAR
 		bits = bit + bits;
 		// Also calculate value for hex (hover) conversion
 		if (bit == '1')
-			val += posValue;
+			value += posValue;
 		posValue *= 2;
+		if (posValue >= 256) {
+			// Store hex byte
+			s = value.toString(16).toUpperCase().padStart(2, '0') + s;
+			// Next
+			posValue = 1;
+			value = 0;
+		}
 		// Next
 		mask <<= 1;
 		if (mask >= 0x100) {
@@ -385,11 +396,162 @@ function getBitsValue(): String {	// NOSONAR
 			i++;
 		}
 	}
+
+	// Add last hex byte
+	if (posValue != 1) {
+		s = value.toString(16).toUpperCase() + s;
+	}
+
 	// Add hover property
 	const sc = new String(bits);	// NOSONAR
-	const size = Math.ceil(countOfBits / 4);
-	(sc as any).hoverValue = 'Hex: 0x' + convertToHexString(val, size);
+	(sc as any).hoverValue = 'Hex: 0x' + s;
 	return sc;
+}
+
+
+/**
+ * This function is internally used.
+ * @returns The value from the dataBuffer as dec string primitive.
+ * The returned value is accurate. I.e. it uses BigInt internally.
+ */
+function _getDecimalValue(): string {	// NOSONAR
+	// Read value directly to overcome rounding issues
+	let bValue: bigint = BigInt(0);
+
+	// Byte wise
+	if (lastSize) {
+		if (littleEndian) {
+			// Little endian
+			for (let i = lastSize - 1; i >= 0; i--) {
+				bValue *= BigInt256;
+				bValue += BigInt(dataBuffer[lastOffset + i]);
+			}
+		}
+		else {
+			// Big endian
+			for (let i = 0; i < lastSize; i++) {
+				bValue *= BigInt256;
+				bValue += BigInt(dataBuffer[lastOffset + i]);
+			}
+		}
+	}
+
+	// Or bitwise
+	else if (lastBitSize) {
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let bigFactor: bigint = BigInt(1);
+		let i = lastOffset;
+		let value = 0;
+		for (let k = 0; k < lastBitSize; k++) {
+			const bit = (dataBuffer[i] & mask) ? 1 : 0;
+			value += factor * bit;
+			factor *= 2;
+			if (factor >= 256) {
+				// Add byte
+				bValue += bigFactor * BigInt(value);
+				// Next
+				factor = 1;
+				value = 0;
+				bigFactor *= BigInt256;
+			}
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				// Next
+				mask = 0x01;
+				i++;
+			}
+		}
+
+		// Add last byte
+		if (factor != 1) {
+			bValue += bigFactor * BigInt(value);
+		}
+	}
+
+	const s = bValue.toString();
+	return s;
+}
+
+
+/**
+ * This function is internally used.
+ * @returns The value from the dataBuffer as dec string primitive.
+ * The returned value is accurate. I.e. it uses BigInt internally.
+ */
+function _getSignedDecimalValue(): string {
+	// Check last bit
+	const maxByteOffset = (littleEndian) ? lastSize - 1 : 0;
+	const lastByte = dataBuffer[lastOffset + maxByteOffset];
+	if (lastByte <= 127) {
+		// Is a positive number
+		return _getDecimalValue();
+	}
+	// The value is negative.
+
+	// Read value directly to overcome rounding issues
+	let bValue: bigint = BigInt(0);
+
+	// Byte wise
+	if (lastSize) {
+		let bFactor: bigint = BigInt(1);
+		if (littleEndian) {
+			// Little endian
+			for (let i = 0; i < lastSize; i++) {
+				const data = 255 - dataBuffer[lastOffset + i];
+				bValue -= bFactor * BigInt(data);
+				bFactor *= BigInt256;
+			}
+		}
+		else {
+			// Big endian
+			for (let i = lastSize - 1; i >= 0; i--) {
+				const data = 255 - dataBuffer[lastOffset + i];
+				bValue -= bFactor * BigInt(data);
+				bFactor *= BigInt256;
+			}
+		}
+		bValue -= BigInt(1);
+	}
+
+	// Or bitwise
+	else if (lastBitSize) {
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let bigFactor: bigint = BigInt(1);
+		let i = lastOffset;
+		let value = -1;
+		for (let k = 0; k < lastBitSize; k++) {
+			const data = dataBuffer[i];
+			const bit = ((255 - data) & mask) ? 1 : 0;
+			value += factor * bit;
+			factor *= 2;
+			if (factor >= 256) {
+				// Add byte
+				bValue -= bigFactor * BigInt(value);
+				// Next
+				factor = 1;
+				value = 0;
+				bigFactor *= BigInt256;
+			}
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				// Next
+				mask = 0x01;
+				i++;
+			}
+		}
+
+		// Add last byte
+		if (factor != 1) {
+			bValue += bigFactor * BigInt(value);
+		}
+	}
+
+	const s = bValue.toString();
+	return s;
 }
 
 
@@ -397,7 +559,7 @@ function getBitsValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as positive decimal string.
  */
 function getDecimalValue(): String {	// NOSONAR
-	const value = getNumberValue();
+	const value = _getDecimalValue();
 	// Add hover property
 	const sc = new String(value);	// NOSONAR
 	(sc as any).hoverValue = 'Hex: ' + getHex0xValue();
@@ -409,7 +571,7 @@ function getDecimalValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as positive decimal string.
  */
 function getSignedDecimalValue(): String {	// NOSONAR
-	const value = getSignedNumberValue();
+	const value = _getSignedDecimalValue();
 	// Add hover property
 	const sc = new String(value);	// NOSONAR
 	(sc as any).hoverValue = 'Hex: ' + getHex0xValue();
@@ -441,6 +603,38 @@ function _getHexValue(): string {	// NOSONAR
 		}
 	}
 
+	// Or bitwise
+	else if (lastBitSize) {
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let i = lastOffset;
+		let value = 0;
+		for (let k = 0; k < lastBitSize; k++) {
+			const bit = (dataBuffer[i] & mask) ? 1 : 0;
+			value += factor * bit;
+			factor *= 2;
+			if (factor >= 256) {
+				// Store byte
+				s = value.toString(16).toUpperCase().padStart(2, '0') + s;
+				// Next
+				factor = 1;
+				value = 0;
+			}
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				// Next
+				mask = 0x01;
+				i++;
+			}
+		}
+
+		// Add last hex byte
+		if (factor != 1) {
+			s = value.toString(16).toUpperCase() + s;
+		}
+	}
+
 	return s;
 }
 
@@ -449,12 +643,11 @@ function _getHexValue(): string {	// NOSONAR
  * @returns The value from the dataBuffer as hex string.
  */
 function getHexValue(): String {	// NOSONAR
-	let s = _getHexValue();
-
+	// Read value directly to overcome rounding issues
+	const s = _getHexValue();
 	// Add hover property
 	const sc = new String(s);	// NOSONAR
-	const decVal = getNumberValue();
-	(sc as any).hoverValue = 'Dec: ' + decVal;
+	(sc as any).hoverValue = 'Dec: ' + _getDecimalValue();
 	return sc;
 }
 
@@ -463,36 +656,11 @@ function getHexValue(): String {	// NOSONAR
  * @returns The value from the dataBuffer as hex string + "0x" in front.
  */
 function getHex0xValue(): String {	// NOSONAR
-	const hsc = getHexValue();
+	const s = _getHexValue();
 	// Copy hover property
-	const sc = new String('0x' + hsc);	// NOSONAR
-	(sc as any).hoverValue = (hsc as any).hoverValue;
+	const sc = new String('0x' + s);	// NOSONAR
+	(sc as any).hoverValue = 'Dec: ' + _getDecimalValue();
 	return sc;
-}
-
-
-/**
- * Converts a value into a bit string.
- * @param value The value to convert.
- * @param size The size of the value, e.g. 1 byte o r 2 bytes.
- * @returns The value from the dataBuffer as bit string. e.g. "0011_0101"
- */
-function convertBitsToString(value: number, size: number): string {
-	let s = value.toString(2);
-	s = s.padStart(size * 8, '0');
-	s = s.replace(/.{4}/g, '$&_');
-	// Remove last '_'
-	s = s.substring(0, s.length - 1);
-	return s;
-}
-
-
-/**
- * @returns The value from the dataBuffer as bit string. e.g. "0011_0101"
- */
-function bitsValue(): string {
-	const val = getNumberValue();
-	return convertBitsToString(val, lastSize);
 }
 
 

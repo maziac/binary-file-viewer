@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
     PackageInfo.init(context);
 
     // Log the extension dir
-    //console.lohelpg(context.extension.id + ' folder: ' + context.extensionPath);
+    //console.log(context.extension.id + ' folder: ' + context.extensionPath);
 
     // Init
     context.subscriptions.push(ParserSelect.diagnosticsCollection);

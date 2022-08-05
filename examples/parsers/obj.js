@@ -82,7 +82,6 @@ registerParser(() => {
 	addRow('As getSignedDecimalValue (negative) with hover', getSignedDecimalValue());
 
 	read(1);
-
 	read(8);
 	addRow('-300000 as hex', getHex0xValue());
 	addRow('As getDecimalValue', getDecimalValue());
