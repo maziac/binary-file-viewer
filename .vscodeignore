@@ -1,11 +1,14 @@
 .vscode/
 .vscode-test/
-out/test/
+.VSCodeCounter/
+out/tests/
 tests/
 src/
 examples/
 design/
+releases/
 **/*.map
 .gitignore
 tsconfig.json
 notes.md
+*.vsix
