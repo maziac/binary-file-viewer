@@ -648,6 +648,62 @@ suite('Functions', () => {
 			assert.equal(getStringValue(), 'ABC');
 		});
 	});
+
+
+	suite('offset', () => {
+
+		suite('absolute offset', () => {
+			test('set offset', () => {
+				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
+				lastSize = 1;
+				setOffset(4);	// at 254
+				assert.equal(getNumberValue(), 254);
+				setOffset(1);
+				assert.equal(getNumberValue(), 1);
+			});
+
+			test('get/restore offset', () => {
+				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
+				lastOffset = 2
+				lastSize = 1;
+				assert.equal(getNumberValue(), 2);
+
+				const prevValue = getOffset();
+
+				setOffset(4);	// at 254
+				assert.equal(getNumberValue(), 254);
+
+				// Restore
+				setOffset(prevValue);
+				assert.equal(getNumberValue(), 2);
+			});
+		});
+
+		suite('relative offset', () => {
+			test('forward', () => {
+				// This is the normal case (also tested in other testcases)
+				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
+				lastOffset = 1;
+				lastSize = 0;
+				read(2);
+				read(1);
+				assert.equal(getNumberValue(), 3);
+			});
+
+			test('get/restore offset', () => {
+				// This is the normal case (also tested in other testcases)
+				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
+				lastOffset = 1;
+				lastSize = 0;
+				read(3);
+				read(1);
+				assert.equal(getNumberValue(), 254);
+				read(-2);
+				assert.equal(getNumberValue(), 256 * 254 + 3);
+			});
+		});
+
+	});
 });
 
 
@@ -666,6 +722,75 @@ function convertToHexString(value: number, size: number): string {
 		return "".padStart(size, '?');
 	const s = value.toString(16).toUpperCase().padStart(size, '0');
 	return s;
+}
+
+
+/**
+ * Corrects the bit offsets before reading a byte.
+ */
+function correctBitByteOffsets() {
+	// Offsets
+	lastOffset += lastSize;
+	lastBitOffset += lastBitSize;
+	while (lastBitOffset >= 1) {
+		lastBitOffset -= 8;
+		lastOffset++;
+	}
+
+	lastBitOffset = 0;
+	lastBitSize = 0;
+	lastSize = 0;
+}
+
+
+/**
+ * Advances the offset until the 'value' is found.
+ * Most prominent use case for this is to read all data of a C-string.
+ * Note: The read bytes do not contain 'value'.
+ * @param value The value to search for. Searches byte-wise. Defaults to 0.
+ */
+function readUntil(value: number = 0) {
+	// Offsets
+	correctBitByteOffsets();
+
+	let i = lastOffset;
+	const len = dataBuffer.length;
+	while (true) {
+		if (i >= len)
+			throw new Error("readUntil: reached end of file.");
+		if (dataBuffer[i] == value)
+			break;
+		i++;
+	}
+	lastSize = i - lastOffset;
+}
+
+
+/**
+ * Advances the offset (from previous call) and
+ * stores the size for reading.
+ * @param size The number of bytes to read. If undefined, all remaining data is read.
+ */
+function read(size?: number) {
+	// Offsets
+	correctBitByteOffsets();
+
+	if (size == undefined)
+		size = dataBuffer.length - lastOffset;
+	else if (typeof size != 'number')
+		throw new Error("read: 'size' is not a number");
+	else if (lastOffset + size > dataBuffer.length)
+		throw new Error("read: Reading more data than available (size=" + size + " at offset=" + lastOffset + ").");
+	else if (lastOffset + size < 0)
+		throw new Error("read: Would move offset before file start (size=" + size + " at offset=" + lastOffset + ").");
+
+	// Check for negative size (move offset backwards)
+	if (size < 0) {
+		size = -size;
+		lastOffset -= size;
+	}
+
+	lastSize = size;
 }
 
 
