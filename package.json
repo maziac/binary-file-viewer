@@ -208,19 +208,19 @@
         "watch": "tsc -watch -p ./"
     },
     "dependencies": {
-        "chart.js": "^3.6.2",
-        "chartjs-plugin-zoom": "^1.2.0",
+        "chart.js": "^3.9.1",
+        "chartjs-plugin-zoom": "^1.2.1",
         "hammerjs": "^2.0.8",
         "path": "^0.12.7",
-        "posthtml": "^0.16.5",
+        "posthtml": "^0.16.6",
         "posthtml-toc": "^1.0.3",
-        "showdown": "^2.0.0"
+        "showdown": "^2.1.0"
     },
     "devDependencies": {
-        "@types/node": "^17.0.0",
-        "@types/vscode": "^1.63.0",
-        "@types/mocha": "9.0.0",
-        "mocha": "^9.1.3",
-        "source-map-support": "^0.5.20"
+        "@types/node": "^18.11.9",
+        "@types/vscode": "^1.73.1",
+        "@types/mocha": "10.0.0",
+        "mocha": "^10.1.0",
+        "source-map-support": "^0.5.21"
     }
 }
