@@ -819,6 +819,7 @@ function readUntil(value: number = 0) {
  * Advances the offset (from previous call) and
  * stores the size for reading.
  * @param size The number of bytes to read. If undefined, all remaining data is read.
+ * size might be negative. In that case the lastOffset is decreased.
  */
 function read(size?: number) {
 	// Offsets

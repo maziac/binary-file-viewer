@@ -260,7 +260,7 @@ function setOffset(offset: number) {
 		throw new Error("setOffset: you need to set the 'offset' as parameter.");
 	else if (typeof offset != 'number')
 		throw new Error("setOffset: 'offset' is not a number");
-	else if (offset >= dataBuffer.length)
+	else if (offset > dataBuffer.length)
 		throw new Error("setOffset: Trying to set offset after to a value bigger than the file length (offset=" + offset + ", file length=" + dataBuffer.length + ").");
 	else if (offset < 0)
 		throw new Error("setOffset: Would move offset before file start (offset=" + offset + ").");

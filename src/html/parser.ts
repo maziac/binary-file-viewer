@@ -661,6 +661,8 @@ function parseStart() {
 			readUntil,
 			readBits,
 			readRowWithDetails,
+			setOffset,
+			getOffset,
 			setEndianness,
 			addRow,
 			addDetails,
