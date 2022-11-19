@@ -1,5 +1,11 @@
 # Changelog
 
+# 1.6.0
+- Added functonality to change/get the file offset:
+	- setOffset():	Set the absolute file offset.
+	- getOffset(): Get the absolute file offset (e.g. to restore it later).
+	- read(): Now also allows for negative size. with this 'read' can be used to relatively move the file offset forward or backward.
+
 # 1.5.0
 - 2 new API functions:
 	- getSignedNumberValue(): As getNumberValue() but interprets the value as signed int.

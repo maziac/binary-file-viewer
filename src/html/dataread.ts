@@ -221,6 +221,7 @@ function readUntil(value: number = 0) {
  * Advances the offset (from previous call) and
  * stores the size for reading.
  * @param size The number of bytes to read. If undefined, all remaining data is read.
+ * size might be negative. In that case the lastOffset is decreased.
  */
 function read(size?: number) {
 	// Offsets
@@ -242,6 +243,39 @@ function read(size?: number) {
 	}
 
 	lastSize = size;
+}
+
+
+/**
+ * Sets the absolute offset in the file.
+ * @param offset The offset inside the file.
+ */
+function setOffset(offset: number) {
+	// Offsets
+	lastBitOffset = 0;
+	lastBitSize = 0;
+	lastSize = 0;
+
+	if (offset == undefined)
+		throw new Error("setOffset: you need to set the 'offset' as parameter.");
+	else if (typeof offset != 'number')
+		throw new Error("setOffset: 'offset' is not a number");
+	else if (offset >= dataBuffer.length)
+		throw new Error("setOffset: Trying to set offset after to a value bigger than the file length (offset=" + offset + ", file length=" + dataBuffer.length + ").");
+	else if (offset < 0)
+		throw new Error("setOffset: Would move offset before file start (offset=" + offset + ").");
+
+	lastOffset = offset;
+}
+
+
+/**
+ * Returns the current lastOffset.
+ * Used to restore an offset if changed e.g. by setOffset().
+ * @returns 'lastOffset'
+ */
+function getOffset(): number {
+	return lastOffset;
 }
 
 

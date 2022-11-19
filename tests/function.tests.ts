@@ -653,16 +653,18 @@ suite('Functions', () => {
 	suite('offset', () => {
 
 		suite('absolute offset', () => {
-			test('set offset', () => {
+			test('setOffset', () => {
 				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
 				lastSize = 1;
 				setOffset(4);	// at 254
+				read(1);
 				assert.equal(getNumberValue(), 254);
 				setOffset(1);
+				read(1);
 				assert.equal(getNumberValue(), 1);
 			});
 
-			test('get/restore offset', () => {
+			test('getOffset', () => {
 				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
 				lastOffset = 2
 				lastSize = 1;
@@ -671,17 +673,44 @@ suite('Functions', () => {
 				const prevValue = getOffset();
 
 				setOffset(4);	// at 254
+				read(1);
 				assert.equal(getNumberValue(), 254);
 
 				// Restore
 				setOffset(prevValue);
+				read(1);
 				assert.equal(getNumberValue(), 2);
+			});
+
+			test('exceptions', () => {
+				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
+				lastOffset = 1;
+				lastSize = 0;
+
+				// No offset
+				assert.throws(() => {
+					setOffset(undefined);
+				});
+
+				// Not a number
+				assert.throws(() => {
+					setOffset("abc" as any as number);
+				});
+
+				// Bigger than file
+				assert.throws(() => {
+					setOffset(6);	// Note: directly after the last position is still allowed.
+				});
+
+				// Before file start
+				assert.throws(() => {
+					setOffset(-1);
+				});
 			});
 		});
 
 		suite('relative offset', () => {
 			test('forward', () => {
-				// This is the normal case (also tested in other testcases)
 				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
 				lastOffset = 1;
 				lastSize = 0;
@@ -691,7 +720,6 @@ suite('Functions', () => {
 			});
 
 			test('get/restore offset', () => {
-				// This is the normal case (also tested in other testcases)
 				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
 				lastOffset = 1;
 				lastSize = 0;
@@ -700,6 +728,27 @@ suite('Functions', () => {
 				assert.equal(getNumberValue(), 254);
 				read(-2);
 				assert.equal(getNumberValue(), 256 * 254 + 3);
+			});
+
+			test('exceptions', () => {
+				dataBuffer = new Uint8Array([0, 1, 2, 3, 254]);
+				lastOffset = 1;
+				lastSize = 0;
+
+				// Not a number
+				assert.throws(() => {
+					read("abc" as any as number);
+				});
+
+				// Bigger than file
+				assert.throws(() => {
+					read(5);
+				});
+
+				// Before file start
+				assert.throws(() => {
+					read(-2);
+				});
 			});
 		});
 
@@ -791,6 +840,39 @@ function read(size?: number) {
 	}
 
 	lastSize = size;
+}
+
+
+/**
+ * Sets the absolute offset in the file.
+ * @param offset The offset inside the file.
+ */
+function setOffset(offset: number) {
+	// Offsets
+	lastBitOffset = 0;
+	lastBitSize = 0;
+	lastSize = 0;
+
+	if (offset == undefined)
+		throw new Error("setOffset: you need to set the 'offset' as parameter.");
+	else if (typeof offset != 'number')
+		throw new Error("setOffset: 'offset' is not a number");
+	else if (offset > dataBuffer.length)
+		throw new Error("setOffset: Trying to set offset after to a value bigger than the file length (offset=" + offset + ", file length=" + dataBuffer.length + ").");
+	else if (offset < 0)
+		throw new Error("setOffset: Would move offset before file start (offset=" + offset + ").");
+
+	lastOffset = offset;
+}
+
+
+/**
+ * Returns the current lastOffset.
+ * Used to restore an offset if changed e.g. by setOffset().
+ * @returns 'lastOffset'
+ */
+function getOffset(): number {
+	return lastOffset;
 }
 
 

@@ -149,6 +149,8 @@ I.e. in the following example:
 
 ```val1``` and ```val2``` are the same values. They are read from the same file data offsets.
 
+Note: it is also possible to pass a negative value as a size. This can be useful if the offset needs to be moved backwards (relatively).
+
 
 ### readBits
 
