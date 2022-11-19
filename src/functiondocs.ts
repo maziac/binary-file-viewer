@@ -59,7 +59,7 @@ export class FunctionDocumentation {
 				{
 					func: ['read', 'Advances the offset (from previous call) and stores the size for reading.'],
 					params: [
-						['size?', 'number', 'The number of bytes to read. If undefined, all remaining data is read.']
+						['size?', 'number', 'The number of bytes to read. If undefined, all remaining data is read. If negative the offset is moved backwards.']
 					]
 				},
 				{
@@ -81,6 +81,16 @@ export class FunctionDocumentation {
 					params: [
 						['size', 'number', 'The number of bits to read.']
 					]
+				},
+				{
+					func: ['setOffset', "Sets the absolute file pointer offset."],
+					params: [
+						['offset', 'number', 'The file pointer offset.']
+					]
+				},
+				{
+					func: ['getOffset', "Returns the absolute file pointer offset. Useful if it is required to restore the file pointer."],
+					return: ['number', "The current file pointer offset."],
 				},
 				{
 					func: ['endOfFile', "Checks if the parsed file has reached it's end."],
