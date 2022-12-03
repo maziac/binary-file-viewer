@@ -6,26 +6,26 @@
 
 
 // The data to parse.
-var dataBuffer: Uint8Array;
+var dataBuffer: Uint8Array;	// NOSONAR
 
 // Index into dataBuffer.
-var lastOffset: number;
+var lastOffset: number;	// NOSONAR
 
 // The last retrieved data size.
-var lastSize: number;
+var lastSize: number;	// NOSONAR
 
 // The bit index into dataBuffer.
-var lastBitOffset: number;
+var lastBitOffset: number;	// NOSONAR
 
 // The last retrieved bit data size. Either lastSize is !=0 or lastBitSize. Never both.
-var lastBitSize: number;
+var lastBitSize: number;	// NOSONAR
 
 // The startOffset for relative indices (detailsParsing.)
 // Is used only for displaying.
-var startOffset: number;
+var startOffset: number;	// NOSONAR
 
 // The endianness. (Default = true)
-var littleEndian: boolean;
+var littleEndian: boolean;	// NOSONAR
 
 
 /**
@@ -66,8 +66,8 @@ function getRelOffset(): number {
  * Convert array to base 64 string.
  */
 function arrayBufferToBase64(buffer: any) {
-	var binary = '';
-	var bytes = [].slice.call(new Uint8Array(buffer));
+	let binary = '';
+	const bytes = [].slice.call(new Uint8Array(buffer));
 	bytes.forEach((b: any) => binary += String.fromCharCode(b));
 	return window.btoa(binary);
 }
