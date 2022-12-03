@@ -12,3 +12,4 @@ coverage/
 .vscode-test/
 notes.md
 examples/parsers/tests/
+.vscode/settings.json
