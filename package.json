@@ -208,7 +208,8 @@
         "esbuild-browser": "esbuild ./src/html/parser.ts --bundle --outdir=out/html --platform=browser",
         "watch-node": "npm run esbuild-node -- --sourcemap --watch",
         "watch-browser": "npm run esbuild-browser -- --sourcemap --watch",
-        "package": "vsce package"
+        "package": "vsce package",
+        "test": "jest --coverage"
     },
     "dependencies": {
         "chart.js": "^3.9.1",
