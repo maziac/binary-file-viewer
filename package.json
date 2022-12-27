@@ -20,7 +20,7 @@
     "engines": {
         "vscode": "^1.71.0"
     },
-    "icon": "assets/icon.png",
+    "icon": "assets/local/icon.png",
     "categories": [
         "Visualization"
     ],
@@ -104,7 +104,7 @@
                         "title": "Get Help",
                         "description": "To get help use the command palette and enter 'Binary file Viewer: Show Help'.\n[Run Command](command:binary-file-viewer.help)\nTip: Inside the help view you can use CTRL-F to search.",
                         "media": {
-                            "image": "assets/walkthroughs/show_help.gif",
+                            "image": "assets/local/walkthroughs/show_help.gif",
                             "altText": ""
                         },
                         "completionEvents": [
@@ -116,7 +116,7 @@
                         "title": "The Concept",
                         "description": "You have to create so-called custom parser files to decode a binary file. With this approach it is easy to write custom viewers for files where no vscode file viewer extension exists or for your own proprietary file formats.",
                         "media": {
-                            "markdown": "assets/walkthroughs/empty.md"
+                            "markdown": "assets/local/walkthroughs/empty.md"
                         }
                     },
                     {
@@ -124,7 +124,7 @@
                         "title": "Change Parser Folder",
                         "description": "At first choose a **location for your parser files**. The 'Binary File Viewer' will use these files for decoding.\nCreate a new folder (e.g. outside vscode), enter vscode's preferences and add the absolute path of this folder.",
                         "media": {
-                            "image": "assets/walkthroughs/settings_folder.gif",
+                            "image": "assets/local/walkthroughs/settings_folder.gif",
                             "altText": ""
                         },
                         "completionEvents": [
@@ -136,7 +136,7 @@
                         "title": "Create a Parser File",
                         "description": "Open the parser folder (see previous step). Add a new empty file to it with a '.js' extension. E.g. 'wav.js'.",
                         "media": {
-                            "markdown": "assets/walkthroughs/empty.md"
+                            "markdown": "assets/local/walkthroughs/empty.md"
                         }
                     },
                     {
@@ -144,7 +144,7 @@
                         "title": "Fill Parser File with a Template",
                         "description": "Use the code snippet ('binary...') to create the parser skeleton.",
                         "media": {
-                            "image": "assets/walkthroughs/snippet_usage.gif",
+                            "image": "assets/local/walkthroughs/snippet_usage.gif",
                             "altText": ""
                         }
                     },
@@ -153,7 +153,7 @@
                         "title": "Choose the File Extension",
                         "description": "In the 'registerFileType' function you can determine for what files your parser will be executed.\nChange the string for the file extension. E.g for a '*.wav' file decoder choose 'wav'.",
                         "media": {
-                            "image": "assets/walkthroughs/file_extension.gif",
+                            "image": "assets/local/walkthroughs/file_extension.gif",
                             "altText": ""
                         }
                     },
@@ -162,7 +162,7 @@
                         "title": "Implement a Parser",
                         "description": "In the 'registerParser' function you can decode the binary file.\nAdd the code shown here.",
                         "media": {
-                            "markdown": "assets/walkthroughs/modify_parser.md"
+                            "markdown": "assets/local/walkthroughs/modify_parser.md"
                         }
                     },
                     {
@@ -170,7 +170,7 @@
                         "title": "View the Decoded Binary File",
                         "description": "Right-click the file and choose 'Open with 'Binary File Viewer'.",
                         "media": {
-                            "image": "assets/walkthroughs/view_binfile.gif",
+                            "image": "assets/local/walkthroughs/view_binfile.gif",
                             "altText": ""
                         }
                     },
@@ -198,7 +198,7 @@
         "snippets": [
             {
                 "language": "javascript",
-                "path": "assets/codesnippets.json"
+                "path": "assets/local/codesnippets.json"
             }
         ]
     },

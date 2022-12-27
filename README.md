@@ -5,11 +5,11 @@
 If you like the "Binary File Viewer" please consider supporting it.
 
 <a href="https://github.com/sponsors/maziac" title="Github sponsor">
-	<img src="assets/button_donate_sp.png" />
+	<img src="assets/local/button_donate_sp.png" />
 </a>
 &nbsp;&nbsp;
 <a href="https://www.paypal.com/donate/?hosted_button_id=K6NNLZCTN3UV4&locale.x=en_DE&Z3JncnB0=" title="PayPal">
-	<img src="assets/button_donate_pp.png" />
+	<img src="assets/local/button_donate_pp.png" />
 </a>
 
 
@@ -34,15 +34,15 @@ Besides the display of numerical and binary values there is also support for gra
 ## Examples
 
 Basic example:
-![](assets/basic_example.jpg)
+![](assets/remote/basic_example.jpg)
 
 
 Memory dump:
-![](assets/help/help3.jpg)
+![](assets/local/help/help3.jpg)
 
 
 Charts:
-![](assets/help/help4b.jpg)
+![](assets/local/help/help4b.jpg)
 
 
 ## Installation
@@ -53,7 +53,7 @@ The extension is called "Binary File Viewer".
 
 ## Usage
 
-To understand how to build own parser scripts please refer to the [Help](https://github.com/maziac/binary-file-viewer/blob/main/assets/help/help.md).
+To understand how to build own parser scripts please refer to the [Help](https://github.com/maziac/binary-file-viewer/blob/main/assets/local/help/help.md).
 
 To use it:
 1. In the vscode explorer right-click the binary file.
@@ -63,7 +63,7 @@ To use the 'Binary File Viewer' as default for some file extension:
 1. In the vscode explorer right-click the binary file.
 2. Choose 'Open With...'.
 3. If there is more than 1 viewer registered for the file type all viewers will show up, e.g.:
-![](assets/viewer_selection.jpg)
+![](assets/remote/viewer_selection.jpg)
 4. Choose 'Configure default editor for ...'
 5. In the next window select the 'Binary File Viewer'.
 6. The next time you select a file of the same type it is immediately opened by the 'Binary File Viewer'.
