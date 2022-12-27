@@ -221,6 +221,8 @@
         "showdown": "^2.1.0"
     },
     "devDependencies": {
+        "@jest/globals": "^29.3.1",
+        "@types/jest": "^29.2.4",
         "@types/node": "^16.11.4",
         "@types/vscode": "^1.61.0",
         "@types/vscode-webview": "^1.57.0",

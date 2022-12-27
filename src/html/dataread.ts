@@ -476,8 +476,9 @@ export function getBitsValue(): String {	// NOSONAR
  * This function is internally used.
  * @returns The value from the dataBuffer as dec string primitive.
  * The returned value is accurate. I.e. it uses BigInt internally.
+ * Is exported for testing purposes.
  */
-function _getDecimalValue(): string {	// NOSONAR
+export function _getDecimalValue(): string {	// NOSONAR
 	// Read value directly to overcome rounding issues
 	let bValue: bigint = BigInt(0);
 
@@ -542,8 +543,9 @@ function _getDecimalValue(): string {	// NOSONAR
  * This function is internally used.
  * @returns The value from the dataBuffer as dec string primitive.
  * The returned value is accurate. I.e. it uses BigInt internally.
+ * Is exported for testing purposes.
  */
-function _getSignedDecimalValue(): string {
+export function _getSignedDecimalValue(): string {
 	// Check last bit
 	const maxByteOffset = (littleEndian) ? lastSize - 1 : 0;
 	const lastByte = dataBuffer[lastOffset + maxByteOffset];
@@ -645,8 +647,9 @@ export function getSignedDecimalValue(): String {	// NOSONAR
 /**
  * This function is internally used.
  * @returns The value from the dataBuffer as hex string primitive.
+ * Is exported for testing purposes.
  */
-function _getHexValue(): string {	// NOSONAR
+export function _getHexValue(): string {	// NOSONAR
 	// Read value directly to overcome rounding issues
 	let s = '';
 	// Byte wise
