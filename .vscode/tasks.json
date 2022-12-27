@@ -1,20 +1,58 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "npm",
-            "label": "npm",
-            "script": "watch",
-            "problemMatcher": [
-                "$tsc-watch"
+            "label": "watch", // Used by "Launch Extension" in launch.json
+            "dependsOn": [
+                "watch-node",
+                "watch-browser"
             ],
-            "isBackground": true,
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "watch-node", // Used by "Launch Extension" in launch.json
+            "type": "npm",
+            "script": "watch-node",
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": {
+                        "regexp": "\\s*\\[watch\\] build started"
+                    },
+                    "endsPattern": {
+                        "regexp": "^\\s*\\[watch\\] build finished"
+                    }
+                }
+            },
+            "isBackground": true,
+            "group": "build"
+        },
+        {
+            "label": "watch-browser", // Used by "Launch Extension" in launch.json
+            "type": "npm",
+            "script": "watch-browser",
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": {
+                        "regexp": "\\s*\\[watch\\] build started"
+                    },
+                    "endsPattern": {
+                        "regexp": "^\\s*\\[watch\\] build finished"
+                    }
+                }
+            },
+            "isBackground": true,
+            "group": "build"
         }
     ]
 }

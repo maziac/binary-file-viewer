@@ -3,9 +3,7 @@
  */
 registerFileType((fileExt, filePath, data) => {
 	// Check for obj
-	if (fileExt == 'obj')
-		return true;
-	return false;
+	return (fileExt === 'obj');
 });
 
 

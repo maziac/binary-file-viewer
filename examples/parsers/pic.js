@@ -6,10 +6,7 @@
  */
 registerFileType((fileExt, filePath, fileData) => {
 	// Check for the right file extension
-	if (fileExt == 'pic') {
-		return true;
-	}
-	return false;
+	return (fileExt === 'pic');
 });
 
 

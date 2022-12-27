@@ -48,6 +48,7 @@ td {
 	min-width: 1em;
 	text-align: right;
 	color: var(--vscode-terminal-ansiYellow);
+	cursor: pointer;
 }
 
 /* Class for the offset */

@@ -1,11 +1,7 @@
-declare var acquireVsCodeApi: any;
-declare var document: Document;
-declare var window: Window & typeof globalThis;
-declare var navigator: Navigator;
-declare var dataBuffer: Uint8Array;
-
-const vscode = acquireVsCodeApi();
-
+import {vscode} from './vscode-import';
+import {dataBuffer, lastOffset, lastSize, lastBitOffset, lastBitSize, startOffset, getDataBufferSize, getRelOffset, convertToHexString, correctBitByteOffsets, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setStartOffset, setLittleEndian, read, readUntil, setOffset, getOffset, readBits, setEndianness, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, getData, endOfFile, setDataBuffer} from './dataread';
+import {lastNode, setLastNode, addChart, createSeries} from './showcharts';
+import {addCanvas} from './canvas';
 
 /**
  * This js script parses a file, does all the decoding and presents the
@@ -19,27 +15,24 @@ const vscode = acquireVsCodeApi();
 
 
 // The custom parser (js program as a string).
-var customParser: string;
+let customParser: string;
 
 // The file path of the custom parser.
-var filePathParser: string;
-
-// The root node for parsing. New objects are appended here.
-var lastNode: any;
+let filePathParser: string;
 
 // The current row's cell that contains the collapsible icon (+)
-var lastCollapsibleNode: HTMLTableCellElement;
+let lastCollapsibleNode: HTMLTableCellElement;
 
 // The current row's cell that contains the value. Can be used to
 // add a value later.
-var lastValueNode: HTMLTableCellElement;
+let lastValueNode: HTMLTableCellElement;
 
 // The node used for the standard header.
-var standardHeaderNode: HTMLDivElement;
+let standardHeaderNode: HTMLDivElement;
 
 // Overrides the open/closed state for the details.
 // Used for debugging.
-var overrideDetailsOpen: boolean | undefined;
+let overrideDetailsOpen: boolean | undefined;
 
 
 /**
@@ -195,15 +188,15 @@ function addEmptyRow(name: string): RowNodes {
 	const cells = node.cells;
 
 	// Remember
-	lastCollapsibleNode = cells[0] as HTMLTableCellElement;
-	lastValueNode = cells[4] as HTMLTableCellElement;
+	lastCollapsibleNode = cells[0]; // HTMLTableCellElement;
+	lastValueNode = cells[4]; // HTMLTableCellElement;
 
 	// return
 	return {
-		offsetNode: cells[1] as HTMLTableCellElement,
-		sizeNode: cells[2] as HTMLTableCellElement,
-		valueNode: cells[4] as HTMLTableCellElement,
-		descriptionNode: cells[5] as HTMLTableCellElement,
+		offsetNode: cells[1], // HTMLTableCellElement,
+		sizeNode: cells[2], // HTMLTableCellElement,
+		valueNode: cells[4], // HTMLTableCellElement,
+		descriptionNode: cells[5] // HTMLTableCellElement,
 	}
 }
 
@@ -316,24 +309,24 @@ function readRowWithDetails(name: string, func: () => {value: String | string | 
 	// "Indent"
 	beginDetails(opened);
 	// Add details immediately
-	lastSize = 0;
-	lastBitSize = 0;
-	startOffset = lastOffset;
+	setLastSize(0);
+	setLastBitSize(0);
+	setStartOffset(lastOffset);
 	const result = func();
 	// Unindent
 	endDetails();
 
 	// Calculate size from what has been used in details
 	const endOffset = lastOffset + lastSize;
-	lastSize = endOffset - beginOffset;
-	lastOffset = beginOffset;
-	lastBitSize += lastBitOffset;
-	lastSize += Math.floor(lastBitSize / 8);
-	lastBitSize = lastBitSize % 8;
-	lastBitOffset = 0;
+	setLastSize(endOffset - beginOffset);
+	setLastOffset(beginOffset);
+	setLastBitSize(lastBitSize + lastBitOffset);
+	setLastSize(lastSize + Math.floor(lastBitSize / 8));
+	setLastBitSize(lastBitSize % 8);
+	setLastBitOffset(0);
 
 	// Restore
-	startOffset = bakStartOffset;
+	setStartOffset(bakStartOffset);
 	lastValueNode = row.valueNode;
 
 	// Set size etc
@@ -357,12 +350,13 @@ function convertLineBreaks(s: string) {
  * Collapses and expands all rows in '_expandRows'.
  */
 function collapse(cell: HTMLTableCellElement) {
-	let expandRows = (cell as any)['_expandRows'] as HTMLTableRowElement[];
+	const expandRows = (cell as any)['_expandRows'] as HTMLTableRowElement[];
 	for (const targetRow of expandRows) {
 		if (targetRow.style.display == 'table-row') {
 			cell.innerHTML = '+';
 			targetRow.style.display = 'none';
-		} else {
+		}
+		else {
 			cell.innerHTML = '-';
 			targetRow.style.display = 'table-row';
 			const event = new CustomEvent('expand');
@@ -396,7 +390,9 @@ function beginDetails(opened: boolean) {
 		// Add collapsible icon (+)
 		lastCollapsibleNode.innerHTML = (opened) ? '-' : '+';
 		// Add function
-		lastCollapsibleNode.setAttribute('onclick', 'collapse(this)');
+		lastCollapsibleNode.onclick = (event) => {
+			collapse(event.target as HTMLTableCellElement);
+		};
 
 		// Get/Set row(s) to open
 		let expandRows = (lastCollapsibleNode as any)['_expandRows'] as HTMLTableRowElement[];
@@ -408,7 +404,7 @@ function beginDetails(opened: boolean) {
 	}
 
 	// Use new table
-	lastNode = detailsTable;
+	setLastNode(detailsTable);
 
 	// Return
 	return detailsTable;
@@ -420,7 +416,7 @@ function beginDetails(opened: boolean) {
  * Sets lastNode to it's parent.
  */
 function endDetails() {
-	lastNode = lastNode.parentNode.parentNode.parentNode;
+	setLastNode(lastNode.parentNode.parentNode.parentNode);
 }
 
 
@@ -455,9 +451,9 @@ function addDetails(func: () => void, opened = false) {
 	// Delayed or not
 	if (opened) {
 		// Call function immediately
-		lastSize = 0;
-		lastBitSize = 0;
-		startOffset = lastOffset;
+		setLastSize(0);
+		setLastBitSize(0);
+		setStartOffset(lastOffset);
 		func();
 	}
 	else {
@@ -466,12 +462,12 @@ function addDetails(func: () => void, opened = false) {
 			this.removeEventListener("expand", handler);
 			// Get parse node and index
 			//lastNode = event.target;
-			lastOffset = bakLastOffset;
-			startOffset = lastOffset;
-			lastSize = 0;
-			lastBitSize = 0;
-			lastBitOffset = 0;
-			lastNode = bakLastNode;
+			setLastOffset(bakLastOffset);
+			setStartOffset(lastOffset);
+			setLastSize(0);
+			setLastBitSize(0);
+			setLastBitOffset(0);
+			setLastNode(bakLastNode);
 			lastCollapsibleNode = undefined;
 			try {
 				func();
@@ -487,11 +483,11 @@ function addDetails(func: () => void, opened = false) {
 	}
 
 	// Restore values
-	lastOffset = bakLastOffset;
-	lastSize = bakLastSize;
-	lastBitOffset = bakLastBitOffset;
-	lastBitSize = bakLastBitSize;
-	startOffset = bakStartOffset;
+	setLastOffset(bakLastOffset);
+	setLastSize(bakLastSize);
+	setLastBitOffset(bakLastBitOffset);
+	setLastBitSize(bakLastBitSize);
+	setStartOffset(bakStartOffset);
 	lastCollapsibleNode = bakLastCollapsibleNode;
 	lastValueNode = bakLastValueNode;
 
@@ -608,13 +604,13 @@ function addMemDump() {
 function parseStart() {
 	// Reset
 	overrideDetailsOpen = undefined;
-	littleEndian = true;
-	lastOffset = 0;
-	startOffset = lastOffset;
-	lastSize = 0;
-	lastBitOffset = 0;
-	lastBitSize = 0;
-	lastNode = document.getElementById("div_root");
+	setLittleEndian(true);
+	setLastOffset(0);
+	setStartOffset(lastOffset);
+	setLastSize(0);
+	setLastBitOffset(0);
+	setLastBitSize(0);
+	setLastNode(document.getElementById("div_root"));
 	lastNode.innerHTML = '';	// Remove any previous data
 
 	// Create table with header row
@@ -640,7 +636,7 @@ function parseStart() {
 	const reloadNode = startNode.children[1];
 	reloadNode.innerHTML = '<button onclick="reloadFile()">Reload</button>';
 	// Use table
-	lastNode = lastNode.children[1];
+	setLastNode(lastNode.children[1]);
 
 
 	try {
@@ -718,7 +714,7 @@ window.addEventListener('message', event => {	// NOSONAR
 		case 'setData':
 			{
 				// Store in global variable
-				dataBuffer = message.data;
+				setDataBuffer(message.data);
 			} break;
 		case 'setParser':
 			{
@@ -831,4 +827,3 @@ function dbgOverrideDetailsOpen(open: boolean | undefined) {
 vscode.postMessage({
 	command: 'ready'
 });
-

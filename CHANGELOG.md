@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.7.0
+- Changed to esbuild. Decreased size.
+
 # 1.6.0
 - Added functonality to change/get the file offset:
 	- setOffset():	Set the absolute file offset.

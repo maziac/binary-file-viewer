@@ -1,38 +1,57 @@
-
-
 /**
  * This js script file collects functions to read the data form the file.
  */
 
 
 // The data to parse.
-var dataBuffer: Uint8Array;	// NOSONAR
+export let dataBuffer: Uint8Array;
+export function setDataBuffer(val: Uint8Array) {
+	dataBuffer = val;
+}
 
 // Index into dataBuffer.
-var lastOffset: number;	// NOSONAR
+export let lastOffset: number;
+export function setLastOffset(val: number) {
+	lastOffset = val;
+}
 
 // The last retrieved data size.
-var lastSize: number;	// NOSONAR
+export let lastSize: number;
+export function setLastSize(val: number) {
+	lastSize = val;
+}
 
 // The bit index into dataBuffer.
-var lastBitOffset: number;	// NOSONAR
+export let lastBitOffset: number;
+export function setLastBitOffset(val: number) {
+	lastBitOffset = val;
+}
 
 // The last retrieved bit data size. Either lastSize is !=0 or lastBitSize. Never both.
-var lastBitSize: number;	// NOSONAR
+export let lastBitSize: number;
+export function setLastBitSize(val: number) {
+	lastBitSize = val;
+}
 
 // The startOffset for relative indices (detailsParsing.)
 // Is used only for displaying.
-var startOffset: number;	// NOSONAR
+export let startOffset: number;
+export function setStartOffset(val: number) {
+	startOffset = val;
+}
 
 // The endianness. (Default = true)
-var littleEndian: boolean;	// NOSONAR
+export let littleEndian: boolean;
+export function setLittleEndian(val: boolean) {
+	littleEndian = val;
+}
 
 
 /**
  * Set the endianness for data reads.
  * @param endianness Either 'little' (default) or 'big'.
  */
-function setEndianness(endianness: 'little' | 'big') {
+export function setEndianness(endianness: 'little' | 'big') {
 	if (endianness == 'big')
 		littleEndian = false;
 	else if(endianness == 'little')
@@ -47,7 +66,7 @@ function setEndianness(endianness: 'little' | 'big') {
 /**
  * @returns Returns the databuffer (file) size.
  */
-function getDataBufferSize(): number {
+export function getDataBufferSize(): number {
 	if (!dataBuffer)
 		return 0;
 	return dataBuffer.length;
@@ -57,7 +76,7 @@ function getDataBufferSize(): number {
 /**
  * Returns the relative index used for displaying inside collapsed sections.
  */
-function getRelOffset(): number {
+export function getRelOffset(): number {
 	return lastOffset - startOffset;
 }
 
@@ -65,7 +84,7 @@ function getRelOffset(): number {
 /**
  * Convert array to base 64 string.
  */
-function arrayBufferToBase64(buffer: any) {
+export function arrayBufferToBase64(buffer: any) {
 	let binary = '';
 	const bytes = [].slice.call(new Uint8Array(buffer));
 	bytes.forEach((b: any) => binary += String.fromCharCode(b));
@@ -76,7 +95,7 @@ function arrayBufferToBase64(buffer: any) {
 /**
  * @returns true if end of file reached.
  */
-function endOfFile(): boolean {
+export function endOfFile(): boolean {
 	return (lastOffset + lastSize >= dataBuffer.length);
 }
 
@@ -87,7 +106,7 @@ function endOfFile(): boolean {
  * stores the size for reading.
  * @param size The number of bits to read.
  */
-function readBits(bitSize: number) {
+export function readBits(bitSize: number) {
 	// Offsets
 	lastOffset += lastSize;
 	lastBitOffset += lastBitSize;
@@ -114,7 +133,7 @@ function readBits(bitSize: number) {
  * @param skip (Optional) The number of bytes to skip after each read sample. Defaults to 0.
  * @returns The samples in a number array.
  */
-function getData(sampleSize = 1, offset = 0, format = 'u', skip = 0): number[] {
+export function getData(sampleSize = 1, offset = 0, format = 'u', skip = 0): number[] {
 	const data: number[] = [];
 	const step = sampleSize + skip;
 	const signed = (format == 'i');
@@ -168,7 +187,7 @@ const BigInt256 = BigInt(256);
  * @param size The number of digits (e.g. 2 or 4)
  * @returns E.g. "0F" or "12FA"
  */
-function convertToHexString(value: number, size: number): string {
+export function convertToHexString(value: number, size: number): string {
 	if (value == undefined)
 		return "".padStart(size, '?');
 	const s = value.toString(16).toUpperCase().padStart(size, '0');
@@ -179,7 +198,7 @@ function convertToHexString(value: number, size: number): string {
 /**
  * Corrects the bit offsets before reading a byte.
  */
-function correctBitByteOffsets() {
+export function correctBitByteOffsets() {
 	// Offsets
 	lastOffset += lastSize;
 	lastBitOffset += lastBitSize;
@@ -200,7 +219,7 @@ function correctBitByteOffsets() {
  * Note: The read bytes do not contain 'value'.
  * @param value The value to search for. Searches byte-wise. Defaults to 0.
  */
-function readUntil(value: number = 0) {
+export function readUntil(value: number = 0) {
 	// Offsets
 	correctBitByteOffsets();
 
@@ -223,7 +242,7 @@ function readUntil(value: number = 0) {
  * @param size The number of bytes to read. If undefined, all remaining data is read.
  * size might be negative. In that case the lastOffset is decreased.
  */
-function read(size?: number) {
+export function read(size?: number) {
 	// Offsets
 	correctBitByteOffsets();
 
@@ -250,7 +269,7 @@ function read(size?: number) {
  * Sets the absolute offset in the file.
  * @param offset The offset inside the file.
  */
-function setOffset(offset: number) {
+export function setOffset(offset: number) {
 	// Offsets
 	lastBitOffset = 0;
 	lastBitSize = 0;
@@ -274,7 +293,7 @@ function setOffset(offset: number) {
  * Used to restore an offset if changed e.g. by setOffset().
  * @returns 'lastOffset'
  */
-function getOffset(): number {
+export function getOffset(): number {
 	return lastOffset;
 }
 
@@ -285,7 +304,7 @@ function getOffset(): number {
  * Either lastSize or lastBitSize is != 0.
  * @returns A number (not a String).
  */
-function getNumberValue(): number {
+export function getNumberValue(): number {
 	let value = 0;
 
 	// Byte wise
@@ -336,7 +355,7 @@ function getNumberValue(): number {
  * @returns A number (not a String), if highest bit is set it is a negative number.
  * E.g. if lastSize is 1 and the data is 0x81 it returns -127.
  */
-function getSignedNumberValue(): number {
+export function getSignedNumberValue(): number {
 
 	// Byte wise
 	if (lastSize) {
@@ -409,7 +428,7 @@ function getSignedNumberValue(): number {
  * Either lastSize or lastBitSize is != 0.
  * @returns E.g. '001101'
  */
-function getBitsValue(): String {	// NOSONAR
+export function getBitsValue(): String {	// NOSONAR
 	let value = 0;
 	let posValue = 1;
 	let bits = '';
@@ -602,7 +621,7 @@ function _getSignedDecimalValue(): string {
 /**
  * @returns The value from the dataBuffer as positive decimal string.
  */
-function getDecimalValue(): String {	// NOSONAR
+export function getDecimalValue(): String {	// NOSONAR
 	const value = _getDecimalValue();
 	// Add hover property
 	const sc = new String(value);	// NOSONAR
@@ -614,7 +633,7 @@ function getDecimalValue(): String {	// NOSONAR
 /**
  * @returns The value from the dataBuffer as positive decimal string.
  */
-function getSignedDecimalValue(): String {	// NOSONAR
+export function getSignedDecimalValue(): String {	// NOSONAR
 	const value = _getSignedDecimalValue();
 	// Add hover property
 	const sc = new String(value);	// NOSONAR
@@ -686,7 +705,7 @@ function _getHexValue(): string {	// NOSONAR
 /**
  * @returns The value from the dataBuffer as hex string.
  */
-function getHexValue(): String {	// NOSONAR
+export function getHexValue(): String {	// NOSONAR
 	// Read value directly to overcome rounding issues
 	const s = _getHexValue();
 	// Add hover property
@@ -699,7 +718,7 @@ function getHexValue(): String {	// NOSONAR
 /**
  * @returns The value from the dataBuffer as hex string + "0x" in front.
  */
-function getHex0xValue(): String {	// NOSONAR
+export function getHex0xValue(): String {	// NOSONAR
 	const s = _getHexValue();
 	// Copy hover property
 	const sc = new String('0x' + s);	// NOSONAR
@@ -711,7 +730,7 @@ function getHex0xValue(): String {	// NOSONAR
 /**
  * @returns The data from the dataBuffer as string.
  */
-function getStringValue(): string {
+export function getStringValue(): string {
 	let s = '';
 	for (let i = 0; i < lastSize; i++) {
 		const c = dataBuffer[lastOffset + i];

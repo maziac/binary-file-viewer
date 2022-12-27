@@ -1,4 +1,4 @@
-declare var lastNode: any;
+import {lastNode} from "./showcharts";
 
 
 /**
@@ -9,7 +9,7 @@ declare var lastNode: any;
  * @param name (Optional) A name to show above the canvas.
  * @returns The rendering context for the canvas.
  */
-function addCanvas(width: number, height: number, name: string = ''): CanvasRenderingContext2D {
+export function addCanvas(width: number, height: number, name: string = ''): CanvasRenderingContext2D {
 	// Check parameters
 	if (width == undefined)
 		throw new Error("addCanvas: Expecting a 'width' parameter.");

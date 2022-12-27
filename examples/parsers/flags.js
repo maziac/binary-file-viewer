@@ -3,9 +3,7 @@
  */
 registerFileType((fileExt, filePath, data) => {
 	// Check for obj
-	if (fileExt == 'obj2')
-		return true;
-	return false;
+	return (fileExt === 'obj2');
 });
 
 
@@ -40,10 +38,8 @@ registerParser(() => {
 	read(1);
 	addRow('BYTE 1', getHexValue());
 
-	//read(1);
 	readRowWithDetails('Flags 1', () => {
 		readBits(1);
-		//addRow('Bit 0', getNumberValue(), 'Bit 0');
 		readBits(3);
 		addRow('Count', getDecimalValue(), 'Bits 1-3');
 		readBits(4);

@@ -189,7 +189,7 @@ export class ParserSelect {
 	 * @param errStack The error.stack obtained by a catch.
 	 * @param filePath Absolute path to the file.
 	 * @param lineOffset Number added to the line number. This is required for some
-	 * sources (e.g. parser.js). Otherwise the wrong line number os reported.
+	 * sources (e.g. parser.js). Otherwise the wrong line number is reported.
 	 */
 	public static addDiagnosticsStack(errStack: string, filePath: string, lineOffset = 0) {
 		let colNr;

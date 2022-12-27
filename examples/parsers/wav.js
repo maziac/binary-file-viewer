@@ -3,10 +3,10 @@
  */
 registerFileType((fileExt, filePath, fileData) => {
 	// Check for wav extension
-	if (fileExt == 'wav') {
+	if (fileExt === 'wav') {
 		const headerArray = fileData.getBytesAt(0, 4);
 		const header = String.fromCharCode(...headerArray)
-		if (header == 'RIFF')
+		if (header === 'RIFF')
 			return true;
 	}
 	return false;

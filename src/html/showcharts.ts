@@ -1,14 +1,11 @@
-declare var lastOffset: number;
-declare var lastSize: number;
-declare var lastContentNode: any;
-//declare var lastValueNode: any;
-declare var lastLongDescriptionNode: any;
-declare var lastNode: any;
-declare var dataBuffer: Uint8Array;
-declare var createNode: any;
-declare var Chart: any;
+import Chart from 'chart.js/auto';
 
 
+// The root node for parsing. New objects are appended here.
+export let lastNode: any;
+export function setLastNode(val: any) {
+	lastNode = val;
+}
 
 
 /**
@@ -50,7 +47,7 @@ interface ChartConfig {
  * Called to reset the zoom via the chartjs-plugin-zoom.
  * @param button The button that was clicked. HAs a link to the chart.
  */
-function resetZoom(button: HTMLButtonElement) {
+export function resetZoom(button: HTMLButtonElement) {
 	const chart = (button as any)._chart;
 	chart.resetZoom();
 }
@@ -69,7 +66,7 @@ function resetZoom(button: HTMLButtonElement) {
  * color: The color of the data series, e.g. 'green'.
  * @param name (Optional) The name of the chart.
  */
-function addChart(config: ChartConfig, name?: string) {
+export function addChart(config: ChartConfig, name?: string) {
 	// Check parameters
 	if (config == undefined)
 		throw new Error("addChart: Expecting a 'config' parameter.");
@@ -207,7 +204,7 @@ function addChart(config: ChartConfig, name?: string) {
  * @param label Optional. A string to mark the series.
  * @returns A Series object with samples, label and color info.
  */
-function createSeries(samples: number[], color?: string, label?: string): Series {
+export function createSeries(samples: number[], color?: string, label?: string): Series {
 	return {samples, label, color};
 }
 
