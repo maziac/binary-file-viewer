@@ -46,22 +46,22 @@ interface RowNodes {
 }
 
 
-/**
- * Call to check a value.
- * Does nothing.
- * You can set a breakpoint here.
- */
-function assert(condition: boolean) {
-	if (!condition) {
-		console.error('Error!');
-	}
-}
+// /**
+//  * Call to check a value.
+//  * Does nothing.
+//  * You can set a breakpoint here.
+//  */
+// function assert(condition: boolean) {
+// 	if (!condition) {
+// 		console.error('Error!');
+// 	}
+// }
 
 
 /**
  * Sends a command to the extension to open or focus the used parser file.
  */
-function openCustomParser() {
+globalThis.openCustomParser = function () {
 	vscode.postMessage({
 		command: 'openCustomParser'
 	});
@@ -71,7 +71,7 @@ function openCustomParser() {
 /**
  * Sends a command to the extension to reload and re-parse the file.
  */
-function reloadFile() {
+globalThis.reloadFile = function () {
 	vscode.postMessage({
 		command: 'reload'
 	});
@@ -120,7 +120,7 @@ function addStandardHeader() {
  * command to the webview, so that it displays the corresponding line
  * in the custom parser js file.
  */
-function linkToCustomParserLine(cell: HTMLTableCellElement) {
+globalThis.linkToCustomParserLine = function (cell: HTMLTableCellElement) {
 	const offset = (cell as any)['_customParserOffset'];
 	if (offset) {
 		vscode.postMessage({
@@ -252,8 +252,8 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
 	const errFileLocation = new Error();
 	//console.timeEnd();
 	// Parse the stack trace
-	const stack = errFileLocation.stack.split('\n');
-	const customLine: string = stack[2];
+	const stack = errFileLocation.stack!.split('\n');
+	const customLine: string = stack[3];
 	const match = /.*>:(\d+):(\d+)/.exec(customLine);
 	if (match) {
 		// Line
@@ -468,7 +468,7 @@ function addDetails(func: () => void, opened = false) {
 			setLastBitSize(0);
 			setLastBitOffset(0);
 			setLastNode(bakLastNode);
-			lastCollapsibleNode = undefined;
+			lastCollapsibleNode = undefined as any;
 			try {
 				func();
 			}
@@ -501,7 +501,7 @@ function addDetails(func: () => void, opened = false) {
  * Is gray.
  * @param descr The description string. Any linebreaks are converted into '<br>'.
  */
-function createDescription(descr: string) {
+globalThis.createDescription = function (descr: string) {
 	// Create new node
 	const node = document.createElement("DIV");
 	// Add description
@@ -517,7 +517,6 @@ function createDescription(descr: string) {
 function addMemDump() {
 	let html = '';
 	let asciiHtml = '';
-	let prevClose = '';
 	let prevNode;
 	const LINECOUNT = 16;
 	const lineCountHex = LINECOUNT.toString(16);
@@ -601,7 +600,7 @@ function addMemDump() {
 /**
  * Starts the parsing.
  */
-function parseStart() {
+globalThis.parseStart = function () {
 	// Reset
 	overrideDetailsOpen = undefined;
 	setLittleEndian(true);
@@ -701,7 +700,7 @@ function parseStart() {
 /**
  * Copies the complete html of the document to the clipboard.
  */
-function copyHtmlToClipboard() {
+globalThis.copyHtmlToClipboard = function () {
 	const copyText = document.documentElement.innerHTML;
 	navigator.clipboard.writeText(copyText);
 }
@@ -723,7 +722,7 @@ window.addEventListener('message', event => {	// NOSONAR
 				filePathParser = message.parser.filePath;
 
 				// Parse
-				parseStart();
+				globalThis.parseStart();
 			} break;
 	}
 });

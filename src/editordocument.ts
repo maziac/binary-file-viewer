@@ -228,7 +228,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	protected selectParserLine(offset: {lineNr: number, colNr: number}) {
 		for (const doc of vscode.workspace.textDocuments) {
 			const fsPath = doc.uri.fsPath;
-			if (fsPath == this.parser.filePath) {
+			if (fsPath === this.parser.filePath) {
 				// Document found, select it
 				vscode.window.showTextDocument(doc)
 					.then(editor => {

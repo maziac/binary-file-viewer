@@ -111,7 +111,7 @@ export function addChart(config: ChartConfig, name?: string) {
 
 	// Create the datasets.
 	let legendDisplay = false;
-	const datasets = [];
+	const datasets: any[] = [];
 	let colIndex = 0;
 	for (const series of cfg.series) {
 		// Check series type

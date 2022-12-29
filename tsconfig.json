@@ -3,25 +3,15 @@
         "module": "commonjs",
         "target": "es6",
         "allowJs": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
+        "removeComments": false,
+        "noUnusedLocals": true,
+        "noImplicitThis": true,
+        "inlineSourceMap": false,
         "sourceMap": true,
-        "baseUrl": ".",
         "outDir": "./out",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
-    },
-    "include": [
-        "src/**/*",
-        "tests/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+        "preserveConstEnums": true,
+        "strictNullChecks": true,
+        "noUnusedParameters": false
+    }
 }
