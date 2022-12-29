@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.7.1
+- Fixed unreachable functions (esbuild).
+
 # 1.7.0
 - Changed to esbuild. Decreased size.
 
