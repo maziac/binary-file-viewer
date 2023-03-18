@@ -54,7 +54,7 @@ For more complicated checks other arguments are passed:
 - fileData: You can access the file data through this object.
 
 Although normally not required, ```fileData``` can be quite handy in some situations.
-With ```fileData```you can access the file contents and check e.g. the header of a file for certain data. E.g. some files carry an ID at the start of the file to identify the file type.
+With ```fileData``` you can access the file contents and check e.g. the header of a file for certain data. E.g. some files carry an ID at the start of the file to identify the file type.
 A more enhanced version of the file type check for wav files could look like this:
 ~~~js
 registerFileType((fileExt, filePath, fileData) => {
@@ -130,7 +130,7 @@ This example reads in a single byte:
 	const val = getNumberValue();
 ~~~
 
-Because the size was 1, ```getNumberValue```will return only 1 byte.
+Because the size was 1, ```getNumberValue``` will return only 1 byte.
 
 In the next example a word, i.e. a 2 byte number, is read:
 
@@ -171,7 +171,7 @@ Please note that changing the endianness will not effect values read with ```rea
 
 ### addDetails
 
-```addDetails```is used to make rows expandable.
+```addDetails``` is used to make rows expandable.
 I.e. when using ```addDetails``` the previous row gets a '+' sign:
 ![](help2a.jpg)
 
@@ -224,7 +224,7 @@ The offset shown in an ```addDetails``` section is always the offset from the be
 ### addMemDump
 
 If you just want to output a memory dump of a region you can use ```addMemDump```.
-If you additionally put it into ```addDetails```you can make it expandable.
+If you additionally put it into ```addDetails``` you can make it expandable.
 
 E.g.:
 ~~~js
@@ -369,7 +369,7 @@ The example here creates a canvas object and draws a red rectangle inside:
 Function that return a number (```getNumberValue()```, ```getSignedNumbervalue()```) work with javascript's number precision. I.e. integer values are only safe up to the range 2^53-1 >= n >= -(2^53 - 1).
 So any 4 byte value will be accurately represented but if you e.g. try to use 8 byte integer values those will be inaccurate.
 
-In contrast the functions that return strings (```getHexValue()```, ```getDecimalValue()```, ```getSignedDecimalValue()```etc.) are accurate no matter how big the number is.
+In contrast the functions that return strings (```getHexValue()```, ```getDecimalValue()```, ```getSignedDecimalValue()``` etc.) are accurate no matter how big the number is.
 They are either implemented directly with a byte to string conversion or use the js BigInt type internally.
 
 

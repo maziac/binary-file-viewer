@@ -6,7 +6,7 @@ The SW basically consist of 2 parts:
 - the vscode extension code itself
 - the webview
 
-The extension is responsible for reading the customer parser files, watch for changes.
+The extension is responsible for reading the customer parser files, watching for changes.
 When a file should be shown a new webView is opened.
 The right parser file is selected and the parser file's content is sent to the webView.
 
