@@ -2,7 +2,7 @@
     "name": "binary-file-viewer",
     "displayName": "Binary File Viewer",
     "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file.",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "publisher": "maziac",
     "author": {
         "name": "Thomas Busse"
@@ -18,16 +18,13 @@
         "url": "https://github.com/maziac/binary-file-viewer"
     },
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": ">=1.75.0"
     },
     "icon": "assets/local/icon.png",
     "categories": [
         "Visualization"
     ],
     "activationEvents": [
-        "onCustomEditor:binary-file-viewer.viewer",
-        "onCommand:binary-file-viewer.open",
-        "onCommand:binary-file-viewer.help",
         "onLanguage:javascript"
     ],
     "capabilities": {

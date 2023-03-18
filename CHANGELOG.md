@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.7.2
+- Improved error logging if "read(NaN)" is used.
+
 # 1.7.1
 - Fixed unreachable functions (esbuild).
 
