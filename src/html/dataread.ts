@@ -248,8 +248,10 @@ export function read(size?: number) {
 
 	if (size == undefined)
 		size = dataBuffer.length - lastOffset;
-	else if (typeof size != 'number')
-		throw new Error("read: 'size' is not a number");
+	else if (typeof size !== 'number')
+		throw new Error("read: 'size' is " + typeof size + ", it should be a number");
+	else if (isNaN(size))
+		throw new Error("read: 'size' is not a number (NaN).");
 	else if (lastOffset + size > dataBuffer.length)
 		throw new Error("read: Reading more data than available (size=" + size + " at offset=" + lastOffset + ").");
 	else if (lastOffset + size < 0)
@@ -420,6 +422,9 @@ export function getSignedNumberValue(): number {
 		// Positive
 		return value;
 	}
+
+	// Error
+	throw new Error("getSignedNumberValue: No lastSize ot lastBitSize found (please report an error).");
 }
 
 
@@ -654,7 +659,6 @@ export function _getHexValue(): string {	// NOSONAR
 	let s = '';
 	// Byte wise
 	if (lastSize) {
-		let factor = 1;
 		if (littleEndian) {
 			// Little endian
 			for (let i = lastSize - 1; i >= 0; i--) {
