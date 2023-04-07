@@ -97,7 +97,7 @@ registerParser(() => {
 	addRow('RIFF id', getStringValue(), 'RIFF file description header');
 
 	read(4);
-	addRow('File size', getHexOxValue(), 'The file size LESS the size of the "RIFF" description (4 bytes) and the size of file description (4 bytes).');
+	addRow('File size', getHex0xValue(), 'The file size LESS the size of the "RIFF" description (4 bytes) and the size of file description (4 bytes).');
 }
 ~~~
 
