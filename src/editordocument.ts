@@ -14,7 +14,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	public uri: vscode.Uri;
 
 	// The used parser file.
-	public parser: ParserInfo;
+	public parser: ParserInfo | undefined;
 
 	// Remember the webviewPanel for sending updates.
 	public webviewPanel: vscode.WebviewPanel;
@@ -68,16 +68,20 @@ export class EditorDocument implements vscode.CustomDocument {
 			webviewPanel.webview.onDidReceiveMessage(message => {
 				switch (message.command) {
 					case 'ready':
-						// Read file
-						const dataFs = fs.readFileSync(filePath);
-						const data = Uint8Array.from(dataFs);
-						// Send data and parser
-						this.sendDataToWebView(data, webviewPanel);
-						this.sendParserToWebView(this.parser, webviewPanel);
+						if (this.parser) {
+							// Read file
+							const dataFs = fs.readFileSync(filePath);
+							const data = Uint8Array.from(dataFs);
+							// Send data and parser
+							this.sendDataToWebView(data, webviewPanel);
+							this.sendParserToWebView(this.parser, webviewPanel);
+						}
 						break;
 					case 'customParserError':
-						// An error occurred during execution of the custom parser
-						ParserSelect.addDiagnosticsStack(message.stack, this.parser.filePath, -3);
+						if (this.parser) {
+							// An error occurred during execution of the custom parser
+							ParserSelect.addDiagnosticsStack(message.stack, this.parser.filePath, -3);
+						}
 						break;
 					case 'selectLine':
 						// Display the given line (and column) in the parser (js) file
@@ -112,7 +116,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	/**
 	 * Selects the right parser and sets the html.
 	 */
-	protected setHtml(parser: ParserInfo) {
+	protected setHtml(parser: ParserInfo|undefined) {
 		this.parser = parser;
 		let html;
 		if (this.parser) {
@@ -190,7 +194,7 @@ export class EditorDocument implements vscode.CustomDocument {
 	 * An update is done if the contents or the filepath (rename) is different.
 	 * @param parser The new ParserInfo.
 	 */
-	public updateParser(parser: ParserInfo) {
+	public updateParser(parser: ParserInfo|undefined) {
 		// If this.parser is undefined there was no parser found in the past.
 		if (!this.parser) {
 			// No previous parser
@@ -226,6 +230,8 @@ export class EditorDocument implements vscode.CustomDocument {
 	 * @param offset Contains the line info.
 	 */
 	protected selectParserLine(offset: {lineNr: number, colNr: number}) {
+		if (!this.parser)
+			return;
 		for (const doc of vscode.workspace.textDocuments) {
 			const fsPath = doc.uri.fsPath;
 			if (fsPath === this.parser.filePath) {
@@ -273,9 +279,11 @@ export class EditorDocument implements vscode.CustomDocument {
 	 * Called if user clicks on file name in decoded file.
 	 */
 	protected openCustomParser() {
-		vscode.workspace.openTextDocument(this.parser.filePath)
-			.then(doc => {
-				vscode.window.showTextDocument(doc);
-			});
+		if (this.parser) {
+			vscode.workspace.openTextDocument(this.parser.filePath)
+				.then(doc => {
+					vscode.window.showTextDocument(doc);
+				});
+		}
 	}
 }

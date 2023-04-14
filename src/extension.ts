@@ -135,24 +135,46 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
  * For the wrong paths an error message is shown.
  */
 function getParserPaths() {
-    const settings = PackageInfo.configuration();
-    const parserFolders = settings.get<string[]>('parserFolders');
+    const configs: {
+        path: string | undefined,
+        settings: vscode.WorkspaceConfiguration
+    }[] = [];
+    // Use folder settings (in case of a multi-root workspace
+    if (vscode.workspace.workspaceFolders) {
+        for (const wsFolder of vscode.workspace.workspaceFolders) {
+            const settings = PackageInfo.configuration(wsFolder);
+            configs.push({path: wsFolder.uri.fsPath, settings]);
+        }
+    }
+    // Add main settings
+    configs.push({path: undefined, settings: PackageInfo.configuration()});
+
+    // Now check all parserFolders settings
     const correctFolders: string[] = [];
-    for (const folder of parserFolders) {
-         // Check that path exists
-        const exists = fs.existsSync(folder);
-        if (!exists) {
-            vscode.window.showErrorMessage("Settings: The path '" + folder + "' does not exist.");
-            continue;
+    for (const cfg of configs) {
+        const parserFolders = cfg.settings.get<string[]>('parserFolders')  !;
+        for (let folder of parserFolders) {
+            // Check for relative path
+            if (!path.isAbsolute(folder)) {
+                // Add workspace folder path
+                folder = path.join(cfg.path || '', folder);
+            }
+            // Check that path exists
+            const exists = fs.existsSync(folder);
+            if (!exists) {
+                vscode.window.showErrorMessage("Settings: The path '" + folder + "' does not exist.");
+                continue;
+            }
+            // Check that path is a directory
+            const isDir = fs.lstatSync(folder).isDirectory();
+            if (!isDir) {
+                vscode.window.showErrorMessage("Settings: The path '" + folder + "' is not a directory.");
+                continue;
+            }
+            // Everything ok: add to array
+            if(!correctFolders.includes(folder))
+                correctFolders.push(folder);
         }
-        // Check that path is a directory
-        const isDir = fs.lstatSync(folder).isDirectory();
-        if (!isDir) {
-            vscode.window.showErrorMessage("Settings: The path '" + folder + "' is not a directory.");
-            continue;
-        }
-        // Everything ok: add to array
-        correctFolders.push(folder);
     }
     return correctFolders;
 }
