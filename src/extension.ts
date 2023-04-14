@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(regCompletionsProvider);
 
     // Register hover provider
-    const hoverProvider = vscode.languages.registerHoverProvider('javascript', new HoverProvider(undefined));
+    const hoverProvider = vscode.languages.registerHoverProvider('javascript', new HoverProvider());
     context.subscriptions.push(hoverProvider);
 
     // Command to show the help
@@ -143,7 +143,7 @@ function getParserPaths() {
     if (vscode.workspace.workspaceFolders) {
         for (const wsFolder of vscode.workspace.workspaceFolders) {
             const settings = PackageInfo.configuration(wsFolder);
-            configs.push({path: wsFolder.uri.fsPath, settings]);
+            configs.push({path: wsFolder.uri.fsPath, settings});
         }
     }
     // Add main settings
@@ -157,7 +157,11 @@ function getParserPaths() {
             // Check for relative path
             if (!path.isAbsolute(folder)) {
                 // Add workspace folder path
-                folder = path.join(cfg.path || '', folder);
+                if (!cfg.path) {
+                    vscode.window.showErrorMessage("Settings: Path not found '" + folder + "'.");
+                    continue;
+                }
+                folder = path.join(cfg.path, folder);
             }
             // Check that path exists
             const exists = fs.existsSync(folder);
@@ -172,8 +176,19 @@ function getParserPaths() {
                 continue;
             }
             // Everything ok: add to array
-            if(!correctFolders.includes(folder))
+            if (cfg.path) {
+                if (!correctFolders.includes(folder))
+                    correctFolders.push(folder);
+            }
+            else {
+                // The workspace or window configuration:
+                // Make sure it is the last path (least priority)
+                const k = correctFolders.indexOf(folder);
+                if (k >= 0)
+                    correctFolders.splice(k, 1);
+                // Insert at the end
                 correctFolders.push(folder);
+            }
         }
     }
     return correctFolders;

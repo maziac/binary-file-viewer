@@ -53,21 +53,11 @@ export class ParserSelect {
 	 */
 	public static init(parserFolders: string[]) {
 		// Init
-		this.parserFolders = [];
+		this.parserFolders = parserFolders;
 		this.testedParserFilePaths = [];
+		console.log("ParserSelect::init:", parserFolders);
 
-		// Loop through parser folders and adjust the path
 		this.clearDiagnostics();
-		for (const parserFolder of parserFolders) {
-			// Check for absolute path
-			if(!parserFolder || !path.isAbsolute(parserFolder)) {
-				vscode.window.showErrorMessage("Path is not an absolute path: '" + parserFolder + "'.");
-				continue;
-			}
-
-			// Remember
-			this.parserFolders.push(parserFolder);	// Store with lower case drive letter.
-		}
 
 		// Update any existing docs
 		this.updateAllOpenEditors();
@@ -143,7 +133,7 @@ export class ParserSelect {
 	 * @param child The child dir to test.
 	 * @returns The relative path or undefined if not included
 	 */
-	protected static getRelativePath(parent: string, child: string): string {
+	protected static getRelativePath(parent: string, child: string): string|undefined {
 		const relative = path.relative(parent, child);
 		const isIncluded = relative && !relative.startsWith('..') && !path.isAbsolute(relative);
 		if (isIncluded)
@@ -347,7 +337,7 @@ export class ParserSelect {
 	 * @param filePath The full (absolute) file path.
 	 * @returns the parser contents and its file path on success. Otherwise undefined.
 	 */
-	public static selectParserFile(filePath: string): ParserInfo {
+	public static selectParserFile(filePath: string): ParserInfo|undefined {
 		this.testedParserFilePaths = [];
 
 		// Get the file extension
@@ -393,7 +383,7 @@ export class ParserSelect {
 			let msg = "Multiple parsers found for '" + filePath + "': ";
 			let sep = '';
 			for (const parser of foundParsers) {
-				msg += sep + path.basename(parser.filePath);
+				msg += sep + parser.filePath;
 				sep = ', ';
 			}
 			msg += '. Choosing the first one.';
