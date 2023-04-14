@@ -7,20 +7,6 @@ import {ParserSelect} from './parserselect';
  * HoverProvider for assembly language.
  */
 export class HoverProvider implements vscode.HoverProvider {
-    // The glob patterns to use.
-    protected globPatterns: string[];
-
-
-    /**
-     * Constructor.
-     * @param globPatterns The glob patterns to use.
-     */
-    constructor(globPatterns: string[]) {
-        // Store
-        this.globPatterns = globPatterns;
-    }
-
-
     /**
      * Called from vscode if the user hovers over a word.
      * @param document The current document.
@@ -28,7 +14,7 @@ export class HoverProvider implements vscode.HoverProvider {
      * @param options
      * @param token
      */
-    public async provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Hover> {
+    public async provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Hover|undefined> {
         // First check for right path
         if (!ParserSelect.isParserDoc(document.uri))
             return undefined;
@@ -37,10 +23,10 @@ export class HoverProvider implements vscode.HoverProvider {
         const line = document.lineAt(position).text;
         const lineTrimmed = line.substring(0, position.character);
         //console.log('HoverProvider : provideHover : lineTrimmed', lineTrimmed);
-        const matchStart = /\w*$/.exec(lineTrimmed);
+        const matchStart = /\w*$/.exec(lineTrimmed)!;
         const lineEnd = line.substring(position.character);
         //console.log('HoverProvider : provideHover : lineEnd', lineEnd);
-        const matchEnd = /\w*/.exec(lineEnd);
+        const matchEnd = /\w*/.exec(lineEnd)!;
 
         // Concatenate hover word
         const label = matchStart[0] + matchEnd[0];
