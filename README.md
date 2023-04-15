@@ -68,6 +68,9 @@ To use the 'Binary File Viewer' as default for some file extension:
 5. In the next window select the 'Binary File Viewer'.
 6. The next time you select a file of the same type it is immediately opened by the 'Binary File Viewer'.
 
+Note: The same default behavior can be achieved by editing the settings, e.g.:
+![](assets/local/editorassociations.jpg)
+
 
 ## Acknowledgements
 
