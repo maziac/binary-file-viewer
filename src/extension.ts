@@ -135,61 +135,54 @@ function configure(context: vscode.ExtensionContext, event?: vscode.Configuratio
  * For the wrong paths an error message is shown.
  */
 function getParserPaths() {
-    const configs: {
-        path: string | undefined,
-        settings: vscode.WorkspaceConfiguration
-    }[] = [];
-    // Use folder settings (in case of a multi-root workspace
-    if (vscode.workspace.workspaceFolders) {
-        for (const wsFolder of vscode.workspace.workspaceFolders) {
-            const settings = PackageInfo.configuration(wsFolder);
-            configs.push({path: wsFolder.uri.fsPath, settings});
-        }
-    }
     // Add main settings
-    configs.push({path: undefined, settings: PackageInfo.configuration()});
+    const cfg = PackageInfo.configuration();
 
     // Now check all parserFolders settings
     const correctFolders: string[] = [];
-    for (const cfg of configs) {
-        const parserFolders = cfg.settings.get<string[]>('parserFolders')  !;
-        for (let folder of parserFolders) {
-            // Check for relative path
-            if (!path.isAbsolute(folder)) {
-                // Add workspace folder path
-                if (!cfg.path) {
-                    vscode.window.showErrorMessage("Settings: Path not found '" + folder + "'.");
+    const parserFolders = cfg.get<string[]>('parserFolders') || [];
+
+    // Add workspace folders to all relative paths
+    const consolidatedParserFolders: string[] = [];
+    const wsFolders = vscode.workspace.workspaceFolders || [];
+    for (const folder of parserFolders) {
+        if (path.isAbsolute(folder)) {
+            if (!consolidatedParserFolders.includes(folder)) {
+                // Check that path exists (only for absolute paths)
+                const exists = fs.existsSync(folder);
+                if (!exists) {
+                    vscode.window.showErrorMessage("Settings: The path '" + folder + "' does not exist.");
                     continue;
                 }
-                folder = path.join(cfg.path, folder);
-            }
-            // Check that path exists
-            const exists = fs.existsSync(folder);
-            if (!exists) {
-                vscode.window.showErrorMessage("Settings: The path '" + folder + "' does not exist.");
-                continue;
-            }
-            // Check that path is a directory
-            const isDir = fs.lstatSync(folder).isDirectory();
-            if (!isDir) {
-                vscode.window.showErrorMessage("Settings: The path '" + folder + "' is not a directory.");
-                continue;
-            }
-            // Everything ok: add to array
-            if (cfg.path) {
-                if (!correctFolders.includes(folder))
-                    correctFolders.push(folder);
-            }
-            else {
-                // The workspace or window configuration:
-                // Make sure it is the last path (least priority)
-                const k = correctFolders.indexOf(folder);
-                if (k >= 0)
-                    correctFolders.splice(k, 1);
-                // Insert at the end
-                correctFolders.push(folder);
+                consolidatedParserFolders.push(folder);
             }
         }
+        else {
+            // Create an absolute path for each workspace folder
+            for (const wsFolder of wsFolders) {
+                const absPath = path.join(wsFolder.uri.fsPath, folder);
+                if (!consolidatedParserFolders.includes(absPath))
+                    consolidatedParserFolders.push(absPath);
+            }
+        }
+    }
+
+    // Give the relative paths a higher priority
+    for (const folder of consolidatedParserFolders) {
+        // Check that path exists
+        const exists = fs.existsSync(folder);
+        if (!exists) {
+            // Silently skip (a check for the absolute paths is done in the step before)
+            continue;
+        }
+        // Check that path is a directory
+        const isDir = fs.lstatSync(folder).isDirectory();
+        if (!isDir) {
+            vscode.window.showErrorMessage("Settings: The path '" + folder + "' is not a directory.");
+            continue;
+        }
+        // Everything ok: add to array
+        correctFolders.push(folder);
     }
     return correctFolders;
 }
