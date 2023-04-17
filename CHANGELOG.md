@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.7.3
+- Allow for relative paths in 'parserFolders'. The workspace folder is added to the relative path. (#10)
+
 # 1.7.2
 - Improved error logging if "read(NaN)" is used.
 
