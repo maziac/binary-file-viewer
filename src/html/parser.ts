@@ -1,5 +1,5 @@
 import {vscode} from './vscode-import';
-import {dataBuffer, lastOffset, lastSize, lastBitOffset, lastBitSize, startOffset, getDataBufferSize, getRelOffset, convertToHexString, correctBitByteOffsets, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setStartOffset, setLittleEndian, read, readUntil, setOffset, getOffset, readBits, setEndianness, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, getData, endOfFile, setDataBuffer} from './dataread';
+import {dataBuffer, lastOffset, lastSize, lastBitOffset, lastBitSize, startOffset, getDataBufferSize, getRelOffset, convertToHexString, correctBitByteOffsets, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setStartOffset, setLittleEndian, read, readUntil, setOffset, getOffset, readBits, setEndianness, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, getData, endOfFile, setDataBuffer, inflateData} from './dataread';
 import {lastNode, setLastNode, addChart, createSeries} from './showcharts';
 import {addCanvas} from './canvas';
 
@@ -680,6 +680,7 @@ globalThis.parseStart = function () {
 			dbgLog,
 			dbgOverrideDetailsOpen,
 			endOfFile,
+			inflateData,
 
 			// Standard
 			Math,

@@ -1,5 +1,6 @@
 import * as assert from 'assert';
-import {dataBuffer, convertToHexString, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setLittleEndian, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, setDataBuffer, _getDecimalValue, _getSignedDecimalValue, _getHexValue} from '../src/html/dataread';
+import pako from "pako";
+import {dataBuffer, convertToHexString, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setLittleEndian, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, setDataBuffer, _getDecimalValue, _getSignedDecimalValue, _getHexValue, inflateData} from '../src/html/dataread';
 
 
 /**
@@ -743,6 +744,16 @@ describe('Functions', () => {
 			});
 		});
 
+	});
+
+	describe('inflateData()', () => {
+		test('inflate', () => {
+			setDataBuffer(pako.deflate(new Uint8Array([0, 0x29, 0x2B, 0xDA, 0x78])));
+			inflateData();
+			setLastSize(dataBuffer.length - 1);
+			const s: String = getHexValue();
+			assert.equal(s.toString(), '78DA2B29');
+		});
 	});
 });
 

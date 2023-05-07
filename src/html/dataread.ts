@@ -1,3 +1,4 @@
+import pako from "pako";
 /**
  * This js script file collects functions to read the data form the file.
  */
@@ -8,6 +9,13 @@ export let dataBuffer: Uint8Array;
 export function setDataBuffer(val: Uint8Array) {
 	dataBuffer = val;
 }
+let inflated = false;
+export function inflateData() {
+	if (!inflated) {
+		dataBuffer = pako.inflate(dataBuffer);
+		inflated = true;
+	}
+};
 
 // Index into dataBuffer.
 export let lastOffset: number;
