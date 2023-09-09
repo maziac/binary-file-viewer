@@ -89,7 +89,7 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['getOffset', "Returns the absolute file pointer offset. Useful if it is required to restore the file pointer."],
+					func: ['getOffset', "Returns the absolute file pointer offset. Useful if it is required to restore the file pointer later."],
 					return: ['number', "The current file pointer offset."],
 				},
 				{
@@ -230,7 +230,7 @@ export class FunctionDocumentation {
 	 * @param label The name to search for.
 	 * @returns a funcDoc object that matches or undefined if nothing matches.
 	 */
-	public static search(label: string): FuncDoc {
+	public static search(label: string): FuncDoc | undefined {
 		for (const [, funcDocs] of this.funcDocs) {
 			for (const funcDoc of funcDocs) {
 				const funcName = funcDoc.func[0];
@@ -262,11 +262,11 @@ export class FunctionDocumentation {
 				// Add description
 				md += funcDoc.func[1] + '\n\n';
 				// Add parameters
-				for (const param of funcDoc.params||[]) {
+				for (const param of funcDoc.params ?? []) {
 					md += '_' + param[0] + '_: ' + param[2] + '\n\n';
 				}
 				// Add return value
-				if (funcDoc.return && funcDoc.return[1])
+				if (funcDoc.return?.[1])
 					md += '_Returns_: ' + funcDoc.return[1] + '\n\n';
 			}
 		}
