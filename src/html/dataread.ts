@@ -437,6 +437,7 @@ export function getSignedNumberValue(): number {
  */
 export function getFloatNumberValue(): number {
 	let value = 0;
+	let floatSize: number;
 	let fracSize: number;
 	let expSize: number;
 	let floatData: Uint8Array;
@@ -444,94 +445,95 @@ export function getFloatNumberValue(): number {
 	// Byte wise
 	if (lastSize) {
 		// Check size
-		if (lastSize == 4) {
-			// single
-			fracSize = 23;
-			expSize = 8;
-			floatData = new Uint8Array(4);
-		}
-		else if (lastSize == 8) {
-			// double
-			fracSize = 52;
-			expSize = 11;
-			floatData = new Uint8Array(8);
-		}
-		else
+		if (lastSize !== 4 && lastSize !== 8) {
 			throw new Error("Only 4 or 8 byte floating point values are supported.");
-
-		if (littleEndian) {
-			// Little endian
-			for (let i = 0; i < lastSize; i++)
-				floatData[lastSize - 1 - i] = dataBuffer[lastOffset + i];
 		}
-		else {
-			// Big endian
-			for (let i = 0; i < lastSize; i++)
-				floatData[i] = dataBuffer[lastOffset + i];
+		// Byte wise
+		floatSize = lastSize;
+	}
+
+	// Check bit size
+	else {
+		if (lastBitSize !== 32 && lastBitSize !== 64) {
+			throw new Error("Only 32 or 64 bit floating point values are supported.");
 		}
+		if (lastBitOffset !== 0) {
+			throw new Error("Decoding of floating point values is only supported for a bit offset of 0.");
+		}
+		// Bit wise
+		floatSize = lastBitSize / 8;
+	}
 
-		// floatData is big endian
-		let i = 0;
-		let data = floatData[i++];
-		let sign = (data >= 0x80) ? -1 : 1;
-		let exp = data & 0x7F;
-		let expSize2 = expSize - 7;	// 1 or 4
-		exp <<= expSize2;
-		data = floatData[i++];
-		let exp2 = data >> (8 - expSize2);
-		exp += exp2;
-		if (exp != 0) {	// exp == 0 => return 0.0
-			// Calculate fraction
-			let frac = data & (0xFF >> expSize2);
-			let fracSize2 = fracSize;
-			while (fracSize2 >= 8) {
-				frac *= 256;
-				frac += floatData[i++];
-				fracSize2 -= 8;
-			}
+	// Copy data (assume big endian for now)
+	floatData = new Uint8Array(floatSize);
+	for (let i = 0; i < floatSize; i++) {
+		floatData[i] = dataBuffer[lastOffset + i];
+	}
 
-			// Infinite, NaN?
-			if ((expSize == 8 && exp == 0xFF)
-				|| (expSize == 11 && exp == 0x7FF)) {
-				if (frac == 0) {
-					// Infinite
-					value = (sign > 0) ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-				}
-				else {
-					value = Number.NaN;
-				}
-			}
-
-			// Normal
-			else {
-				const expM = (1 << (expSize - 1)) - 1;
-				const expN = exp - expM;
-				const mBit = (fracSize == 23) ? 0x800000 : 4503599627370496;
-				const mantissa = frac + mBit;
-				value = sign * (mantissa / mBit) * Math.pow(2, expN);
-			}
+	// Endianness
+	if (littleEndian) {
+		// Little endian
+		const len2 = floatSize / 2;
+		// Swap data
+		for (let i = 0; i < len2; i++) {
+			const j = floatSize - 1 - i;
+			const val = floatData[j];
+			floatData[j] = floatData[i];
+			floatData[i] = val;
 		}
 	}
 
-	// Or bitwise
-	else if (lastBitSize) {
-		// Check size
-		if (lastBitSize != 32 && lastBitSize != 64)
-			throw new Error("Only 32 or 64 bit floating point values are supported.");
+	// Check size
+	if (floatSize == 4) {
+		// single
+		fracSize = 23;
+		expSize = 8;
+	}
+	else {
+		// double
+		fracSize = 52;
+		expSize = 11;
+	}
 
-		let mask = 0x01 << lastBitOffset;
-		let factor = 1;
-		let i = lastOffset;
-		for (let k = 0; k < lastBitSize; k++) {
-			const bit = (dataBuffer[i] & mask) ? 1 : 0;
-			value += factor * bit;
-			factor *= 2;
-			// Next
-			mask <<= 1;
-			if (mask >= 0x100) {
-				mask = 0x01;
-				i++;
+	// floatData is big endian at this point
+	let i = 0;
+	let data = floatData[i++];
+	let sign = (data >= 0x80) ? -1 : 1;
+	let exp = data & 0x7F;
+	let expSize2 = expSize - 7;	// 1 or 4
+	exp <<= expSize2;
+	data = floatData[i++];
+	let exp2 = data >> (8 - expSize2);
+	exp += exp2;
+	if (exp != 0) {	// exp == 0 => return 0.0
+		// Calculate fraction
+		let frac = data & (0xFF >> expSize2);
+		let fracSize2 = fracSize;
+		while (fracSize2 >= 8) {
+			frac *= 256;
+			frac += floatData[i++];
+			fracSize2 -= 8;
+		}
+
+		// Infinite, NaN?
+		if ((expSize == 8 && exp == 0xFF)
+			|| (expSize == 11 && exp == 0x7FF)) {
+			if (frac == 0) {
+				// Infinite
+				value = (sign > 0) ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
 			}
+			else {
+				value = Number.NaN;
+			}
+		}
+
+		// Normal
+		else {
+			const expM = (1 << (expSize - 1)) - 1;
+			const expN = exp - expM;
+			const mBit = (fracSize == 23) ? 0x800000 : 4503599627370496;
+			const mantissa = frac + mBit;
+			value = sign * (mantissa / mBit) * Math.pow(2, expN);
 		}
 	}
 

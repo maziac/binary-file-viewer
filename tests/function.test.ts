@@ -81,7 +81,7 @@ describe('Functions', () => {
 			});
 
 			test('2 byte', () => {
-				setDataBuffer(new Uint8Array([0, 0x82, 0x05 ]));
+				setDataBuffer(new Uint8Array([0, 0x82, 0x05]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 0x8205);
 			});
@@ -345,13 +345,18 @@ describe('Functions', () => {
 		});
 
 		describe('bits', () => {
+			function calcFloatBitsData(data: number[]): number {
+				setDataBuffer(new Uint8Array([0, ...data]));
+				setLastBitSize(data.length * 8);
+				const result = getFloatNumberValue();
+				return result;
+			}
+
 			beforeEach(() => {
-				// Endianness does not matter.
-				setLastBitOffset(1);
 				setLastSize(0);
 			});
 
-			test('wrong size', () => {
+			test('wrong bit size', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110]));
 				setLastBitSize(5);	// only 32 or 64 bits are allowed
 				assert.throws(() => {
@@ -359,148 +364,166 @@ describe('Functions', () => {
 				});
 			});
 
-			test('In 1 byte', () => {
-				setDataBuffer(new Uint8Array([0, 0b11110110]));
-				setLastBitSize(5);
-				assert.equal(getNumberValue().toString(2), '11011');
+			test('wrong bit offset', () => {
+				setLastBitOffset(1);
+				assert.throws(() => {
+					calcFloatBitsData([0x3d, 0xcc, 0xcc, 0xcd]);
+				});
 			});
 
-			test('Through 2 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111111]));
-				setLastBitSize(9);
-				assert.equal(getNumberValue().toString(2), '111111011');
+			describe('little endian', () => {
+				test('32 bit (float)', () => {	// NOSONAR
+					setLastBitOffset(0);
+					assert.equal(calcFloatBitsData([0xcd, 0xcc, 0xcc, 0x3d]), 0.100000001490116119384765625);
+				});
+
+				test('64 bit (double)', () => {
+					setLastBitOffset(0);
+					assert.equal(calcFloatBitsData([0x9A, 0x99, 0x99, 0x99, 0x99, 0x99, 0xB9, 0x3F]), 0.1);
+				});
 			});
 
-			test('Through 3 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
-				setLastBitSize(18);
-				assert.equal(getNumberValue().toString(2), '111100100101111011');
-			});
-		});
-	});
+			describe('big endian', () => {
+				beforeEach(() => {
+					setLittleEndian(false);
+				});
 
+				test('32 bit (float)', () => {	// NOSONAR
+					setLastBitOffset(0);
+					assert.equal(calcFloatBitsData([0x3d, 0xcc, 0xcc, 0xcd]), 0.100000001490116119384765625);
+				});
 
-	describe('getBitsValue()', () => {
-		beforeEach(() => {	// NOSONAR
-			setLastOffset(1);
-			setLastSize(0);
-			setLastBitOffset(0);
-			setLastBitSize(0);
-			setLittleEndian(true);
-		});
-
-		test('lastSize = 2', () => {
-			setDataBuffer(new Uint8Array([0, 0x0F, 0x12]));
-			setLastSize(dataBuffer.length - 1);
-			const s: any = getBitsValue();
-			assert.equal(s.toString(), '00010010_00001111');
-			assert.equal(s.hoverValue, 'Hex: 0x120F');
-		});
-
-		test('lastBitSize = 19', () => {
-			setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0xFB]));
-			setLastSize(0);
-			setLastBitSize(19);
-			setLastBitOffset(4);
-			const s: any = getBitsValue();
-			assert.equal(s.toString(), '111_10110001_00100000');
-			assert.equal(s.hoverValue, 'Hex: 0x7B120');
-		});
-	});
-
-	describe('_getDecimalValue()', () => {
-		beforeEach(() => {	// NOSONAR
-			setLastOffset(1);
-			setLastSize(0);
-			setLastBitOffset(0);
-			setLastBitSize(0);
-			setLittleEndian(true);
-		});
-
-		describe('little endian', () => {
-			test('1 byte', () => {
-				setDataBuffer(new Uint8Array([0, 0x0F]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '15');
-
-				setDataBuffer(new Uint8Array([0, 0x9F]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '159');
-			});
-
-			test('3 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '8065551');
-			});
-
-			test('10 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '597028895935846336369167');
+				test('64 bit (double)', () => {
+					setLastBitOffset(0);
+					assert.equal(calcFloatBitsData([0x3F, 0xB9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9A]), 0.1);
+				});
 			});
 		});
 
-		describe('big endian', () => {
-			beforeEach(() => {
-				setLittleEndian(false);
-			});
 
-			test('1 byte', () => {	// NOSONAR
-				setDataBuffer(new Uint8Array([0, 0x0F]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '15');
-
-				setDataBuffer(new Uint8Array([0, 0x9F]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '159');
-			});
-
-			test('3 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0x7B, 0x12, 0x0F]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '8065551');
-			});
-
-			test('10 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0x7E, 0x6D, 0x00, 0x55, 0x3A, 0xFe, 0x40, 0x7B, 0x12, 0x0F]));
-				setLastSize(dataBuffer.length - 1);
-				assert.equal(_getDecimalValue(), '597028895935846336369167');
-			});
-		});
-
-		describe('bits', () => {
-			beforeEach(() => {
-				// Endianness does not matter.
-				setLastBitOffset(2);
+		describe('getBitsValue()', () => {
+			beforeEach(() => {	// NOSONAR
+				setLastOffset(1);
 				setLastSize(0);
+				setLastBitOffset(0);
+				setLastBitSize(0);
+				setLittleEndian(true);
 			});
 
-			test('In 1 byte', () => {
-				setDataBuffer(new Uint8Array([0, 0b11110110]));
-				setLastBitSize(5);
-				assert.equal(_getDecimalValue(), '29');	// '11101'
+			test('lastSize = 2', () => {
+				setDataBuffer(new Uint8Array([0, 0x0F, 0x12]));
+				setLastSize(dataBuffer.length - 1);
+				const s: any = getBitsValue();
+				assert.equal(s.toString(), '00010010_00001111');
+				assert.equal(s.hoverValue, 'Hex: 0x120F');
 			});
 
-			test('Through 2 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111110]));
-				setLastBitSize(9);
-				assert.equal(_getDecimalValue(), '445'); // '110111101'
+			test('lastBitSize = 19', () => {
+				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0xFB]));
+				setLastSize(0);
+				setLastBitSize(19);
+				setLastBitOffset(4);
+				const s: any = getBitsValue();
+				assert.equal(s.toString(), '111_10110001_00100000');
+				assert.equal(s.hoverValue, 'Hex: 0x7B120');
+			});
+		});
+
+		describe('_getDecimalValue()', () => {
+			beforeEach(() => {	// NOSONAR
+				setLastOffset(1);
+				setLastSize(0);
+				setLastBitOffset(0);
+				setLastBitSize(0);
+				setLittleEndian(true);
 			});
 
-			test('Through 3 bytes', () => {
-				setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
-				setLastBitSize(18);
-				assert.equal(_getDecimalValue(), '255165'); // '11'1110 0100'1011 1101'
+			describe('little endian', () => {
+				test('1 byte', () => {
+					setDataBuffer(new Uint8Array([0, 0x0F]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '15');
+
+					setDataBuffer(new Uint8Array([0, 0x9F]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '159');
+				});
+
+				test('3 bytes', () => {
+					setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '8065551');
+				});
+
+				test('10 bytes', () => {
+					setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '597028895935846336369167');
+				});
 			});
 
-			test('8 bit', () => {
-				setDataBuffer(new Uint8Array([0, 0b00110110, 0b00]));
-				setLastBitSize(8);
-				assert.equal(_getDecimalValue(), '13'); // '0000 1101'
+			describe('big endian', () => {
+				beforeEach(() => {
+					setLittleEndian(false);
+				});
+
+				test('1 byte', () => {	// NOSONAR
+					setDataBuffer(new Uint8Array([0, 0x0F]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '15');
+
+					setDataBuffer(new Uint8Array([0, 0x9F]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '159');
+				});
+
+				test('3 bytes', () => {
+					setDataBuffer(new Uint8Array([0, 0x7B, 0x12, 0x0F]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '8065551');
+				});
+
+				test('10 bytes', () => {
+					setDataBuffer(new Uint8Array([0, 0x7E, 0x6D, 0x00, 0x55, 0x3A, 0xFe, 0x40, 0x7B, 0x12, 0x0F]));
+					setLastSize(dataBuffer.length - 1);
+					assert.equal(_getDecimalValue(), '597028895935846336369167');
+				});
+			});
+
+			describe('bits', () => {
+				beforeEach(() => {
+					// Endianness does not matter.
+					setLastBitOffset(2);
+					setLastSize(0);
+				});
+
+				test('In 1 byte', () => {
+					setDataBuffer(new Uint8Array([0, 0b11110110]));
+					setLastBitSize(5);
+					assert.equal(_getDecimalValue(), '29');	// '11101'
+				});
+
+				test('Through 2 bytes', () => {
+					setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111110]));
+					setLastBitSize(9);
+					assert.equal(_getDecimalValue(), '445'); // '110111101'
+				});
+
+				test('Through 3 bytes', () => {
+					setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
+					setLastBitSize(18);
+					assert.equal(_getDecimalValue(), '255165'); // '11'1110 0100'1011 1101'
+				});
+
+				test('8 bit', () => {
+					setDataBuffer(new Uint8Array([0, 0b00110110, 0b00]));
+					setLastBitSize(8);
+					assert.equal(_getDecimalValue(), '13'); // '0000 1101'
+				});
 			});
 		});
 	});
+
 
 	describe('_getSignedDecimalValue()', () => {
 		beforeEach(() => {	// NOSONAR
