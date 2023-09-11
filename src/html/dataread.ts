@@ -1,5 +1,5 @@
 /**
- * This js script file collects functions to read the data form the file.
+ * This js script file collects functions to read the data from the file.
  */
 
 
@@ -425,6 +425,117 @@ export function getSignedNumberValue(): number {
 
 	// Error
 	throw new Error("getSignedNumberValue: No lastSize ot lastBitSize found (please report an error).");
+}
+
+
+/**
+ * Reads a value from the buffer as float (IEEE754) value.
+ * Supported are only single (32bit) and double (64bit) values.
+ * The size is determined by the read size.
+ * Either lastSize or lastBitSize is != 0.
+ * @returns A number (not a String).
+ */
+export function getFloatNumberValue(): number {
+	let value = 0;
+	let fracSize: number;
+	let expSize: number;
+	let floatData: Uint8Array;
+
+	// Byte wise
+	if (lastSize) {
+		// Check size
+		if (lastSize == 4) {
+			// single
+			fracSize = 23;
+			expSize = 8;
+			floatData = new Uint8Array(4);
+		}
+		else if (lastSize == 8) {
+			// double
+			fracSize = 52;
+			expSize = 11;
+			floatData = new Uint8Array(8);
+		}
+		else
+			throw new Error("Only 4 or 8 byte floating point values are supported.");
+
+		if (littleEndian) {
+			// Little endian
+			for (let i = 0; i < lastSize; i++)
+				floatData[lastSize - 1 - i] = dataBuffer[lastOffset + i];
+		}
+		else {
+			// Big endian
+			for (let i = 0; i < lastSize; i++)
+				floatData[i] = dataBuffer[lastOffset + i];
+		}
+
+		// floatData is big endian
+		let i = 0;
+		let data = floatData[i++];
+		let sign = (data >= 0x80) ? -1 : 1;
+		let exp = data & 0x7F;
+		let expSize2 = expSize - 7;	// 1 or 4
+		exp <<= expSize2;
+		data = floatData[i++];
+		let exp2 = data >> (8 - expSize2);
+		exp += exp2;
+		if (exp != 0) {	// exp == 0 => return 0.0
+			// Calculate fraction
+			let frac = data & (0xFF >> expSize2);
+			let fracSize2 = fracSize;
+			while (fracSize2 >= 8) {
+				frac *= 256;
+				frac += floatData[i++];
+				fracSize2 -= 8;
+			}
+
+			// Infinite, NaN?
+			if ((expSize == 8 && exp == 0xFF)
+				|| (expSize == 11 && exp == 0x7FF)) {
+				if (frac == 0) {
+					// Infinite
+					value = (sign > 0) ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+				}
+				else {
+					value = Number.NaN;
+				}
+			}
+
+			// Normal
+			else {
+				const expM = (1 << (expSize - 1)) - 1;
+				const expN = exp - expM;
+				const mBit = (fracSize == 23) ? 0x800000 : 4503599627370496;
+				const mantissa = frac + mBit;
+				value = sign * (mantissa / mBit) * Math.pow(2, expN);
+			}
+		}
+	}
+
+	// Or bitwise
+	else if (lastBitSize) {
+		// Check size
+		if (lastBitSize != 32 && lastBitSize != 64)
+			throw new Error("Only 32 or 64 bit floating point values are supported.");
+
+		let mask = 0x01 << lastBitOffset;
+		let factor = 1;
+		let i = lastOffset;
+		for (let k = 0; k < lastBitSize; k++) {
+			const bit = (dataBuffer[i] & mask) ? 1 : 0;
+			value += factor * bit;
+			factor *= 2;
+			// Next
+			mask <<= 1;
+			if (mask >= 0x100) {
+				mask = 0x01;
+				i++;
+			}
+		}
+	}
+
+	return value;
 }
 
 

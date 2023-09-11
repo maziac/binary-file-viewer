@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {dataBuffer, convertToHexString, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setLittleEndian, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, setDataBuffer, _getDecimalValue, _getSignedDecimalValue, _getHexValue} from '../src/html/dataread';
+import {dataBuffer, convertToHexString, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setLittleEndian, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, setDataBuffer, _getDecimalValue, _getSignedDecimalValue, _getHexValue} from '../src/html/dataread';
 
 
 /**
@@ -20,13 +20,13 @@ describe('Functions', () => {
 
 	describe('convertToHexString()', () => {
 		test('undefined', () => {
-			assert.equal(convertToHexString(undefined, 5), '?????');
+			assert.equal(convertToHexString(undefined as any, 5), '?????');
 		});
 		test('misc', () => {
 			assert.equal(convertToHexString(1, 3), '001');
 			assert.equal(convertToHexString(0xFE013A, 6), 'FE013A');
 			assert.equal(convertToHexString(0xABCDEFFE013A, 6), 'ABCDEFFE013A');
-			assert.equal(convertToHexString(0xF0E0ABCDEFFE013A, 6), 'F0E0ABCDEFFE0000');  // Is inaccurate
+			assert.equal(convertToHexString(0xF0E0ABCDEFFE013A, 6), 'F0E0ABCDEFFE0000');  // NOSONAR// Is inaccurate
 		});
 		test('unspecified, negative nubmers', () => {
 			assert.equal(convertToHexString(-1, 3), '0-1');
@@ -249,6 +249,136 @@ describe('Functions', () => {
 			});
 		});
 	});
+
+	describe('getFloatNumberValue()', () => {
+
+		function calcFloatData(data: number[]): number {
+			setDataBuffer(new Uint8Array([0, ...data]));
+			setLastSize(dataBuffer.length - 1);
+			const result = getFloatNumberValue();
+			return result;
+		}
+
+		describe('litte endian', () => {
+			test('wrong size', () => {
+				assert.throws(() => {
+					calcFloatData([254]);
+				});
+			});
+
+			test('32 bit (float)', () => {	// NOSONAR
+				assert.equal(calcFloatData([0, 0, 0, 0]), 0);
+				assert.equal(calcFloatData([0, 0, 0x80, 0x3F]), 1);
+				assert.equal(calcFloatData([0, 0, 0, 0x40]), 2);
+				assert.equal(calcFloatData([0, 0, 0x80, 0xBF]), -1);
+				assert.equal(calcFloatData([0, 0, 0, 0xC0]), -2);
+				assert.equal(calcFloatData([0xcd, 0xcc, 0xcc, 0x3d]), 0.100000001490116119384765625);
+				assert.equal(calcFloatData([0x33, 0x33, 0xf3, 0xbf]), -1.89999997615814208984375);
+				assert.equal(calcFloatData([0xd7, 0xa3, 0xa0, 0x40]), 5.019999980926513671875);
+
+				// Special values
+				assert.equal(calcFloatData([0xFF, 0xFF, 0xFF, 0x7F]), Number.NaN);
+				assert.equal(calcFloatData([0x00, 0x00, 0x80, 0x7F]), Number.POSITIVE_INFINITY);
+				assert.equal(calcFloatData([0x00, 0x00, 0x80, 0xFF]), Number.NEGATIVE_INFINITY);
+			});
+
+			test('64 bit (double)', () => {
+				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0]), 0);
+				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0xF0, 0x3F]), 1);
+				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0x40]), 2);
+				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0xF0, 0xBF]), -1);
+				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0xC0]), -2);
+				assert.equal(calcFloatData([0x9A, 0x99, 0x99, 0x99, 0x99, 0x99, 0xB9, 0x3F]), 0.1);
+				assert.equal(calcFloatData([0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0xfe, 0xbf]), -1.9);
+				assert.equal(calcFloatData([0xcd, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0x14, 0x40]), 5.2);
+
+				// Special values
+				assert.equal(calcFloatData([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F]), Number.NaN);
+				assert.equal(calcFloatData([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x7F]), Number.POSITIVE_INFINITY);
+				assert.equal(calcFloatData([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0xFF]), Number.NEGATIVE_INFINITY);
+			});
+		});
+
+
+		describe('big endian', () => {
+			beforeEach(() => {
+				setLittleEndian(false);
+			});
+
+			test('wrong size', () => {
+				assert.throws(() => {
+					calcFloatData([254]);
+				});
+			});
+
+			test('32 bit (float)', () => {	// NOSONAR
+				assert.equal(calcFloatData([0, 0, 0, 0]), 0);
+				assert.equal(calcFloatData([0x3F, 0x80, 0, 0]), 1);
+				assert.equal(calcFloatData([0x40, 0x00, 0, 0]), 2);
+				assert.equal(calcFloatData([0xBF, 0x80, 0, 0]), -1);
+				assert.equal(calcFloatData([0xC0, 0x00, 0, 0]), -2);
+				assert.equal(calcFloatData([0x3d, 0xcc, 0xcc, 0xcd]), 0.100000001490116119384765625);
+				assert.equal(calcFloatData([0xbf, 0xf3, 0x33, 0x33]), -1.89999997615814208984375);
+				assert.equal(calcFloatData([0x40, 0xa0, 0xa3, 0xd7]), 5.019999980926513671875);
+
+				// Special values
+				assert.equal(calcFloatData([0x7F, 0xFF, 0xFF, 0xFF]), Number.NaN);
+				assert.equal(calcFloatData([0x7F, 0x80, 0x00, 0x00]), Number.POSITIVE_INFINITY);
+				assert.equal(calcFloatData([0xFF, 0x80, 0x00, 0x00]), Number.NEGATIVE_INFINITY);
+			});
+
+			test('64 bit (double)', () => {
+				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0]), 0);
+				assert.equal(calcFloatData([0x3F, 0xF0, 0, 0, 0, 0, 0, 0]), 1);
+				assert.equal(calcFloatData([0x40, 0x00, 0, 0, 0, 0, 0, 0]), 2);
+				assert.equal(calcFloatData([0xBF, 0xF0, 0, 0, 0, 0, 0, 0]), -1);
+				assert.equal(calcFloatData([0xC0, 0x00, 0, 0, 0, 0, 0, 0]), -2);
+				assert.equal(calcFloatData([0x3F, 0xB9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9A]), 0.1);
+				assert.equal(calcFloatData([0xbf, 0xfe, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66]), -1.9);
+				assert.equal(calcFloatData([0x40, 0x14, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcd]), 5.2);
+
+				// Special values
+				assert.equal(calcFloatData([0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]), Number.NaN);
+				assert.equal(calcFloatData([0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), Number.POSITIVE_INFINITY);
+				assert.equal(calcFloatData([0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), Number.NEGATIVE_INFINITY);
+			});
+		});
+
+		describe('bits', () => {
+			beforeEach(() => {
+				// Endianness does not matter.
+				setLastBitOffset(1);
+				setLastSize(0);
+			});
+
+			test('wrong size', () => {
+				setDataBuffer(new Uint8Array([0, 0b11110110]));
+				setLastBitSize(5);	// only 32 or 64 bits are allowed
+				assert.throws(() => {
+					getFloatNumberValue();
+				});
+			});
+
+			test('In 1 byte', () => {
+				setDataBuffer(new Uint8Array([0, 0b11110110]));
+				setLastBitSize(5);
+				assert.equal(getNumberValue().toString(2), '11011');
+			});
+
+			test('Through 2 bytes', () => {
+				setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111111]));
+				setLastBitSize(9);
+				assert.equal(getNumberValue().toString(2), '111111011');
+			});
+
+			test('Through 3 bytes', () => {
+				setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
+				setLastBitSize(18);
+				assert.equal(getNumberValue().toString(2), '111100100101111011');
+			});
+		});
+	});
+
 
 	describe('getBitsValue()', () => {
 		beforeEach(() => {	// NOSONAR
@@ -680,7 +810,7 @@ describe('Functions', () => {
 
 				// No offset
 				assert.throws(() => {
-					setOffset(undefined);
+					setOffset(undefined as any);
 				});
 
 				// Not a number
