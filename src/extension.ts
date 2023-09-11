@@ -140,11 +140,11 @@ function getParserPaths() {
 
     // Now check all parserFolders settings
     const correctFolders: string[] = [];
-    const parserFolders = cfg.get<string[]>('parserFolders') || [];
+    const parserFolders = cfg.get<string[]>('parserFolders') ?? [];
 
     // Add workspace folders to all relative paths
     const consolidatedParserFolders: string[] = [];
-    const wsFolders = vscode.workspace.workspaceFolders || [];
+    const wsFolders = vscode.workspace.workspaceFolders ?? [];
     for (const folder of parserFolders) {
         if (path.isAbsolute(folder)) {
             if (!consolidatedParserFolders.includes(folder)) {

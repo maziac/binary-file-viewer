@@ -222,7 +222,7 @@ export class ParserSelect {
 			// Get column
 			if (i + 2 < stacks.length) {
 				colNr = stacks[i + 2].replace(/[^ ]/g, '').length;	// Remove everything that is not a space to count the spaces.
-				colWidth = stacks[i + 2].replace(/[^\^]/g, '').length;
+				colWidth = stacks[i + 2].replace(/[^^]/g, '').length;
 			}
 		}
 		else {

@@ -558,7 +558,7 @@ function addMemDump() {
 				// Afterwards proceed normal
 				html += `<td class="collapse"></td>
 					<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
-					<td class="size" title="Size:\Dec: ${LINECOUNT}Hex: ${lineCountHex}">${LINECOUNT}</td>
+					<td class="size" title="Size:\nDec: ${LINECOUNT}Hex: ${lineCountHex}">${LINECOUNT}</td>
 					<td class="value" colspan="100">
 				`;
 				// <td colspan="2" title = "Offset\nHex: ${iOffsetHex}" > ${iOffset}
@@ -711,19 +711,17 @@ window.addEventListener('message', event => {	// NOSONAR
 	const message = event.data;
 	switch (message.command) {
 		case 'setData':
-			{
-				// Store in global variable
-				setDataBuffer(message.data);
-			} break;
+			// Store in global variable
+			setDataBuffer(message.data);
+			break;
 		case 'setParser':
-			{
-				// Store in global variable
-				customParser = message.parser.contents;
-				filePathParser = message.parser.filePath;
+			// Store in global variable
+			customParser = message.parser.contents;
+			filePathParser = message.parser.filePath;
 
-				// Parse
-				globalThis.parseStart();
-			} break;
+			// Parse
+			globalThis.parseStart();
+			break;
 	}
 });
 

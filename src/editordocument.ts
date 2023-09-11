@@ -203,22 +203,20 @@ export class EditorDocument implements vscode.CustomDocument {
 				this.setHtml(parser);
 			}
 		}
+		// Previous parser exists
+		else if (!parser) {
+			// But not anymore
+			ParserSelect.clearDiagnostics();
+			this.setHtml(parser);
+		}
 		else {
-			// Previous parser exists
-			if (!parser) {
-				// But not anymore
+			// New parser might be different
+			if ((this.parser.contents != parser.contents) || (this.parser.filePath != parser.filePath)) {
+				// Yes it's different, use the new parser
 				ParserSelect.clearDiagnostics();
-				this.setHtml(parser);
+				this.sendParserToWebView(parser, this.webviewPanel);
 			}
-			else {
-				// New parser might be different
-				if ((this.parser.contents != parser.contents) || (this.parser.filePath != parser.filePath)) {
-					// Yes it's different, use the new parser
-					ParserSelect.clearDiagnostics();
-					this.sendParserToWebView(parser, this.webviewPanel);
-				}
-				this.parser = parser;
-			}
+			this.parser = parser;
 		}
 	}
 
