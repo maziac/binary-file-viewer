@@ -135,6 +135,10 @@ export class FunctionDocumentation {
 					return: ['number', "The decoded number. (If the highest bit is set the number is interpreted as negative number.)"]
 				},
 				{
+					func: ['getFloatNumberValue', 'The value from the dataBuffer as signed float value according IEEE754. This can be either single (4 bytes) or double precision (8 bytes). If the data size is a different value an error is thrown.'],
+					return: ['number', "The decoded float number."]
+				},
+				{
 					func: ['getBitsValue', 'The bits from the dataBuffer.'],
 					return: ['string', "E.g. '001101'"]
 				},

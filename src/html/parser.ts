@@ -1,5 +1,5 @@
 import {vscode} from './vscode-import';
-import {dataBuffer, lastOffset, lastSize, lastBitOffset, lastBitSize, startOffset, getDataBufferSize, getRelOffset, convertToHexString, correctBitByteOffsets, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setStartOffset, setLittleEndian, read, readUntil, setOffset, getOffset, readBits, setEndianness, getNumberValue, getSignedNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, getData, endOfFile, setDataBuffer} from './dataread';
+import {dataBuffer, lastOffset, lastSize, lastBitOffset, lastBitSize, startOffset, getDataBufferSize, getRelOffset, convertToHexString, correctBitByteOffsets, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setStartOffset, setLittleEndian, read, readUntil, setOffset, getOffset, readBits, setEndianness, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, getData, endOfFile, setDataBuffer} from './dataread';
 import {lastNode, setLastNode, addChart, createSeries} from './showcharts';
 import {addCanvas} from './canvas';
 
@@ -663,6 +663,7 @@ globalThis.parseStart = function () {
 			addDetails,
 			getNumberValue,
 			getSignedNumberValue,
+			getFloatNumberValue,
 			getBitsValue,
 			getHexValue,
 			getHex0xValue,
