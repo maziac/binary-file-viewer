@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.8.0
+- Added support to read floating point numbers according IEEE754: getFloatNumberValue(). single (4 byte) and double (8 byte) precision is supported.
+
 # 1.7.3
 - Allow for relative paths in 'parserFolders'. The workspace folder is added to the relative path. (#10)
 
