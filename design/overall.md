@@ -68,4 +68,62 @@ Therefore, whenever a binary file is opened all parser files are re-read from th
 The file view also has a 'reload' button to manually initiate a reload.
 
 
+# Use of the VM
+The user's code is executed in a vm.
+In js there are several option to exeute code:
+- eval
+- new Function
+- vm.runInThisContext()
+- vm.runInNewContext()
 
+| Function              | global | 'var' | 'let' | errors with line numbers |
+| :-------------------- | :----- | :---- | :---- | ------------------------ |
+| eval                  | yes    | yes   | yes   | no                       |
+| new Function          | yes    | no    | no    | no                       |
+| vm.runInThisContext() | yes    | no    | no    | yes                      |
+| vm.runInNewContext()  | no     | no    | no    | yes                      |
+
+('var' and 'let': both are local variables.)
+In general the vm function are a bit slower (in my measurements 25% slower).
+
+Example, https://stackoverflow.com/questions/39416716/what-is-the-difference-between-new-function-and-vm#:~:text=Both%20can%20be%20restricted%20to,the%20same%20context%20using%20parameters:
+~~~js
+const vm = require('vm');
+
+globalName    = 'global';
+var localName = 'local';
+
+function code(prefix) {
+  return `console.log("${prefix}:", typeof globalName, typeof localName)`;
+}
+
+eval(code('eval'));
+
+new Function(code('function'))();
+
+vm.runInThisContext(code('vm, this ctx'));
+vm.runInNewContext(code('vm, new ctx'));
+~~~
+
+Its output:
+~~~
+eval: string string
+function: string undefined
+vm, this ctx: string undefined
+evalmachine.<anonymous>:1
+console.log("vm, new ctx:", typeof globalName, typeof localName)
+^
+
+ReferenceError: console is not defined
+~~~
+
+vm:
+- runInThisContext() uses the existing context. This means that, inside the script that is run, the same global object and the same set of JS language builtins is used.
+- runInContext() uses a different context. The global object is different from the “main” Node.js global object, and there will be a different set of JS language builtins. This includes the fact that no Node.js APIs are available.
+
+
+# Variable scopes
+- ```a = 0;``` The code above gives a global scope variable
+- ```var a = 0;``` This code will give a variable to be used in the current scope, and under it (i.e. var is also local, but not block scope)
+- ```let a = 0;``` local variable in block scope
+-
