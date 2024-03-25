@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.9.0
+- Added support for Object, Array, Map, JSON, atob and btoa
+
 # 1.8.0
 - Added support to read floating point numbers according IEEE754: getFloatNumberValue(). single (4 byte) and double (8 byte) precision is supported.
 

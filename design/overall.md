@@ -76,12 +76,12 @@ In js there are several option to exeute code:
 - vm.runInThisContext()
 - vm.runInNewContext()
 
-| Function              | global | 'var' | 'let' | errors with line numbers |
-| :-------------------- | :----- | :---- | :---- | ------------------------ |
-| eval                  | yes    | yes   | yes   | no                       |
-| new Function          | yes    | no    | no    | no                       |
-| vm.runInThisContext() | yes    | no    | no    | yes                      |
-| vm.runInNewContext()  | no     | no    | no    | yes                      |
+| Function              | global | 'var' | 'let' |
+| :-------------------- | :----- | :---- | :---- |
+| eval                  | yes    | yes   | yes   |
+| new Function          | yes    | no    | no    |
+| vm.runInThisContext() | yes    | no    | no    |
+| vm.runInNewContext()  | no     | no    | no    |
 
 ('var' and 'let': both are local variables.)
 In general the vm function are a bit slower (in my measurements 25% slower).
@@ -122,8 +122,50 @@ vm:
 - runInContext() uses a different context. The global object is different from the “main” Node.js global object, and there will be a different set of JS language builtins. This includes the fact that no Node.js APIs are available.
 
 
-# Variable scopes
+## Variable scopes
 - ```a = 0;``` The code above gives a global scope variable
 - ```var a = 0;``` This code will give a variable to be used in the current scope, and under it (i.e. var is also local, but not block scope)
 - ```let a = 0;``` local variable in block scope
--
+
+
+# Web and Node environment
+Node.js:
+The function in 'registerFileType' is run in the vm.runInNewContext().
+Also the "global" code around both register functions.
+The 'registerParser' is not executed.
+I.e. the code is executed only to check the file extension.
+I use vm.runInNewContext() here because 'new Function()' does not return the lines in case of errors.
+
+Web:
+The function in 'registerParser' is executed in the webserver context.
+Here 'new Function()' is used.
+This uses "with(context) { ... }" to set the context.
+As context all file-parser functions are passed and a few global namespaces and functions:
+- file-parser functions:
+  - addStandardHeader
+  - read
+  - ...
+  - endOfFile
+- global:
+  - Math
+  - String
+  - Number
+  - Array
+	- Object
+	- JSON
+	- atob(), btoa()
+
+Note: functions atob, btoa have to be wrapped in an arrow function. The reason is unknown to me.
+
+Important:
+Because 'registerFileType' is called in node environment and 'registerParser' in webkit environment, the context do not have to overlap.
+But this also has a few implications on global variables (or variables defined outside or the register functions):
+- global variables set in registerFileType cannot be passed to the registerParser function.
+The context that node.js uses is thrown away after the file type was checked.
+- If a global variable would use something from the context that is not available in the other context an error will be thrown. E.g.
+~~~js
+let s = atob("zzz");
+registerParser(...);
+~~~
+Here the web browser environment would work, but it does not pass the node js environment.
+Note: I could define those namespaces and functions also in the node.js context. They are anyway probably not used in registerFileType. But I omit this work as the use case for defining outside the register functions is very limited and probably no problem in the real world.

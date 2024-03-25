@@ -685,7 +685,15 @@ globalThis.parseStart = function () {
 			// Standard
 			Math,
 			String,
-			Number
+			Number,
+			Object,
+			Array,
+			Map,
+			JSON,
+
+			// atob, btoa
+			atob: (s) => {return atob(s);},	// For some reason I cannot directly declare those.
+			btoa: (s) => {return btoa(s);}
 		});
 	}
 	catch (e) {

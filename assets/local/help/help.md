@@ -368,7 +368,7 @@ The example here creates a canvas object and draws a red rectangle inside:
 
 ### Accuracy
 
-Function that return a number (```getNumberValue()```, ```getSignedNumbervalue()```) work with javascript's number precision. I.e. integer values are only safe up to the range 2^53-1 >= n >= -(2^53 - 1).
+Functions that return a number (```getNumberValue()```, ```getSignedNumbervalue()```) work with javascript's number precision. I.e. integer values are only safe up to the range 2^53-1 >= n >= -(2^53 - 1).
 So any 4 byte value will be accurately represented but if you e.g. try to use 8 byte integer values those will be inaccurate.
 
 In contrast the functions that return strings (```getHexValue()```, ```getDecimalValue()```, ```getSignedDecimalValue()``` etc.) are accurate no matter how big the number is.
@@ -460,4 +460,20 @@ This file format was invented just to demonstrate how to use a canvas.
 
 ![](help11pic.jpg)
 
+## Caveats
 
+### Context
+The function defined in 'registerFileType' and 'registerFileType' are executed in 2 different contexts.
+That makes it impossible to pass data from the 'registerFileType' function to the 'registerParser' function.
+E.g. any global variable that is set in 'registerFileType' is new instantiated when 'registerParser' is called.
+
+### Javascript built-in objects
+Not all js builtins are accessible for the binary file viewer.
+These have been made available:
+- Math
+- String
+- Number
+- Array
+- Object
+- JSON
+- atob, btoa
