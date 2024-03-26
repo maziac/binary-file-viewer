@@ -53,9 +53,9 @@ export function setLittleEndian(val: boolean) {
  */
 export function setEndianness(endianness: 'little' | 'big') {
 	if (endianness == 'big')
-		littleEndian = false;
+		setLittleEndian(false);
 	else if(endianness == 'little')
-		littleEndian = true;
+		setLittleEndian(true);
 	else {
 		// Neither big nor little
 		throw new Error("Use only 'little' or 'big' for the endianness.");
@@ -96,9 +96,17 @@ export function arrayBufferToBase64(buffer: any) {
  * @returns true if end of file reached.
  */
 export function endOfFile(): boolean {
-	return (lastOffset + lastSize >= dataBuffer.length);
+	return getRemainingSize() >= 0;
+//	return (lastOffset + lastSize >= dataBuffer.length);
 }
 
+
+/**
+ * @returns The remaining size of the data buffer.
+ */
+export function getRemainingSize(): number {
+	return dataBuffer.length - (lastOffset + lastSize);
+}
 
 
 /**

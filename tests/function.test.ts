@@ -1,12 +1,11 @@
 import * as assert from 'assert';
-import {dataBuffer, convertToHexString, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setLittleEndian, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, setDataBuffer, _getDecimalValue, _getSignedDecimalValue, _getHexValue} from '../src/html/dataread';
-
+import {dataBuffer, setDataBuffer, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, /*setStartOffset,*/ setLittleEndian, setEndianness, /*getDataBufferSize, getRelOffset, arrayBufferToBase64,*/ endOfFile, getRemainingSize, readBits, getData, convertToHexString, correctBitByteOffsets, readUntil, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, _getDecimalValue, _getSignedDecimalValue, getDecimalValue, getSignedDecimalValue, _getHexValue, getHexValue, getHex0xValue, getStringValue} from '../src/html/dataread';
 
 /**
  * This tests the functions defined in the webview.
  */
 
-describe('Functions', () => {
+describe('Functions dataread', () => {
 
 	// Called for each test.
 	beforeEach(() => {
@@ -71,7 +70,7 @@ describe('Functions', () => {
 
 		describe('big endian', () => {
 			beforeEach(() => {
-				setLittleEndian(false);
+				setEndianness('big');
 			});
 
 			test('1 byte', () => {	// NOSONAR
@@ -102,6 +101,20 @@ describe('Functions', () => {
 				setDataBuffer(new Uint8Array([0, 0x8A, 0x03, 0x02, 0x01, 0x7F, 0xAB, 0x82, 0x05 /*IS DIFFERENT*/]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 9944794607624356000);
+			});
+		});
+
+		describe('setEndianness', () => {
+			test('little, big, other', () => {
+				setDataBuffer(new Uint8Array([0, 0x7F, 0xAB, 0x82, 0x05]));
+				setLastSize(dataBuffer.length - 1);
+				setEndianness('big')
+				assert.equal(getNumberValue(), 0x7FAB8205);
+				setEndianness('little')
+				assert.equal(getNumberValue(), 0x0582AB7F);
+				assert.throws(() => {
+					setEndianness('unknown' as any);
+				});
 			});
 		});
 
@@ -793,6 +806,20 @@ describe('Functions', () => {
 		});
 	});
 
+	describe('endOfFile()/getRemainingSize()', () => {
+		test('getRemainingSize/endOfFile', () => {
+			setDataBuffer(new TextEncoder().encode("ABC"));
+			setLastSize(dataBuffer.length - 1);
+			assert.equal(getRemainingSize(), 3);
+			assert.ok(!endOfFile());
+			read(1);
+			assert.equal(getRemainingSize(), 2);
+			assert.ok(!endOfFile());
+			read(2);
+			assert.equal(getRemainingSize(), 0);
+			assert.ok(endOfFile());
+		});
+	});
 
 	describe('offset', () => {
 
@@ -902,3 +929,4 @@ describe('Functions', () => {
 
 
 //const BigInt256 = BigInt(256);
+
