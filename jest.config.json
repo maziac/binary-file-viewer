@@ -1,7 +1,7 @@
 {
   "transform": {
     "^.+\\.tsx?$": [
-      "esbuild-jest",
+      "esbuild-jest-transform",
       {
         "sourcemap": true,
         "external": "vscode"
