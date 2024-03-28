@@ -210,7 +210,7 @@ window.addEventListener('message', event => {
 		// Handle closing of the view
 		this.vscodePanel.onDidDispose(() => {
 			// Call overwritable function
-			this.vscodePanel = undefined;
+			this.vscodePanel = undefined as any;
 			HelpView.singleton = undefined as any;
 		});
 

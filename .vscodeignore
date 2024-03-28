@@ -1,6 +1,10 @@
 .*/
 node_modules/
-tests/
+out/src/**
+out/tests/**
+out/coverage/
+**/*.tests.*
+tests/**
 src/
 examples/
 design/

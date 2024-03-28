@@ -203,13 +203,14 @@
         ]
     },
     "scripts": {
+        "watch-tsc": "tsc -w -p ./",
+        "test": "mocha -u bdd ./out/tests/",
         "vscode:prepublish": "npm run esbuild-node -- --minify && npm run esbuild-browser -- --minify",
         "esbuild-node": "esbuild ./src/extension.ts --bundle --outdir=out --external:vscode --format=cjs --platform=node",
         "esbuild-browser": "esbuild ./src/html/parser.ts --bundle --outdir=out/html --platform=browser",
         "watch-node": "npm run esbuild-node -- --sourcemap --watch",
         "watch-browser": "npm run esbuild-browser -- --sourcemap --watch",
-        "package": "vsce package",
-        "test": "jest --coverage"
+        "package": "vsce package"
     },
     "dependencies": {
         "chart.js": "^4.4.2",
@@ -221,12 +222,12 @@
         "showdown": "^2.1.0"
     },
     "devDependencies": {
-        "@types/jest": "^29.5.12",
         "@types/node": "^20.11.30",
+        "@types/vscode": "^1.75.0",
         "@types/vscode-webview": "^1.57.5",
-        "esbuild": "^0.17.19",
-        "esbuild-jest-transform": "^2.0.0",
-        "jest": "^29.7.0",
+        "esbuild": "^0.20.2",
+        "@types/mocha": "10.0.6",
+        "mocha": "^10.4.0",
         "source-map-support": "^0.5.21",
         "typescript": "^5.4.3"
     }

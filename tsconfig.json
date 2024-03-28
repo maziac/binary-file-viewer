@@ -2,16 +2,20 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es6",
-        "allowJs": true,
         "noImplicitAny": false,
         "removeComments": false,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "noImplicitThis": true,
         "inlineSourceMap": false,
         "sourceMap": true,
         "outDir": "./out",
         "preserveConstEnums": true,
         "strictNullChecks": true,
-        "noUnusedParameters": false
-    }
+        "noUnusedParameters": false,
+        "allowJs": true
+    },
+    "exclude": [
+        "examples",
+        "out"
+    ]
 }

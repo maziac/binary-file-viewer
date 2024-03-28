@@ -70,7 +70,7 @@ export class FileData {
 		if (this.fd != undefined) {
 			// Close the file
 			fs.closeSync(this.fd);
-			this.fd = undefined;
+			this.fd = undefined as any;
 		}
 	}
 
