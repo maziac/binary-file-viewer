@@ -18,16 +18,16 @@ describe('Functions dataread', () => {
 
 
 	describe('convertToHexString()', () => {
-		test('undefined', () => {
+		it('undefined', () => {
 			assert.equal(convertToHexString(undefined as any, 5), '?????');
 		});
-		test('misc', () => {
+		it('misc', () => {
 			assert.equal(convertToHexString(1, 3), '001');
 			assert.equal(convertToHexString(0xFE013A, 6), 'FE013A');
 			assert.equal(convertToHexString(0xABCDEFFE013A, 6), 'ABCDEFFE013A');
 			assert.equal(convertToHexString(0xF0E0ABCDEFFE013A, 6), 'F0E0ABCDEFFE0000');  // NOSONAR// Is inaccurate
 		});
-		test('unspecified, negative nubmers', () => {
+		it('unspecified, negative nubmers', () => {
 			assert.equal(convertToHexString(-1, 3), '0-1');
 		});
 	});
@@ -36,31 +36,31 @@ describe('Functions dataread', () => {
 	describe('getNumberValue()', () => {
 
 		describe('litte endian', () => {
-			test('1 byte', () => {
+			it('1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 254]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 254);
 			});
 
-			test('2 byte', () => {
+			it('2 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x05, 0x82]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 0x8205);
 			});
 
-			test('4 byte', () => {
+			it('4 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x05, 0x82, 0xAB, 0x7F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 0x7FAB8205);
 			});
 
-			test('8 byte', () => {
+			it('8 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x04, 0x82, 0xAB, 0x7F, 0x01, 0x02, 0x03, 0x8A]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 9944794607624356000);
 			});
 
-			test('8 byte, same value, inaccurate', () => {
+			it('8 byte, same value, inaccurate', () => {
 				setDataBuffer(new Uint8Array([0, 0x05 /*IS DIFFERENT*/, 0x82, 0xAB, 0x7F, 0x01, 0x02, 0x03, 0x8A]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 9944794607624356000);
@@ -73,31 +73,31 @@ describe('Functions dataread', () => {
 				setEndianness('big');
 			});
 
-			test('1 byte', () => {	// NOSONAR
+			it('1 byte', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 254]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 254);
 			});
 
-			test('2 byte', () => {
+			it('2 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x82, 0x05]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 0x8205);
 			});
 
-			test('4 byte', () => {
+			it('4 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x7F, 0xAB, 0x82, 0x05]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 0x7FAB8205);
 			});
 
-			test('8 byte', () => {
+			it('8 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x8A, 0x03, 0x02, 0x01, 0x7F, 0xAB, 0x82, 0x04]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 9944794607624356000);
 			});
 
-			test('8 byte, same value, inaccurate', () => {
+			it('8 byte, same value, inaccurate', () => {
 				setDataBuffer(new Uint8Array([0, 0x8A, 0x03, 0x02, 0x01, 0x7F, 0xAB, 0x82, 0x05 /*IS DIFFERENT*/]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getNumberValue(), 9944794607624356000);
@@ -105,7 +105,7 @@ describe('Functions dataread', () => {
 		});
 
 		describe('setEndianness', () => {
-			test('little, big, other', () => {
+			it('little, big, other', () => {
 				setDataBuffer(new Uint8Array([0, 0x7F, 0xAB, 0x82, 0x05]));
 				setLastSize(dataBuffer.length - 1);
 				setEndianness('big')
@@ -125,19 +125,19 @@ describe('Functions dataread', () => {
 				setLastSize(0);
 			});
 
-			test('In 1 byte', () => {
+			it('In 1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110]));
 				setLastBitSize(5);
 				assert.equal(getNumberValue().toString(2), '11011');
 			});
 
-			test('Through 2 bytes', () => {
+			it('Through 2 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111111]));
 				setLastBitSize(9);
 				assert.equal(getNumberValue().toString(2), '111111011');
 			});
 
-			test('Through 3 bytes', () => {
+			it('Through 3 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
 				setLastBitSize(18);
 				assert.equal(getNumberValue().toString(2), '111100100101111011');
@@ -150,31 +150,31 @@ describe('Functions dataread', () => {
 
 		describe('little endian', () => {
 
-			test('1 byte', () => {
+			it('1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 254]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -2);
 			});
 
-			test('2 byte', () => {
+			it('2 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x05, 0x82]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -32251);
 			});
 
-			test('4 byte', () => {
+			it('4 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x05, 0x82, 0xAB, 0x7F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), 0x7FAB8205);
 			});
 
-			test('8 byte', () => {
+			it('8 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x04, 0x82, 0xAB, 0x7F, 0x01, 0x02, 0x03, 0x8A]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -8501949466085195000);
 			});
 
-			test('8 byte, same value, inaccurate', () => {
+			it('8 byte, same value, inaccurate', () => {
 				setDataBuffer(new Uint8Array([0, 0x05 /*IS DIFFERENT*/, 0x82, 0xAB, 0x7F, 0x01, 0x02, 0x03, 0x8A]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -8501949466085195000);
@@ -187,31 +187,31 @@ describe('Functions dataread', () => {
 				setLittleEndian(false);
 			});
 
-			test('1 byte', () => {
+			it('1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 253]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -3);
 			});
 
-			test('2 byte', () => {
+			it('2 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x82, 0x05]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -32251);
 			});
 
-			test('4 byte', () => {
+			it('4 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x7F, 0xAB, 0x82, 0x05]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), 0x7FAB8205);
 			});
 
-			test('8 byte', () => {
+			it('8 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x8A, 0x03, 0x02, 0x01, 0x7F, 0xAB, 0x82, 0x04]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -8501949466085195000);
 			});
 
-			test('8 byte, same value, inaccurate', () => {
+			it('8 byte, same value, inaccurate', () => {
 				setDataBuffer(new Uint8Array([0, 0x8A, 0x03, 0x02, 0x01, 0x7F, 0xAB, 0x82, 0x05 /*IS DIFFERENT*/]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(getSignedNumberValue(), -8501949466085195000);
@@ -225,7 +225,7 @@ describe('Functions dataread', () => {
 				setLastSize(0);
 			});
 
-			test('In 1 byte', () => {
+			it('In 1 byte', () => {
 				setLastBitSize(5);
 
 				// negative
@@ -237,7 +237,7 @@ describe('Functions dataread', () => {
 				assert.equal(getSignedNumberValue(), 11);
 			});
 
-			test('Through 2 bytes', () => {
+			it('Through 2 bytes', () => {
 				setLastBitSize(9);
 
 				// negative
@@ -249,7 +249,7 @@ describe('Functions dataread', () => {
 				assert.equal(getSignedNumberValue(), 219); // 0 11011011
 			});
 
-			test('Through 3 bytes', () => {
+			it('Through 3 bytes', () => {
 				setLastBitSize(18);
 
 				// negative
@@ -273,13 +273,13 @@ describe('Functions dataread', () => {
 		}
 
 		describe('litte endian', () => {
-			test('wrong size', () => {
+			it('wrong size', () => {
 				assert.throws(() => {
 					calcFloatData([254]);
 				});
 			});
 
-			test('32 bit (float)', () => {	// NOSONAR
+			it('32 bit (float)', () => {	// NOSONAR
 				assert.equal(calcFloatData([0, 0, 0, 0]), 0);
 				assert.equal(calcFloatData([0, 0, 0x80, 0x3F]), 1);
 				assert.equal(calcFloatData([0, 0, 0, 0x40]), 2);
@@ -295,7 +295,7 @@ describe('Functions dataread', () => {
 				assert.equal(calcFloatData([0x00, 0x00, 0x80, 0xFF]), Number.NEGATIVE_INFINITY);
 			});
 
-			test('64 bit (double)', () => {
+			it('64 bit (double)', () => {
 				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0]), 0);
 				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0xF0, 0x3F]), 1);
 				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0x40]), 2);
@@ -318,13 +318,13 @@ describe('Functions dataread', () => {
 				setLittleEndian(false);
 			});
 
-			test('wrong size', () => {
+			it('wrong size', () => {
 				assert.throws(() => {
 					calcFloatData([254]);
 				});
 			});
 
-			test('32 bit (float)', () => {	// NOSONAR
+			it('32 bit (float)', () => {	// NOSONAR
 				assert.equal(calcFloatData([0, 0, 0, 0]), 0);
 				assert.equal(calcFloatData([0x3F, 0x80, 0, 0]), 1);
 				assert.equal(calcFloatData([0x40, 0x00, 0, 0]), 2);
@@ -340,7 +340,7 @@ describe('Functions dataread', () => {
 				assert.equal(calcFloatData([0xFF, 0x80, 0x00, 0x00]), Number.NEGATIVE_INFINITY);
 			});
 
-			test('64 bit (double)', () => {
+			it('64 bit (double)', () => {
 				assert.equal(calcFloatData([0, 0, 0, 0, 0, 0, 0, 0]), 0);
 				assert.equal(calcFloatData([0x3F, 0xF0, 0, 0, 0, 0, 0, 0]), 1);
 				assert.equal(calcFloatData([0x40, 0x00, 0, 0, 0, 0, 0, 0]), 2);
@@ -369,7 +369,7 @@ describe('Functions dataread', () => {
 				setLastSize(0);
 			});
 
-			test('wrong bit size', () => {
+			it('wrong bit size', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110]));
 				setLastBitSize(5);	// only 32 or 64 bits are allowed
 				assert.throws(() => {
@@ -377,7 +377,7 @@ describe('Functions dataread', () => {
 				});
 			});
 
-			test('wrong bit offset', () => {
+			it('wrong bit offset', () => {
 				setLastBitOffset(1);
 				assert.throws(() => {
 					calcFloatBitsData([0x3d, 0xcc, 0xcc, 0xcd]);
@@ -385,12 +385,12 @@ describe('Functions dataread', () => {
 			});
 
 			describe('little endian', () => {
-				test('32 bit (float)', () => {	// NOSONAR
+				it('32 bit (float)', () => {	// NOSONAR
 					setLastBitOffset(0);
 					assert.equal(calcFloatBitsData([0xcd, 0xcc, 0xcc, 0x3d]), 0.100000001490116119384765625);
 				});
 
-				test('64 bit (double)', () => {
+				it('64 bit (double)', () => {
 					setLastBitOffset(0);
 					assert.equal(calcFloatBitsData([0x9A, 0x99, 0x99, 0x99, 0x99, 0x99, 0xB9, 0x3F]), 0.1);
 				});
@@ -401,12 +401,12 @@ describe('Functions dataread', () => {
 					setLittleEndian(false);
 				});
 
-				test('32 bit (float)', () => {	// NOSONAR
+				it('32 bit (float)', () => {	// NOSONAR
 					setLastBitOffset(0);
 					assert.equal(calcFloatBitsData([0x3d, 0xcc, 0xcc, 0xcd]), 0.100000001490116119384765625);
 				});
 
-				test('64 bit (double)', () => {
+				it('64 bit (double)', () => {
 					setLastBitOffset(0);
 					assert.equal(calcFloatBitsData([0x3F, 0xB9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9A]), 0.1);
 				});
@@ -423,7 +423,7 @@ describe('Functions dataread', () => {
 				setLittleEndian(true);
 			});
 
-			test('lastSize = 2', () => {
+			it('lastSize = 2', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12]));
 				setLastSize(dataBuffer.length - 1);
 				const s: any = getBitsValue();
@@ -431,7 +431,7 @@ describe('Functions dataread', () => {
 				assert.equal(s.hoverValue, 'Hex: 0x120F');
 			});
 
-			test('lastBitSize = 19', () => {
+			it('lastBitSize = 19', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0xFB]));
 				setLastSize(0);
 				setLastBitSize(19);
@@ -452,7 +452,7 @@ describe('Functions dataread', () => {
 			});
 
 			describe('little endian', () => {
-				test('1 byte', () => {
+				it('1 byte', () => {
 					setDataBuffer(new Uint8Array([0, 0x0F]));
 					setLastSize(dataBuffer.length - 1);
 					assert.equal(_getDecimalValue(), '15');
@@ -462,13 +462,13 @@ describe('Functions dataread', () => {
 					assert.equal(_getDecimalValue(), '159');
 				});
 
-				test('3 bytes', () => {
+				it('3 bytes', () => {
 					setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B]));
 					setLastSize(dataBuffer.length - 1);
 					assert.equal(_getDecimalValue(), '8065551');
 				});
 
-				test('10 bytes', () => {
+				it('10 bytes', () => {
 					setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 					setLastSize(dataBuffer.length - 1);
 					assert.equal(_getDecimalValue(), '597028895935846336369167');
@@ -480,7 +480,7 @@ describe('Functions dataread', () => {
 					setLittleEndian(false);
 				});
 
-				test('1 byte', () => {	// NOSONAR
+				it('1 byte', () => {	// NOSONAR
 					setDataBuffer(new Uint8Array([0, 0x0F]));
 					setLastSize(dataBuffer.length - 1);
 					assert.equal(_getDecimalValue(), '15');
@@ -490,13 +490,13 @@ describe('Functions dataread', () => {
 					assert.equal(_getDecimalValue(), '159');
 				});
 
-				test('3 bytes', () => {
+				it('3 bytes', () => {
 					setDataBuffer(new Uint8Array([0, 0x7B, 0x12, 0x0F]));
 					setLastSize(dataBuffer.length - 1);
 					assert.equal(_getDecimalValue(), '8065551');
 				});
 
-				test('10 bytes', () => {
+				it('10 bytes', () => {
 					setDataBuffer(new Uint8Array([0, 0x7E, 0x6D, 0x00, 0x55, 0x3A, 0xFe, 0x40, 0x7B, 0x12, 0x0F]));
 					setLastSize(dataBuffer.length - 1);
 					assert.equal(_getDecimalValue(), '597028895935846336369167');
@@ -510,25 +510,25 @@ describe('Functions dataread', () => {
 					setLastSize(0);
 				});
 
-				test('In 1 byte', () => {
+				it('In 1 byte', () => {
 					setDataBuffer(new Uint8Array([0, 0b11110110]));
 					setLastBitSize(5);
 					assert.equal(_getDecimalValue(), '29');	// '11101'
 				});
 
-				test('Through 2 bytes', () => {
+				it('Through 2 bytes', () => {
 					setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111110]));
 					setLastBitSize(9);
 					assert.equal(_getDecimalValue(), '445'); // '110111101'
 				});
 
-				test('Through 3 bytes', () => {
+				it('Through 3 bytes', () => {
 					setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
 					setLastBitSize(18);
 					assert.equal(_getDecimalValue(), '255165'); // '11'1110 0100'1011 1101'
 				});
 
-				test('8 bit', () => {
+				it('8 bit', () => {
 					setDataBuffer(new Uint8Array([0, 0b00110110, 0b00]));
 					setLastBitSize(8);
 					assert.equal(_getDecimalValue(), '13'); // '0000 1101'
@@ -548,7 +548,7 @@ describe('Functions dataread', () => {
 		});
 
 		describe('little endian', () => {
-			test('1 byte', () => {
+			it('1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getSignedDecimalValue(), '15');
@@ -558,7 +558,7 @@ describe('Functions dataread', () => {
 				assert.equal(_getSignedDecimalValue(), '-97');
 			});
 
-			test('3 bytes', () => {
+			it('3 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getSignedDecimalValue(), '8065551');
@@ -568,7 +568,7 @@ describe('Functions dataread', () => {
 				assert.equal(_getSignedDecimalValue(), '-7663089');
 			});
 
-			test('10 bytes', () => {
+			it('10 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getSignedDecimalValue(), '597028895935846336369167');
@@ -584,7 +584,7 @@ describe('Functions dataread', () => {
 				setLittleEndian(false);
 			});
 
-			test('1 byte', () => {	// NOSONAR
+			it('1 byte', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 0x0F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getSignedDecimalValue(), '15');
@@ -594,7 +594,7 @@ describe('Functions dataread', () => {
 				assert.equal(_getSignedDecimalValue(), '-97');
 			});
 
-			test('3 bytes', () => {
+			it('3 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x7B, 0x12, 0x0F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getSignedDecimalValue(), '8065551');
@@ -604,7 +604,7 @@ describe('Functions dataread', () => {
 				assert.equal(_getSignedDecimalValue(), '-7663089');
 			});
 
-			test('10 bytes', () => {
+			it('10 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x7E, 0x6D, 0x00, 0x55, 0x3A, 0xFE, 0x40, 0x7B, 0x12, 0x0F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getSignedDecimalValue(), '597028895935846336369167');
@@ -622,25 +622,25 @@ describe('Functions dataread', () => {
 				setLastSize(0);
 			});
 
-			test('In 1 byte', () => {	// NOSONAR
+			it('In 1 byte', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 0b11110110]));
 				setLastBitSize(5);
 				assert.equal(_getDecimalValue(), '29');	// '11101'
 			});
 
-			test('Through 2 bytes', () => {	// NOSONAR
+			it('Through 2 bytes', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111110]));
 				setLastBitSize(9);
 				assert.equal(_getDecimalValue(), '445'); // '110111101'
 			});
 
-			test('Through 3 bytes', () => {	// NOSONAR
+			it('Through 3 bytes', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
 				setLastBitSize(18);
 				assert.equal(_getDecimalValue(), '255165'); // '11'1110 0100'1011 1101'
 			});
 
-			test('8 bit', () => {	// NOSONAR
+			it('8 bit', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 0b00110110, 0b00]));
 				setLastBitSize(8);
 				assert.equal(_getDecimalValue(), '13'); // '0000 1101'
@@ -649,7 +649,7 @@ describe('Functions dataread', () => {
 	});
 
 	describe('getDecimalValue()', () => {
-		test('value + hover', () => {
+		it('value + hover', () => {
 			setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 			setLastSize(dataBuffer.length - 1);
 			const s: any = getDecimalValue();
@@ -659,7 +659,7 @@ describe('Functions dataread', () => {
 	});
 
 	describe('getSignedDecimalValue()', () => {
-		test('value + hover', () => {
+		it('value + hover', () => {
 			setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 			setLastSize(dataBuffer.length - 1);
 			let s: any = getSignedDecimalValue();
@@ -684,7 +684,7 @@ describe('Functions dataread', () => {
 		});
 
 		describe('little endian', () => {
-			test('1 byte', () => {
+			it('1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getHexValue(), '0F');
@@ -694,13 +694,13 @@ describe('Functions dataread', () => {
 				assert.equal(_getHexValue(), '9F');
 			});
 
-			test('3 bytes', () => {
+			it('3 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getHexValue(), '7B120F');
 			});
 
-			test('10 bytes', () => {
+			it('10 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getHexValue(), '7E6D00553AFE407B120F');
@@ -712,7 +712,7 @@ describe('Functions dataread', () => {
 				setLittleEndian(false);
 			});
 
-			test('1 byte', () => {	// NOSONAR
+			it('1 byte', () => {	// NOSONAR
 				setDataBuffer(new Uint8Array([0, 0x0F]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getHexValue(), '0F');
@@ -722,13 +722,13 @@ describe('Functions dataread', () => {
 				assert.equal(_getHexValue(), '9F');
 			});
 
-			test('3 bytes', () => {
+			it('3 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getHexValue(), '0F127B');
 			});
 
-			test('10 bytes', () => {
+			it('10 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 				setLastSize(dataBuffer.length - 1);
 				assert.equal(_getHexValue(), '0F127B40FE3A55006D7E');
@@ -742,25 +742,25 @@ describe('Functions dataread', () => {
 				setLastSize(0);
 			});
 
-			test('In 1 byte', () => {
+			it('In 1 byte', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110]));
 				setLastBitSize(5);
 				assert.equal(_getHexValue(), '1D');	// '11101'
 			});
 
-			test('Through 2 bytes', () => {
+			it('Through 2 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110, 0b11111110]));
 				setLastBitSize(9);
 				assert.equal(_getHexValue(), '1BD'); // '110111101'
 			});
 
-			test('Through 3 bytes', () => {
+			it('Through 3 bytes', () => {
 				setDataBuffer(new Uint8Array([0, 0b11110110, 0b10010010, 0b11111111]));
 				setLastBitSize(18);
 				assert.equal(_getHexValue(), '3E4BD'); // '11'1110 0100'1011 1101'
 			});
 
-			test('8 bit', () => {
+			it('8 bit', () => {
 				setDataBuffer(new Uint8Array([0, 0b00110110, 0b00]));
 				setLastBitSize(8);
 				assert.equal(_getHexValue(), '0D'); // '0000 1101'
@@ -769,7 +769,7 @@ describe('Functions dataread', () => {
 	});
 
 	describe('getHexValue()', () => {
-		test('value + hover', () => {
+		it('value + hover', () => {
 			setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 			setLastSize(dataBuffer.length - 1);
 			const s: String = getHexValue();	// NOSONAR
@@ -779,7 +779,7 @@ describe('Functions dataread', () => {
 	});
 
 	describe('getHex0xValue()', () => {
-		test('value + hover', () => {
+		it('value + hover', () => {
 			setDataBuffer(new Uint8Array([0, 0x0F, 0x12, 0x7B, 0x40, 0xFE, 0x3A, 0x55, 0x00, 0x6D, 0x7E]));
 			setLastSize(dataBuffer.length - 1);
 			const s: String = getHex0xValue();	// NOSONAR
@@ -793,13 +793,13 @@ describe('Functions dataread', () => {
 			setLastOffset(1);
 		});
 
-		test('1 char', () => {
+		it('1 char', () => {
 			setDataBuffer(new TextEncoder().encode("_A"));
 			setLastSize(dataBuffer.length - 1);
 			assert.equal(getStringValue(), 'A');
 		});
 
-		test('3 chars', () => {
+		it('3 chars', () => {
 			setDataBuffer(new TextEncoder().encode("_ABC"));
 			setLastSize(dataBuffer.length - 1);
 			assert.equal(getStringValue(), 'ABC');
@@ -807,7 +807,7 @@ describe('Functions dataread', () => {
 	});
 
 	describe('endOfFile()/getRemainingSize()', () => {
-		test('getRemainingSize/endOfFile', () => {
+		it('getRemainingSize/endOfFile', () => {
 			setDataBuffer(new TextEncoder().encode("ABC"));
 			setLastSize(dataBuffer.length - 1);
 			assert.equal(getRemainingSize(), 3);
@@ -824,7 +824,7 @@ describe('Functions dataread', () => {
 	describe('offset', () => {
 
 		describe('absolute offset', () => {
-			test('setOffset', () => {
+			it('setOffset', () => {
 				setDataBuffer(new Uint8Array([0, 1, 2, 3, 254]));
 				setLastSize(1);
 				setOffset(4);	// at 254
@@ -835,7 +835,7 @@ describe('Functions dataread', () => {
 				assert.equal(getNumberValue(), 1);
 			});
 
-			test('getOffset', () => {
+			it('getOffset', () => {
 				setDataBuffer(new Uint8Array([0, 1, 2, 3, 254]));
 				setLastOffset(2);
 				setLastSize(1);
@@ -853,7 +853,7 @@ describe('Functions dataread', () => {
 				assert.equal(getNumberValue(), 2);
 			});
 
-			test('exceptions', () => {
+			it('exceptions', () => {
 				setDataBuffer(new Uint8Array([0, 1, 2, 3, 254]));
 				setLastOffset(1);
 				setLastSize(0);
@@ -881,7 +881,7 @@ describe('Functions dataread', () => {
 		});
 
 		describe('relative offset', () => {
-			test('forward', () => {
+			it('forward', () => {
 				setDataBuffer(new Uint8Array([0, 1, 2, 3, 254]));
 				setLastOffset(1);
 				setLastSize(0);
@@ -890,7 +890,7 @@ describe('Functions dataread', () => {
 				assert.equal(getNumberValue(), 3);
 			});
 
-			test('get/restore offset', () => {
+			it('get/restore offset', () => {
 				setDataBuffer(new Uint8Array([0, 1, 2, 3, 254]));
 				setLastOffset(1);
 				setLastSize(0);
@@ -901,7 +901,7 @@ describe('Functions dataread', () => {
 				assert.equal(getNumberValue(), 256 * 254 + 3);
 			});
 
-			test('exceptions', () => {
+			it('exceptions', () => {
 				setDataBuffer(new Uint8Array([0, 1, 2, 3, 254]));
 				setLastOffset(1);
 				setLastSize(0);
