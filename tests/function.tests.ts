@@ -142,6 +142,15 @@ describe('Functions dataread', () => {
 				setLastBitSize(18);
 				assert.equal(getNumberValue().toString(2), '111100100101111011');
 			});
+
+			it('readBits', () => {
+				setDataBuffer(new Uint8Array([0, 0b11110110]));
+				readBits(2);
+				assert.equal(getNumberValue().toString(2), '11');
+				readBits(5);
+				assert.equal(getNumberValue().toString(2), '11110');
+			});
+
 		});
 	});
 
@@ -803,6 +812,31 @@ describe('Functions dataread', () => {
 			setDataBuffer(new TextEncoder().encode("_ABC"));
 			setLastSize(dataBuffer.length - 1);
 			assert.equal(getStringValue(), 'ABC');
+		});
+	});
+
+	describe('getData()', () => {
+		beforeEach(() => {
+			setLastOffset(1);
+			setLastSize(0);
+		});
+
+		it('1 byte', () => {
+			setDataBuffer(new TextEncoder().encode("_ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+			read(8);
+			const data = getData(1, 2, 'u', 2);
+			assert.equal(data.length, 2);
+			assert.equal(data[0], 'C'.charCodeAt(0));
+			assert.equal(data[1], 'F'.charCodeAt(0));
+		});
+
+		it('2 byte', () => {
+			setDataBuffer(new TextEncoder().encode("_ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+			read(8);
+			const data = getData(2, 2, 'u', 2);
+			assert.equal(data.length, 2);
+			assert.equal(data[0], 'C'.charCodeAt(0) + 'D'.charCodeAt(0) * 256);
+			assert.equal(data[1], 'G'.charCodeAt(0) + 'H'.charCodeAt(0) * 256);
 		});
 	});
 

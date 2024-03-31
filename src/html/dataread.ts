@@ -104,7 +104,6 @@ export function endOfFile(): boolean {
  * @returns The remaining size of the data buffer.
  */
 export function getRemainingSize(): number {
-	console.log("getRemainingSize:", dataBuffer, lastOffset, lastSize);
 	return dataBuffer.length - (lastOffset + lastSize);
 }
 
