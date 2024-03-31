@@ -97,6 +97,10 @@ export class FunctionDocumentation {
 					return: ['boolean', "true if end of file reached."],
 				},
 				{
+					func: ['getRemainingSize', "Returns the number of remaining bytes available for the **next** read(...) command. If executed before any read(...) command it returns the size of the parsed file."],
+					return: ['number', "Count of remaining bytes in the file."],
+				},
+				{
 					func: ['setEndianness', 'Set the endianness for data reads.'],
 					params: [
 						['endianness', 'string', "Either 'little'(default ) or 'big'."]
