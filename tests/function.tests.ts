@@ -809,7 +809,7 @@ describe('Functions dataread', () => {
 	describe('endOfFile()/getRemainingSize()', () => {
 		it('getRemainingSize/endOfFile', () => {
 			setDataBuffer(new TextEncoder().encode("ABC"));
-			setLastSize(dataBuffer.length - 1);
+			setLastOffset(0);
 			assert.equal(getRemainingSize(), 3);
 			assert.ok(!endOfFile());
 			read(1);

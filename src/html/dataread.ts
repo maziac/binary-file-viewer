@@ -96,8 +96,7 @@ export function arrayBufferToBase64(buffer: any) {
  * @returns true if end of file reached.
  */
 export function endOfFile(): boolean {
-	return getRemainingSize() >= 0;
-//	return (lastOffset + lastSize >= dataBuffer.length);
+	return getRemainingSize() <= 0;
 }
 
 
@@ -105,6 +104,7 @@ export function endOfFile(): boolean {
  * @returns The remaining size of the data buffer.
  */
 export function getRemainingSize(): number {
+	console.log("getRemainingSize:", dataBuffer, lastOffset, lastSize);
 	return dataBuffer.length - (lastOffset + lastSize);
 }
 
