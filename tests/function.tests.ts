@@ -875,6 +875,26 @@ describe('Functions dataread', () => {
 		});
 	});
 
+	describe('readUntil()', () => {
+		beforeEach(() => {
+			setLastOffset(1);
+			setLastSize(0);
+		});
+
+		it('found', () => {
+			setDataBuffer(new TextEncoder().encode("_ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+			readUntil('D'.charCodeAt(0));
+			assert.equal(getStringValue(), 'ABC');
+		});
+
+		it('not found', () => {
+			setDataBuffer(new TextEncoder().encode("_ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+			assert.throws(() => {
+				readUntil('x'.charCodeAt(0));	// 'x' not included/not found
+			});
+		});
+	});
+
 	describe('endOfFile()/getRemainingSize()', () => {
 		it('getRemainingSize/endOfFile', () => {
 			setDataBuffer(new TextEncoder().encode("ABC"));
