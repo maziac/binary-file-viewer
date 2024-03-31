@@ -22,8 +22,8 @@ export class FunctionDocumentation {
 		['General',
 			[
 				{
-					func: ['registerFileType', "Registers the function that checks for the right file type."],
-					return: ['number[]', "A number array with the values. The length of the array might be smaller than 'length' if the file size is smaller."],
+					func: ['registerFileType function', "With 'registerFileType' you register the function that checks for the right file type. Your function will be called with the following parameters."],
+					return: ['boolean', "Return true if the file type is right. (If file should be parsed by function in 'registerParser'.)"],
 					params: [
 						['fileExt', 'string', "The file extension without the '.', e.g. 'wav'"],
 						['filePath', 'string', "The complete absolute path to the file."],
@@ -31,11 +31,11 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['registerParser', "Registers the function to parse and decode the file."]
+					func: ['registerParser function', "With 'registerParser' you register the function to parse and decode the file. Your function is called with no parameters."]
 				}
 			],
 		],
-		['Function registerFileType',
+		['Inside function installed with registerFileType',
 			[
 				{
 					func: ['fileData.getBytesAt', "Returns the bytes from the file at the given offset.\nUse this inside 'registerFileType' to examine the file type."],
@@ -51,7 +51,7 @@ export class FunctionDocumentation {
 				}
 			],
 		],
-		['Function registerParser',
+		['Inside function installed with registerParser',
 			[
 				{
 					func: ['addStandardHeader', 'Adds a standard header. This includes the size of the file.']

@@ -263,7 +263,7 @@ export class ParserSelect {
 			}
 		}
 		catch (e) {
-			console.log(e);
+			//console.log(e);
 			vscode.window.showErrorMessage(e.toString());
 		}
 		return parserMap;
@@ -301,7 +301,7 @@ export class ParserSelect {
 				});
 			}
 			catch (err) {
-				console.log(err);
+				//console.log(err);
 				// Show error
 				this.addDiagnosticsStack(err.stack, filePath);
 				return undefined;
@@ -324,7 +324,7 @@ export class ParserSelect {
 			return fileContents;
 		}
 		catch (e) {
-			console.log(e);
+			//console.log(e);
 			vscode.window.showErrorMessage(e.toString());
 			return undefined;
 		}
@@ -415,7 +415,7 @@ export class ParserSelect {
 					found = func(fileExt, filePath, fileData);
 				}
 				catch (err) {
-					console.log(err);
+					//console.log(err);
 					throw err;
 				}
 			},

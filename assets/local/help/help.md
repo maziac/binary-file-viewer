@@ -467,6 +467,13 @@ The function defined in 'registerFileType' and 'registerFileType' are executed i
 That makes it impossible to pass data from the 'registerFileType' function to the 'registerParser' function.
 E.g. any global variable that is set in 'registerFileType' is new instantiated when 'registerParser' is called.
 
+Furthermore, all functions described in this document should be called only from within the function installed with 'registerParser'.
+I.e. you cannot call them from 'registerFileType' or outside of the 'registerParser' function (e.g. in global context).
+Nevertheless it **is** possible to define variables outside of 'registerParser' and use (write/read) them inside of 'registerParser'.
+You can also define further functions that are called by 'registerParser'.
+These functions can also work with global variables.
+
+
 ### Javascript built-in objects
 Not all js builtins are accessible for the binary file viewer.
 These have been made available:
