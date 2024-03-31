@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {dataBuffer, setDataBuffer, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, /*setStartOffset,*/ setLittleEndian, setEndianness, /*getDataBufferSize, getRelOffset, arrayBufferToBase64,*/ endOfFile, getRemainingSize, readBits, getData, convertToHexString, correctBitByteOffsets, readUntil, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, _getDecimalValue, _getSignedDecimalValue, getDecimalValue, getSignedDecimalValue, _getHexValue, getHexValue, getHex0xValue, getStringValue} from '../src/html/dataread';
+import {dataBuffer, setDataBuffer, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, /*setStartOffset,*/ setLittleEndian, setEndianness, /*getDataBufferSize, getRelOffset, arrayBufferToBase64,*/ endOfFile, getRemainingSize, readBits, getData, convertToHexString, correctBitByteOffsets, readUntil, read, setOffset, getOffset, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, _getDecimalValue, _getSignedDecimalValue, getDecimalValue, getSignedDecimalValue, _getHexValue, getHexValue, getHex0xValue, getStringValue, lastBitOffset, lastBitSize, lastSize, lastOffset} from '../src/html/dataread';
 
 /**
  * This tests the functions defined in the webview.
@@ -14,6 +14,41 @@ describe('Functions dataread', () => {
 		setLastBitOffset(0);
 		setLastBitSize(0);
 		setLittleEndian(true);
+	});
+
+
+	describe('correctBitByteOffsets()', () => {
+		beforeEach(() => {
+			setLastOffset(0);
+			setLastSize(0);
+			setLastBitOffset(0);
+			setLastBitSize(0);
+			setLittleEndian(true);
+		});
+		it('0', () => {
+			correctBitByteOffsets();
+			assert.equal(lastBitOffset, 0);
+			assert.equal(lastBitSize, 0);
+			assert.equal(lastOffset, 0);
+			assert.equal(lastSize, 0);
+		});
+		it('lastBitOffset == 0', () => {
+			setLastSize(3);
+			correctBitByteOffsets();
+			assert.equal(lastBitOffset, 0);
+			assert.equal(lastBitSize, 0);
+			assert.equal(lastOffset, 3);
+			assert.equal(lastSize, 0);
+		});
+		it('lastBitOffset != 0', () => {
+			setLastSize(3);
+			setLastBitOffset(9);
+			correctBitByteOffsets();
+			assert.equal(lastBitOffset, 0);
+			assert.equal(lastBitSize, 0);
+			assert.equal(lastOffset, 5);
+			assert.equal(lastSize, 0);
+		});
 	});
 
 
