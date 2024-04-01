@@ -1,8 +1,9 @@
 # Changelog
 
 # 1.9.0
-- Added support for Object, Array, Map, JSON, atob and btoa
-- Added 'getRemainingSize()' method.
+- Added support for Object, Array, Map, JSON, atob and btoa (#14)
+- Added 'getRemainingSize()' method (#15)
+- Fixed #17: Zoom
 
 # 1.8.0
 - Added support to read floating point numbers according IEEE754: getFloatNumberValue(). single (4 byte) and double (8 byte) precision is supported.
