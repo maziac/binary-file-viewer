@@ -55,7 +55,7 @@ export class ParserSelect {
 		// Init
 		this.parserFolders = parserFolders;
 		this.testedParserFilePaths = [];
-		console.log("ParserSelect::init:", parserFolders);
+		//console.log("ParserSelect::init:", parserFolders);
 
 		this.clearDiagnostics();
 
