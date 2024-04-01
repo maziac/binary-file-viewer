@@ -1,4 +1,8 @@
 import Chart from 'chart.js/auto';
+import ChartPluginZoom from 'chartjs-plugin-zoom/dist/chartjs-plugin-zoom.esm';
+
+// Register zoom/pan plugin
+Chart.register(ChartPluginZoom);
 
 
 // The root node for parsing. New objects are appended here.
