@@ -12,6 +12,10 @@
             ],
             "debugWebviews": true,
             "sourceMaps": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
             "outFiles": [
                 "${workspaceFolder}/out/extension.js"
             ],
