@@ -20,6 +20,9 @@ let customParser: string;
 // The file path of the custom parser.
 let filePathParser: string;
 
+// Contains the file path of the binary file to parse.
+let binFilePath: string;
+
 // The current row's cell that contains the collapsible icon (+)
 let lastCollapsibleNode: HTMLTableCellElement;
 
@@ -637,17 +640,16 @@ globalThis.parseStart = function () {
 	// Use table
 	setLastNode(lastNode.children[1]);
 
-
 	try {
 		// Get parser and execute
 		scopeLessFunctionCall(customParser, {
 			registerFileType: (func: (fileExt: string, filePath: string, data: any) => boolean) => {
 				// Does nothing here.
 			},
-			registerParser: (func: () => void) => {
+			registerParser: (func: (filePath: string) => void) => {
 				// Once the function registers it can be executed.
 				// I.e. custom parsing is started:
-				func();
+				func(binFilePath);
 			},
 
 			// API
@@ -728,6 +730,7 @@ window.addEventListener('message', event => {	// NOSONAR
 			// Store in global variable
 			customParser = message.parser.contents;
 			filePathParser = message.parser.filePath;
+			binFilePath = message.binFilePath;
 
 			// Parse
 			globalThis.parseStart();

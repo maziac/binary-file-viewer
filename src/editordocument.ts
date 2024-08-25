@@ -74,7 +74,7 @@ export class EditorDocument implements vscode.CustomDocument {
 							const data = Uint8Array.from(dataFs);
 							// Send data and parser
 							this.sendDataToWebView(data, webviewPanel);
-							this.sendParserToWebView(this.parser, webviewPanel);
+							this.sendParserToWebView();
 						}
 						break;
 					case 'customParserError':
@@ -155,16 +155,15 @@ export class EditorDocument implements vscode.CustomDocument {
 
 	/**
 	 * Reads the file and sends the data to the webview.
-	 * @param parser The parser (js code) as a string plus the parser path.
-	 * @param webviewPanel The webview to send the data to.
 	 */
-	protected sendParserToWebView(parser: {contents: string, filePath: string}, webviewPanel: vscode.WebviewPanel) {
+	protected sendParserToWebView() {
 		// Send the parser to the webview
 		const message = {
 			command: 'setParser',
-			parser
+			parser: this.parser,
+			binFilePath: this.uri.fsPath
 		};
-		webviewPanel.webview.postMessage(message);
+		this.webviewPanel.webview.postMessage(message);
 	}
 
 
@@ -214,9 +213,9 @@ export class EditorDocument implements vscode.CustomDocument {
 			if ((this.parser.contents != parser.contents) || (this.parser.filePath != parser.filePath)) {
 				// Yes it's different, use the new parser
 				ParserSelect.clearDiagnostics();
-				this.sendParserToWebView(parser, this.webviewPanel);
+				this.parser = parser;
+				this.sendParserToWebView();
 			}
-			this.parser = parser;
 		}
 	}
 
