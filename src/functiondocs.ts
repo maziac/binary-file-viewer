@@ -31,7 +31,10 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['registerParser function', "With 'registerParser' you register the function to parse and decode the file. Your function is called with no parameters."]
+					func: ['registerParser function', "With 'registerParser' you register the function to parse and decode the file. Your function is called with no parameters."],
+					params: [
+						['filePath', 'string', "The complete absolute path to the file."]
+					]
 				}
 			],
 		],

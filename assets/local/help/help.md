@@ -117,6 +117,18 @@ In fact it is directly used from the previous ```read```.
 
 Note: If you pass the string returned by getDecimalValue, getHex*Value or getBitsValue to ```addRow``` you can also hover over the 'Value' cell. For a decimal value the hover will show the hex value and vice versa.
 
+
+#### filepath
+There is an optional parameter available. If you register the  parse function in this way:
+~~~js
+registerParser((filePath) => {
+	...
+}
+~~~
+
+the `filePath` parameter contains the absolute path to the file that should be decoded.
+In 'normal' circumstances you shouldn't require to use it.
+
 ### read
 
 As you have seen before: with ```read``` you will read in data from the file.

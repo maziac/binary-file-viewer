@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.10.0
+- registerParser: the parser you register now has as parameter the file path of the file to be decoded.
+
 # 1.9.0
 - Added support for Object, Array, Map, JSON, atob and btoa (#14)
 - Added 'getRemainingSize()' method (#15)

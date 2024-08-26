@@ -1,3 +1,4 @@
+
 /**
  * Select the 'pic' as file extension.
  * pic is a proprietary picture format that just carries the
@@ -16,7 +17,9 @@ registerFileType((fileExt, filePath, fileData) => {
  * Afterwards the data is read from the file and put into the
  * graphics context of the canvas.
  */
-registerParser(() => {
+registerParser((filePath) => {
+	dbgLog('Parsing pic file: ' + filePath);
+
 	addStandardHeader();
 
 	read(2);
