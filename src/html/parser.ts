@@ -159,15 +159,16 @@ function setRowValue(value: String | string | number, valueHover?: string | numb
  * Adds an (almost) empty row. Value and size have to be added later.
  * This is a function used by addRow and readRowWithDetails.
  * @param name The name of the value (the row).
+ * @param hexOffset Display Offset with hex.
  * @returns The created cells.
  */
-function addEmptyRow(name: string): RowNodes {
+function addEmptyRow(name: string, hexOffset: boolean): RowNodes {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
-	const relOffsetHex = convertToHexString(relOffset, 4);
+	const relOffsetHex = '0x' + convertToHexString(relOffset, 4);
 	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
-	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
+	let hoverOffset = `Offset:\n${(hexOffset) ? 'Dec:' + relOffset : 'Hex:' + relOffsetHex}`;
 	if (startOffset) {
 		// Is a relative index, so show also the absolute index as hover.
 		const lastOffsetHex = convertToHexString(lastOffset, 4);
@@ -176,7 +177,7 @@ function addEmptyRow(name: string): RowNodes {
 
 	const html = `
 	<td class="collapse"></td>
-	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
+	<td class="offset" title="${hoverOffset}">${prefix}${(hexOffset) ? relOffsetHex : relOffset}</td>
 	<td class="size"></td>
 	<td class="name">${name}</td>
 	<td class="value"></td>
@@ -278,10 +279,11 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
  * @param name The name of the value.
  * @param value (Optional) The value to display.
  * @param description (Optional) A short description of the entry.
+ * @param hexOffset (Optional) Display Offset with hex.
  * @param valueHover (Optional) Is displayed on hovering over the 'value'.
  */
-function addRow(name: string, value: String | string | number = '', description = '', valueHover?: string | number) { // NOSONAR
-	const row = addEmptyRow(name);
+function addRow(name: string, value: String | string | number = '', description = '', hexOffset = false, valueHover?: string | number) { // NOSONAR
+	const row = addEmptyRow(name, hexOffset);
 	makeRowComplete(row, value, description, valueHover);
 }
 
@@ -292,8 +294,10 @@ function addRow(name: string, value: String | string | number = '', description 
  * @param name The name of the value.
  * @param opened true=the details are opened on initial parsing.
  * false (default)=The details are initially closed.
+ * @param hexOffset (Optional) Display Offset with hex.
+ * false (default)=The Offset initially uses decimal.
  */
-function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false) {	// NOSONAR
+function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false, hexOffset = false) {	// NOSONAR
 	// Check if overridden
 	if (overrideDetailsOpen != undefined) {
 		opened = overrideDetailsOpen;
@@ -303,7 +307,7 @@ function readRowWithDetails(name: string, func: () => {value: String | string | 
 	correctBitByteOffsets();
 
 	// Add row
-	const row = addEmptyRow(name);
+	const row = addEmptyRow(name, hexOffset);
 
 	// Save
 	const beginOffset = lastOffset;
