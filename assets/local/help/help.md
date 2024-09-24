@@ -492,6 +492,7 @@ These have been made available:
 - Math
 - String
 - Number
+- BigInt
 - Array
 - Object
 - JSON

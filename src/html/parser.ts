@@ -689,6 +689,7 @@ globalThis.parseStart = function () {
 			Math,
 			String,
 			Number,
+			BigInt,
 			Object,
 			Array,
 			Map,
