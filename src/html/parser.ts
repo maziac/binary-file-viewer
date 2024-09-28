@@ -17,8 +17,11 @@ import {addCanvas} from './canvas';
 // The custom parser (js program as a string).
 let customParser: string;
 
-// The file path of the custom parser.
-let filePathParser: string;
+// The file path of all custom parser.
+let filePathParsers: string[] = [];
+
+// The parser file selected
+let selected = 0;
 
 // Contains the file path of the binary file to parse.
 let binFilePath: string;
@@ -59,6 +62,18 @@ interface RowNodes {
 // 		console.error('Error!');
 // 	}
 // }
+
+
+/**
+ * Sends a command to the extension to change parser file.
+ */
+globalThis.changeParser = function (cell: HTMLSelectElement) {
+	selected = Number(cell.value);
+	vscode.postMessage({
+		command: 'changeParser',
+		selected: cell.value
+	});
+}
 
 
 /**
@@ -104,15 +119,28 @@ function addStandardHeader() {
 
 	// Add file size
 	let html = '<span>File size: ' + fileSize + ' Bytes' + humanString + ', </span>';
+	let usedParser;
 
-	// Used parser
-	let i = filePathParser.lastIndexOf('/');
-	const k = filePathParser.lastIndexOf('\\');
-	if (k > i)
-		i = k;
-	i++;
-	const usedParser = filePathParser.substring(i);
-	html += '<span>Parser used: <a href="#" onclick="openCustomParser()">' + usedParser + '</a></span>';
+	html += '<span>Parser used: </span>';
+	html += '<select id="dropdown" onchange="changeParser(this)">'
+	filePathParsers.forEach((parser, idx) => {
+		let i = parser.lastIndexOf('/');
+		const k = parser.lastIndexOf('\\');
+		if (k > i)
+			i = k;
+		i++;
+		usedParser = parser.substring(i);
+	
+		if (selected === idx) {
+			html += '	<option selected value="' + idx + '">' + usedParser +  '</option>'
+		} else {
+			html += '	<option value="' + idx + '">' + usedParser +  '</option>'
+		}
+	});
+	html += '</select>'
+
+	// Open used parser
+	html += '<button href="#" onclick="openCustomParser()"> Open </button>';
 
 	standardHeaderNode.innerHTML = html;
 }
@@ -733,8 +761,11 @@ window.addEventListener('message', event => {	// NOSONAR
 			break;
 		case 'setParser':
 			// Store in global variable
-			customParser = message.parser.contents;
-			filePathParser = message.parser.filePath;
+			customParser = message.parsers[selected].contents;
+			filePathParsers = [];
+			message.parsers.forEach((parser) => {
+				filePathParsers.push(parser.filePath);
+			});
 			binFilePath = message.binFilePath;
 
 			// Parse

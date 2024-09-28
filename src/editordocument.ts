@@ -16,6 +16,9 @@ export class EditorDocument implements vscode.CustomDocument {
 	// The used parser file.
 	public parser: ParserInfo | undefined;
 
+	// The parser file selected
+	public selected = 0;
+
 	// Remember the webviewPanel for sending updates.
 	public webviewPanel: vscode.WebviewPanel;
 
@@ -87,14 +90,18 @@ export class EditorDocument implements vscode.CustomDocument {
 						// Display the given line (and column) in the parser (js) file
 						this.selectParserLine(message.offset);
 						break;
+					case 'changeParser':
+						// Change the parser
+						this.changeParser(Number(message.selected));
+						break;
 					case 'openCustomParser':
 						// Display the parser (js) file
 						this.openCustomParser();
 						break;
 					case 'reload':
 						// Reload/re-parse the file
-						const parser = ParserSelect.selectParserFile(filePath);
-						this.updateParser(parser);
+						const parsers = ParserSelect.getAllParserFile(filePath);
+						this.updateParser((parsers) ? parsers[this.selected] : parsers);
 						break;
 					case 'dbgLog':
 						// Print log into OUTPUT pane
@@ -104,8 +111,8 @@ export class EditorDocument implements vscode.CustomDocument {
 			});
 
 			// Set the html
-			const parser = ParserSelect.selectParserFile(filePath);
-			this.setHtml(parser);
+			const parsers = ParserSelect.getAllParserFile(filePath);
+			this.setHtml((parsers) ? parsers[this.selected] : parsers);
 		}
 		catch (e) {
 			console.error('Error: ', e);
@@ -158,9 +165,10 @@ export class EditorDocument implements vscode.CustomDocument {
 	 */
 	protected sendParserToWebView() {
 		// Send the parser to the webview
+		const filePath = this.uri.fsPath;
 		const message = {
 			command: 'setParser',
-			parser: this.parser,
+			parsers: ParserSelect.getAllParserFile(filePath),
 			binFilePath: this.uri.fsPath
 		};
 		this.webviewPanel.webview.postMessage(message);
@@ -273,7 +281,7 @@ export class EditorDocument implements vscode.CustomDocument {
 
 	/**
 	 * Displays the parser (js) file.
-	 * Called if user clicks on file name in decoded file.
+	 * Called if user clicks the Open button.
 	 */
 	protected openCustomParser() {
 		if (this.parser) {
@@ -282,5 +290,13 @@ export class EditorDocument implements vscode.CustomDocument {
 					vscode.window.showTextDocument(doc);
 				});
 		}
+	}
+
+	/**
+	 * Change the parser (js) file.
+	 * Called if user choose different option of the parsers dropdown.
+	 */
+	protected changeParser(selected) {
+		this.selected = selected;
 	}
 }
