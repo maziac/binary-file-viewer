@@ -65,7 +65,7 @@ export class EditorDocument implements vscode.CustomDocument {
 			// Normal behavior: Parser installed.
 			// Handle 'ready' message from the webview
 			const filePath = this.uri.fsPath;
-			webviewPanel.webview.onDidReceiveMessage(message => {
+			webviewPanel.webview.onDidReceiveMessage(async message => {
 				switch (message.command) {
 					case 'ready':
 						if (this.parser) {
@@ -99,6 +99,31 @@ export class EditorDocument implements vscode.CustomDocument {
 					case 'dbgLog':
 						// Print log into OUTPUT pane
 						EditorDocument.outChannel.appendLine(message.arguments);
+						break;
+					case 'saveas':
+						// Save text or image to file
+						const data = message.data;
+						let filters;
+						if (typeof data === 'string')
+							filters = {'Text Files': ['txt']};
+						else
+							filters = {'Images': ['png']};
+						const options = {
+							saveLabel: 'Save',
+							filters
+						};
+						const uri = await vscode.window.showSaveDialog(options);
+						if (uri) {
+							if (typeof data === 'string') {
+								fs.writeFileSync(uri.fsPath, data, 'utf8');
+								vscode.window.showInformationMessage(`Text saved to ${uri.fsPath}`);
+							}
+							else {
+								const buffer = Buffer.from(data);
+								fs.writeFileSync(uri.fsPath, buffer);
+								vscode.window.showInformationMessage(`Image saved to ${uri.fsPath}`);
+							}
+						}
 						break;
 				}
 			});

@@ -770,44 +770,80 @@ contextMenu.addEventListener('mousedown', function (event) {
 });
 
 
-/** Menu item Copy has been clicked. */
-contextMenuItemCopy.addEventListener('click', async function (event) {
-	const selection = window.getSelection();
+/** Menu item "Copy" has been clicked. */
+contextMenuItemCopy.addEventListener('click', async function () {
+	// Get data
+	const data = await getCopyData();
+	if (!data)
+		return;
 
-	if (contextMenuTarget && contextMenuTarget.tagName === 'CANVAS') {
-		// Canvas/image copy
-		const canvas = contextMenuTarget as HTMLCanvasElement;
-		const dataUrl = canvas.toDataURL('image/png');
-		const blob = await(await fetch(dataUrl)).blob();
-		const item = new ClipboardItem({'image/png': blob});
+	// Put on clipboard depending on data type
+	if (typeof data === 'string') {
+		await navigator.clipboard.writeText(data);
+	}
+	else if (data instanceof Blob) {
+		const item = new ClipboardItem({'image/png': data});
 		navigator.clipboard.write([item]).then(() => {
 			console.log('Image copied to clipboard');
 		}).catch(err => {
 			console.error('Failed to copy image: ' + err);
 		});
 	}
-	else {
-		// Text copy
-		let txt;
-		if (selection && selection.rangeCount > 0) {
-			// Just the selected text
-			const range = selection.getRangeAt(0);
-			txt = range.toString();
-		}
-		if (!txt) {
-			// The complete text
-			txt = contextMenuTarget?.innerText || '';
-		}
-
-		// Copy to clipboard
-		if (txt)
-			await navigator.clipboard.writeText(txt);
-
-		console.log('Copy:', txt);
-	}
 
 	contextMenu.classList.remove('visible');
 });
+
+
+/** Menu item "Save as" has been clicked. */
+contextMenuItemSaveAs.addEventListener('click', async function () {
+	// Get data
+	let data = await getCopyData();
+	if (!data)
+		return;
+
+	if (data instanceof Blob) {
+		// Save image
+		data = await data.arrayBuffer();
+	}
+
+	// Post message to vscode
+	vscode.postMessage({
+		command: 'saveas',
+		data
+	});
+
+	contextMenu.classList.remove('visible');
+});
+
+
+/** Copies the selected text, or the wwhole text if nothing selected
+ * any selected canvas as image.
+ * @returns The copied data. string | Blob | null
+ */
+async function getCopyData() {
+	let data;
+	const selection = window.getSelection();
+
+	if (contextMenuTarget && contextMenuTarget.tagName === 'CANVAS') {
+		// Canvas/image copy
+		const canvas = contextMenuTarget as HTMLCanvasElement;
+		const dataUrl = canvas.toDataURL('image/png');
+		data = await(await fetch(dataUrl)).blob();
+	}
+	else {
+		// Text copy
+		if (selection && selection.rangeCount > 0) {
+			// Just the selected text
+			const range = selection.getRangeAt(0);
+			data = range.toString();
+		}
+		if (!data) {
+			// The complete text
+			data = contextMenuTarget?.innerText || '';
+		}
+	}
+	return data;
+}
 
 
 /**
