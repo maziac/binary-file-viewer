@@ -49,6 +49,9 @@ interface RowNodes {
 	descriptionNode: HTMLTableCellElement
 }
 
+// The context menu objects
+const contextMenu = document.getElementById('context-menu') as HTMLDivElement;
+
 
 // /**
 //  * Call to check a value.
@@ -717,6 +720,69 @@ globalThis.parseStart = function () {
 globalThis.copyHtmlToClipboard = function () {
 	const copyText = document.documentElement.innerHTML;
 	navigator.clipboard.writeText(copyText);
+}
+
+
+/** Checks for right click to display the context menu.
+*/
+document.addEventListener('contextmenu', function (event) {	// NOSONAR
+	if (!event)
+		return;
+	event.preventDefault();
+
+	// Ensure the webview has focus
+	if (!document.hasFocus())
+		return;
+
+	// Make menu visible and position it
+	makeMenuVisibleAt(contextMenu, event.clientX, event.clientY);
+});
+
+
+document.addEventListener('click', function (event) {
+	if (event.target !== contextMenu && !contextMenu.contains(event.target as Node)) {
+		contextMenu.classList.remove('visible');
+	}
+});
+
+
+// Make menu visible and position it at mouesX/Y.
+// It also moves the rect in the visible area.
+function makeMenuVisibleAt(contextMenu: HTMLDivElement, mouseX, mouseY) {
+	// Check for out of bounds and display
+	contextMenu.classList.add("visible");
+	const {normalizedX, normalizedY} = normalizePosition(mouseX, mouseY, contextMenu);
+	contextMenu.style.left = `${normalizedX}px`;
+	contextMenu.style.top = `${normalizedY}px`;
+}
+
+
+/**
+ * The function checks if the mouse position gets outside the 'body'.
+ * @param mouseX mouse x position
+ * @param mouseY mouse y position
+ * @param contextMenu The context menu.
+ * @returns mouse x/y inside the body.
+ */
+function normalizePosition(mouseX: number, mouseY: number, contextMenu: HTMLElement) {
+	const width = document.documentElement.clientWidth;
+	const height = document.documentElement.clientHeight;
+
+	const ctxMenuRect = contextMenu.getBoundingClientRect();
+
+	let normalizedX = mouseX;
+	let normalizedY = mouseY;
+
+	// normalize on X
+	if (normalizedX + ctxMenuRect.width > width) {
+		normalizedX = width - ctxMenuRect.width;
+	}
+	// normalize on Y
+	if (normalizedY + ctxMenuRect.height > height) {
+		normalizedY = height - ctxMenuRect.height;
+	}
+
+	return {normalizedX, normalizedY};
 }
 
 
