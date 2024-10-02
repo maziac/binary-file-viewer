@@ -51,6 +51,8 @@ interface RowNodes {
 
 // The context menu objects
 const contextMenu = document.getElementById('context-menu') as HTMLDivElement;
+const contextMenuItemCopy = document.getElementById('context-menu-item-copy') as HTMLDivElement;
+const contextMenuItemSaveAs = document.getElementById('context-menu-item-saveas') as HTMLDivElement;
 
 
 // /**
@@ -734,11 +736,16 @@ document.addEventListener('contextmenu', function (event) {	// NOSONAR
 	if (!document.hasFocus())
 		return;
 
+	// Remember the target element for the context menu
+	contextMenuTarget = event.target as HTMLElement;
+
 	// Make menu visible and position it
 	makeMenuVisibleAt(contextMenu, event.clientX, event.clientY);
 });
+let contextMenuTarget: HTMLElement | null = null;
 
 
+/** Hide context menu. */
 document.addEventListener('click', function (event) {
 	if (event.target !== contextMenu && !contextMenu.contains(event.target as Node)) {
 		contextMenu.classList.remove('visible');
@@ -755,6 +762,32 @@ function makeMenuVisibleAt(contextMenu: HTMLDivElement, mouseX, mouseY) {
 	contextMenu.style.left = `${normalizedX}px`;
 	contextMenu.style.top = `${normalizedY}px`;
 }
+
+
+/** Prevent selection loss on context menu click. */
+contextMenu.addEventListener('mousedown', function (event) {
+	event.preventDefault();
+});
+
+
+/** Menu item Copy has been clicked. */
+contextMenuItemCopy.addEventListener('click', function (event) {
+	const selection = window.getSelection();
+	let txt;
+
+	if (selection && selection.rangeCount > 0) {
+		// Just the selected text
+		const range = selection.getRangeAt(0);
+		txt = range.toString();
+	}
+	if(!txt) {
+		// The complete text
+		txt = contextMenuTarget?.innerText || '';
+	}
+
+	console.log('Copy:', txt);
+	contextMenu.classList.remove('visible');
+});
 
 
 /**
