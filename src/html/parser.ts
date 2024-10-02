@@ -771,21 +771,41 @@ contextMenu.addEventListener('mousedown', function (event) {
 
 
 /** Menu item Copy has been clicked. */
-contextMenuItemCopy.addEventListener('click', function (event) {
+contextMenuItemCopy.addEventListener('click', async function (event) {
 	const selection = window.getSelection();
-	let txt;
 
-	if (selection && selection.rangeCount > 0) {
-		// Just the selected text
-		const range = selection.getRangeAt(0);
-		txt = range.toString();
+	if (contextMenuTarget && contextMenuTarget.tagName === 'CANVAS') {
+		// Canvas/image copy
+		const canvas = contextMenuTarget as HTMLCanvasElement;
+		const dataUrl = canvas.toDataURL('image/png');
+		const blob = await(await fetch(dataUrl)).blob();
+		const item = new ClipboardItem({'image/png': blob});
+		navigator.clipboard.write([item]).then(() => {
+			console.log('Image copied to clipboard');
+		}).catch(err => {
+			console.error('Failed to copy image: ' + err);
+		});
 	}
-	if(!txt) {
-		// The complete text
-		txt = contextMenuTarget?.innerText || '';
+	else {
+		// Text copy
+		let txt;
+		if (selection && selection.rangeCount > 0) {
+			// Just the selected text
+			const range = selection.getRangeAt(0);
+			txt = range.toString();
+		}
+		if (!txt) {
+			// The complete text
+			txt = contextMenuTarget?.innerText || '';
+		}
+
+		// Copy to clipboard
+		if (txt)
+			await navigator.clipboard.writeText(txt);
+
+		console.log('Copy:', txt);
 	}
 
-	console.log('Copy:', txt);
 	contextMenu.classList.remove('visible');
 });
 
