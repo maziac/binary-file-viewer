@@ -82,10 +82,18 @@ const romChars = [
 	0x00, 0x7e, 0x04, 0x08, 0x10, 0x20, 0x7e, 0x00
 ];
 
-
+/** The ZX82 charset and tokens.
+ * Where possible unicode has been used for the non ascii
+ * characters. If no unicode is available, e.g. for some
+ * inverted characters, a square brackets are used.
+ * E.g. "[:]"
+ * Note: The ZX81 graphics unicode \u{1FB8F}, \u{1FB8E},
+ * \u{1FB90}, \u{1FB91}, \u{1FB92} do exist but do not work
+ * for me.
+ */
 const BASIC = [
 	// 0x0
-	"SP", "\u2588", "\u2592", "\u2593", "\u2584", "\u2590", "\u2580", "\u2595", "Ĳ", "\u2596", "¦", "\"", "£", "$", ":", "?",
+	" ", "\u2598", "\u259D", "\u2580", "\u2596", "\u258C", "\u259E", "\u259B", "\u2592", "\u{1FB8F}", "\u{1FB8E}", "\"", "£", "$", ":", "?",
 	// 0x1
 	"(", ")", ">", "<", "=", "+", "-", "*", "/", ";", ",", ".", "0", "1", "2", "3",
 	// 0x2
@@ -100,13 +108,13 @@ const BASIC = [
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	// 0x7
 	"UP", "DOWN", "LEFT", "RIGHT", "GRAPHICS", "EDIT", "\n", "RUBOUT", "K/L", "MODE", "FUNCTION", "", "", "", "NUMBER", "CURSOR",
-	// 0x8
-	"\u2596", "\u2597", "\u2598", "\u2599", "\u259A", "\u259B", "\u259C", "\u259D", "\u259E", "\u259F", "\u25A0", "\u25A1", "\u25A2", "\u25A3", "\u25A4", "\u25A5",
-	// 0x9
-	"(", ")", ">", "<", "=", "+", "-", "*", "/", ";", ",", ".", "0", "1", "2", "3",
-	// 0xA
-	"4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-	// 0xB
+	// 0x8 Inverse graphics
+	"\u2588", "\u259F", "\u2599", "\u2584", "\u259C", "\u2590", "\u259A", "\u2597", "\u{1FB90}", "\u{1FB91}", "\u{1FB92}", "[\“]", "[£]", "[$]", "[:]", "[?]",
+	// 0x9 Inverse
+	"[(]", "[)]", "[>]", "[<]", "[=]", "[+]", "[-]", "[*]", "[/]", "[;]", "[,]", "[.]", "[0]", "[1]", "[2]", "[3]",
+	// 0xA Inverse
+	"[4]", "[5]", "[6]", "[7]", "[8]", "[9]", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+	// 0xB Inverse
 	"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
 	// 0xC
 	"\u2033", "AT ", "TAB ", "?", "CODE ", "VAL ", "LEN ", "SIN ", "COS ", "TAN ", "ASN ", "ACS ", "ATN ", "LN ", "EXP ", "INT ",
@@ -395,6 +403,13 @@ function drawUlaScreen(ctx /*CanvasRenderingContext2D*/, imgData /*ImageData*/, 
 function getZx81BasicText(progLength) {
 	let remaining = progLength;
 	let txt = '';
+
+	for (let i = 0; i < 256; i++) {
+		cvt = convertToken(i);
+		txt += 'i=' + i.toString().padStart(3) + ' (' + i.toString(16).toUpperCase().padStart(2, 0) + '), token: ' + i.toString().padStart(3) + ', BASIC: ' + cvt + '\n';
+	}
+
+
 	while (remaining > 4) {
 		setEndianness('big');
 		read(2);	// Line number
@@ -411,15 +426,14 @@ function getZx81BasicText(progLength) {
 		for(let i = 0; i < length; i++) {
 			read(1);
 			token = getNumberValue();
-			dbgLog('token: ' + token + ', BASIC: ' + BASIC[token]);
+			dbgLog('i=' + i.toString().padStart(3) + ', token: ' + token + ', BASIC: ' + BASIC[token]);
 			// Check token
-			switch (token) {
-				case 0x7E:	// Number (is hidden)
-					read(5);
-					i += 5;
-					break;
-				default:
-					txt += BASIC[token];
+			if (token === 0x7E) {	// Number (is hidden)
+				read(5);	// Skip floating point representation
+				i += 5;
+			}
+			else {
+				txt += convertToken(token);
 			}
 		}
 		// Next
@@ -428,3 +442,12 @@ function getZx81BasicText(progLength) {
 	return txt;
 }
 
+
+/** Converts one ZX81 character/token into text. */
+function convertToken(token) {
+	if (token >= 0xA6 && token <= 0xBF) {	// Negativ/inverse A-Z
+		return String.fromCodePoint(0x1F170 + token - 0xA6);
+	}
+	// Use table
+	return BASIC[token];
+}
