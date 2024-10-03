@@ -404,11 +404,11 @@ function getZx81BasicText(progLength) {
 	let remaining = progLength;
 	let txt = '';
 
-	for (let i = 0; i < 256; i++) {
-		cvt = convertToken(i);
-		txt += 'i=' + i.toString().padStart(3) + ' (' + i.toString(16).toUpperCase().padStart(2, 0) + '), token: ' + i.toString().padStart(3) + ', BASIC: ' + cvt + '\n';
-	}
-
+	// for (let i = 0; i < 256; i++) {
+	// 	cvt = convertToken(i);
+	// 	txt += 'i=' + i.toString().padStart(3) + ' (' + i.toString(16).toUpperCase().padStart(2, 0) + '), token: ' + i.toString().padStart(3) + ', BASIC: ' + cvt + '\n';
+	// }
+	//return txt;
 
 	while (remaining > 4) {
 		setEndianness('big');

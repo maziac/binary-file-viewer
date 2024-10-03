@@ -225,7 +225,7 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['dbgOverrideDetailsOpen', "Overrides the open/closed state of following 'details' commands. Can be used for debugging purposes to e.g.temporary open all 'details' during parsing.Removing the need to manually open the 'details' on each change in the parser js file."],
+					func: ['dbgOverrideDetailsOpen', "Overrides the open/closed state of following 'details' commands. Can be used for debugging purposes to e.g. temporary open all 'details' during parsing.Removing the need to manually open the 'details' on each change in the parser js file."],
 					params: [
 						['open', 'boolean', "- true: All following 'details' commands will be initially open. Regardless of the individual setting.\n- false: All following 'details' commands will be initially closed. Regardless of the individual setting.\n- undefined: Switch back to normal behavior.The individual setting will be used."
 						]

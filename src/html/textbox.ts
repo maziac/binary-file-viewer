@@ -39,6 +39,7 @@ export function addTextBox(text: string, minHeight: number, initialMaxHeight: nu
 	textBox.style.overflowY = 'auto';
 	textBox.style.whiteSpace = 'pre-wrap';
 	textBox.style.overflowWrap = 'break-word';
+	textBox.style.wordBreak = 'break-all';
 	textBox.style.border = '1px solid black';
 	textBox.style.padding = '5px';
 	textBox.style.boxSizing = 'border-box';
