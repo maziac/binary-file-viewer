@@ -321,7 +321,9 @@ registerParser(() => {
 	dbgLog('offset2: ', sysVarsSize + basicPrgSize + dfileSize);
 	read(dfileSize);
 
-	addRow('DFILE $' + toHex(dfile_ptr) + ' - $' + toHex(vars_ptr), '', 'ZX81 screen memory.');
+	dfileComment = 'ZX81 screen display ';
+	dfileComment += (dfileSize === 24*33+1) ? '(expanded).' : '(collapsed).';
+	addRow('DFILE $' + toHex(dfile_ptr) + ' - $' + toHex(vars_ptr), '', dfileComment);
  	addDetails(() => {
 		read(dfileSize);
 		//addMemDump();
