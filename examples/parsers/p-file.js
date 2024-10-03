@@ -1,6 +1,7 @@
 
 registerFileType((fileExt, filePath, data) => {
 	// Check for obj
+	fileExt = fileExt.toLowerCase();
 	return (fileExt === 'p' || fileExt === 'o' || fileExt === 'p81');
 });
 
@@ -411,7 +412,15 @@ function getZx81BasicText(progLength) {
 			read(1);
 			token = getNumberValue();
 			dbgLog('token: ' + token + ', BASIC: ' + BASIC[token]);
-			txt += BASIC[token];
+			// Check token
+			switch (token) {
+				case 0x7E:	// Number (is hidden)
+					read(5);
+					i += 5;
+					break;
+				default:
+					txt += BASIC[token];
+			}
 		}
 		// Next
 		remaining -= 4 + length;
