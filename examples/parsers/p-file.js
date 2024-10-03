@@ -1,3 +1,4 @@
+
 registerFileType((fileExt, filePath, data) => {
 	// Check for obj
 	return (fileExt === 'p' || fileExt === 'o' || fileExt === 'p81');
@@ -80,6 +81,41 @@ const romChars = [
 	0x00, 0x7e, 0x04, 0x08, 0x10, 0x20, 0x7e, 0x00
 ];
 
+
+const BASIC = [
+	// 0x0
+	"SP", "\u2588", "\u2592", "\u2593", "\u2584", "\u2590", "\u2580", "\u2595", "Ĳ", "\u2596", "¦", "\"", "£", "$", ":", "?",
+	// 0x1
+	"(", ")", ">", "<", "=", "+", "-", "*", "/", ";", ",", ".", "0", "1", "2", "3",
+	// 0x2
+	"4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+	// 0x3
+	"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+	// 0x4
+	"RND", "INKEY$", "PI", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	// 0x5
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	// 0x6
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	// 0x7
+	"UP", "DOWN", "LEFT", "RIGHT", "GRAPHICS", "EDIT", "\n", "RUBOUT", "K/L", "MODE", "FUNCTION", "", "", "", "NUMBER", "CURSOR",
+	// 0x8
+	"\u2596", "\u2597", "\u2598", "\u2599", "\u259A", "\u259B", "\u259C", "\u259D", "\u259E", "\u259F", "\u25A0", "\u25A1", "\u25A2", "\u25A3", "\u25A4", "\u25A5",
+	// 0x9
+	"(", ")", ">", "<", "=", "+", "-", "*", "/", ";", ",", ".", "0", "1", "2", "3",
+	// 0xA
+	"4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+	// 0xB
+	"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+	// 0xC
+	"\u2033", "AT ", "TAB ", "?", "CODE ", "VAL ", "LEN ", "SIN ", "COS ", "TAN ", "ASN ", "ACS ", "ATN ", "LN ", "EXP ", "INT ",
+	// 0xD
+	"SQR ", "SGN ", "ABS ", "PEEK ", "USR ", "STR$ ", "CHRS ", "NOT ", "**", " OR ", " AND ", "<=", ">=", "<>", " THEN ", " TO ",
+	// 0xE
+	" STEP ", " LPRINT ", " LLIST ", " STOP ", " SLOW ", " FAST ", " NEW ", " SCROLL ", " CONT ", " DIM ", " REM ", " FOR ", " GOTO ", " GOSUB ", " INPUT ", " LOAD ",
+	// 0xF
+	" LIST ", " LET ", " PAUSE ", " NEXT ", " POKE ", " PRINT ", " PLOT ", " RUN ", " SAVE ", " RAND ", " IF ", " CLS ", " UNPLOT ", " CLEAR ", " RETURN ", " COPY "
+];
 
 /**
  * Parser for p files (ZX81).
@@ -229,9 +265,7 @@ registerParser(() => {
 
 	addRow('BASIC Program');
 	addDetails(() => {
-		read(basicPrgSize);
-		basicPrg = getData();
-		text = "1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n1 REM xxxxxx\n10 RAND USR 16514\n20 PRINT AT 0,0;\"HELLO WORLD\"\n30 GOTO 20\n";
+		text = getZx81BasicText(basicPrgSize);
 		addTextBox(text);
 	}, true);
 
@@ -243,8 +277,8 @@ registerParser(() => {
 
 	addRow('DFILE');
  	addDetails(() => {
-		  read(dfileSize);
-		  //addMemDump();
+		read(dfileSize);
+		//addMemDump();
 		dfile = getData();
 		ctx = addCanvas(SCREEN_WIDTH, 192);
 		imgData = ctx.createImageData(SCREEN_WIDTH, 400);
@@ -345,5 +379,43 @@ function drawUlaScreen(ctx /*CanvasRenderingContext2D*/, imgData /*ImageData*/, 
 	}
 
 	ctx.putImageData(imgData, 0, 0);
+}
+
+
+/** Reads the data of a ZX81 BASIC program and converts
+ * it to unicode text.
+ * The BASIC format is:
+ * SIZE MEANING
+ * 2    Line number. Big endian.
+ * 2    Length of of following bytes in line (incl $76). little endian.
+ * n    The BASIC tokens.
+ * 1	0x76 (END token, Newline)
+ */
+function getZx81BasicText(progLength) {
+	let remaining = progLength;
+	let txt = '';
+	while (remaining > 4) {
+		setEndianness('big');
+		read(2);	// Line number
+		lineNumber = getNumberValue();
+		dbgLog('-----------------------');
+		dbgLog('Line: ' + lineNumber);
+		setEndianness('little');
+		txt += lineNumber + ' ';
+		read(2);	// Length
+		length = getNumberValue();
+		if (length > remaining)
+			length = remaining;
+		// Read tokens
+		for(let i = 0; i < length; i++) {
+			read(1);
+			token = getNumberValue();
+			dbgLog('token: ' + token + ', BASIC: ' + BASIC[token]);
+			txt += BASIC[token];
+		}
+		// Next
+		remaining -= 4 + length;
+	}
+	return txt;
 }
 
