@@ -83,17 +83,18 @@ const romChars = [
 ];
 
 /** The ZX82 charset and tokens.
- * Where possible unicode has been used for the non ascii
- * characters. If no unicode is available, e.g. for some
- * inverted characters, a square brackets are used.
- * E.g. "[:]"
- * Note: The ZX81 graphics unicode \u{1FB8F}, \u{1FB8E},
- * \u{1FB90}, \u{1FB91}, \u{1FB92} do exist but do not work
- * for me.
+ * For the graphics codes and the inverse characters the coding
+ * of ZXText2P has been used.
+ * See https://freestuff.grok.co.uk/zxtext2p/index.html
+ * To be able to reconstruct machine code in REM statements the ZX81 charser codes
+ * without character are put as a number in square brackets.
+ * The codes that correspondent to commands like "GOTO" are also but in brackets,
+ * e.g. "[GOTO]".
+ * Same as done for these codes when they appear in quoted text.
  */
 const BASIC = [
 	// 0x0
-	" ", "\u2598", "\u259D", "\u2580", "\u2596", "\u258C", "\u259E", "\u259B", "\u2592", "\u{1FB8F}", "\u{1FB8E}", "\"", "£", "$", ":", "?",
+	" ", "\\' ", "\\ '", "\\''", "\\. ", "\\: ", "\\.'", "\\:'", "\\##", "\\,,", "\\~~", "\"", "#", "$", ":", "?",
 	// 0x1
 	"(", ")", ">", "<", "=", "+", "-", "*", "/", ";", ",", ".", "0", "1", "2", "3",
 	// 0x2
@@ -107,17 +108,18 @@ const BASIC = [
 	// 0x6
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	// 0x7
-	"UP", "DOWN", "LEFT", "RIGHT", "GRAPHICS", "EDIT", "\n", "RUBOUT", "K/L", "MODE", "FUNCTION", "", "", "", "NUMBER", "CURSOR",
+	//"UP", "DOWN", "LEFT", "RIGHT", "GRAPHICS", "EDIT", "\n", "RUBOUT", "K/L", "MODE", "FUNCTION", "", "", "", "NUMBER", "CURSOR",
+	"", "", "", "", "", "", "\n", "", "", "", "", "", "", "", "", "",
 	// 0x8 Inverse graphics
-	"\u2588", "\u259F", "\u2599", "\u2584", "\u259C", "\u2590", "\u259A", "\u2597", "\u{1FB90}", "\u{1FB91}", "\u{1FB92}", "[\“]", "[£]", "[$]", "[:]", "[?]",
+	"\\::", "\\.:", "\\:.", "\\..", "\\':", "\\ :", "\\'.", "\\ .", "\@@", "\\;;", "\\!!", "\"", "#", "$", ":", "?",
 	// 0x9 Inverse
-	"[(]", "[)]", "[>]", "[<]", "[=]", "[+]", "[-]", "[*]", "[/]", "[;]", "[,]", "[.]", "[0]", "[1]", "[2]", "[3]",
+	"(", ")", ">", "<", "=", "+", "-", "*", "/", ";", ",", ".", "0", "1", "2", "3",
 	// 0xA Inverse
-	"[4]", "[5]", "[6]", "[7]", "[8]", "[9]", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+	"4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
 	// 0xB Inverse
 	"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
 	// 0xC
-	"\u2033", "AT ", "TAB ", "?", "CODE ", "VAL ", "LEN ", "SIN ", "COS ", "TAN ", "ASN ", "ACS ", "ATN ", "LN ", "EXP ", "INT ",
+	"\\\"", "AT ", "TAB ", "", "CODE ", "VAL ", "LEN ", "SIN ", "COS ", "TAN ", "ASN ", "ACS ", "ATN ", "LN ", "EXP ", "INT ",
 	// 0xD
 	"SQR ", "SGN ", "ABS ", "PEEK ", "USR ", "STR$ ", "CHRS ", "NOT ", "**", " OR ", " AND ", "<=", ">=", "<>", " THEN ", " TO ",
 	// 0xE
@@ -313,7 +315,7 @@ registerParser(() => {
 		//addMemDump();
 		text = getZx81BasicText(basicPrgSize);
 		addTextBox(text);
-	}, false);
+	}, true);
 
 	// DFILE (screen)
 	dfileSize = vars_ptr - dfile_ptr;
@@ -480,17 +482,34 @@ function getZx81BasicText(progLength) {
 		if (length > remaining)
 			length = remaining;
 		// Read tokens
+		let rem = false;
+		let quoted = false;
 		for(let i = 0; i < length; i++) {
 			read(1);
 			token = getNumberValue();
 			//dbgLog('i=' + i.toString().padStart(3) + ', token: ' + token + ', BASIC: ' + BASIC[token]);
-			// Check token
+
+			// Number?
 			if (token === 0x7E) {	// Number (is hidden)
 				read(5);	// Skip floating point representation
 				i += 5;
 			}
 			else {
-				txt += convertToken(token);
+				// Get token
+				let cvt = convertToken(token);
+				// If REM or quoted then add brackets to commands
+				if ((rem || quoted) && token >= 0xC1 && token !== 0xC3)
+					cvt = '[' + cvt.trim() + ']';
+				txt += cvt;
+			}
+
+			// Check for REM
+			if (i === 0 && token === 0xEA) {
+				rem = true;
+			}
+			// Check for quoted text
+			else if(token === 0x0B) {
+				quoted = !quoted;
 			}
 		}
 		// Next
@@ -502,9 +521,15 @@ function getZx81BasicText(progLength) {
 
 /** Converts one ZX81 character/token into text. */
 function convertToken(token) {
-	if (token >= 0xA6 && token <= 0xBF) {	// Negativ/inverse A-Z
-		return String.fromCodePoint(0x1F170 + token - 0xA6);
+	let txt = '';
+	// Negativ/inverse "-., 0-9, A-Z
+	if (token >= 0x8B && token <= 0xBF) {
+		txt += '%';	// Inverse
 	}
 	// Use table
-	return BASIC[token];
+	txt += BASIC[token];
+	// If not defined then use token in square brackets.
+	if (!txt)
+		txt = '[' + token + ']';
+	return txt;
 }
