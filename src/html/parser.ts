@@ -223,7 +223,7 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
 	// Get bit range (displayed e.g. as "+5:7-3" with 7-3 being the bit range) or use size in bytes
 	let lastSizeHex;
 	let sizeString = '';
-	if (lastSize > 0) {
+	if (lastSize >= 0) {
 		// Bytes used
 		sizeString = lastSize.toString();
 		if(lastBitSize > 0)

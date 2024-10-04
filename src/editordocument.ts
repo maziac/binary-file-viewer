@@ -103,15 +103,17 @@ export class EditorDocument implements vscode.CustomDocument {
 					case 'saveas':
 						// Save text or image to file
 						const data = message.data;
-						let filters;
-						if (typeof data === 'string')
-							filters = {'Text Files': ['txt']};
-						else
-							filters = {'Images': ['png']};
-						const options = {
-							saveLabel: 'Save',
-							filters
+						const options: vscode.SaveDialogOptions = {
+							saveLabel: 'Save'
 						};
+						if (typeof data === 'string') {
+							options.filters = {'Text Files': ['txt']};
+							options.defaultUri = vscode.Uri.file(filePath + '.txt');
+						}
+						else {
+							options.filters = {'Images': ['png']};
+							options.defaultUri = vscode.Uri.file(filePath + '.png');
+						}
 						const uri = await vscode.window.showSaveDialog(options);
 						if (uri) {
 							if (typeof data === 'string') {

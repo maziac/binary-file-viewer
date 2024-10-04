@@ -338,7 +338,7 @@ registerParser(() => {
 	dbgLog('VARS size: ' + varsSize);
 	read(varsSize);
 
-	addRow('VARS $' + toHex(vars_ptr) + ' - $' + toHex(eline_ptr - 1), '', 'ZX81 BASIC variables.');
+	addRow('VARS $' + toHex(vars_ptr) + ' - $' + toHex(eline_ptr), '', 'ZX81 BASIC variables.');
 	addDetails(() => {
 		read(varsSize);
 		addMemDump();
@@ -474,7 +474,7 @@ function getZx81BasicText(progLength) {
 		//dbgLog('-----------------------');
 		//dbgLog('Line: ' + lineNumber);
 		setEndianness('little');
-		txt += lineNumber + ' ';
+		txt += lineNumber.toString().padStart(4);
 		read(2);	// Length
 		length = getNumberValue();
 		if (length > remaining)
