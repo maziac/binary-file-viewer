@@ -232,7 +232,7 @@ export class EditorDocument implements vscode.CustomDocument {
 		// Previous parser exists
 		else if (!parser) {
 			// But not anymore
-			ParserSelect.clearDiagnostics();
+			// ParserSelect.clearDiagnostics(); If cleared, if the js file contains an error the parser is undefined and errors would be cleaned here.
 			this.setHtml(parser);
 		}
 		else {
