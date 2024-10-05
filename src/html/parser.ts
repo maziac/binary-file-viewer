@@ -307,11 +307,11 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
  * @param name The name of the value.
  * @param value (Optional) The value to display.
  * @param description (Optional) A short description of the entry.
- * @param hexOffset (Optional) Display Offset with hex.
  * @param valueHover (Optional) Is displayed on hovering over the 'value'.
+ * @param hexOffset (Optional) Display Offset with hex.
  */
-function addRow(name: string, value: String | string | number = '', description = '', hexOffset = false, valueHover?: string | number) { // NOSONAR
-	const row = addEmptyRow(name, hexOffset);
+function addRow(name: string, value: String | string | number = '', description = '', valueHover?: string | number, hexOffset?: boolean) { // NOSONAR
+	const row = addEmptyRow(name, hexOffset ?? false);
 	makeRowComplete(row, value, description, valueHover);
 }
 
@@ -325,7 +325,7 @@ function addRow(name: string, value: String | string | number = '', description 
  * @param hexOffset (Optional) Display Offset with hex.
  * false (default)=The Offset initially uses decimal.
  */
-function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false, hexOffset = false) {	// NOSONAR
+function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false, hexOffset?: boolean) {	// NOSONAR
 	// Check if overridden
 	if (overrideDetailsOpen != undefined) {
 		opened = overrideDetailsOpen;
@@ -335,7 +335,7 @@ function readRowWithDetails(name: string, func: () => {value: String | string | 
 	correctBitByteOffsets();
 
 	// Add row
-	const row = addEmptyRow(name, hexOffset);
+	const row = addEmptyRow(name, hexOffset ?? false);
 
 	// Save
 	const beginOffset = lastOffset;
