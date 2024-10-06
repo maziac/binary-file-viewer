@@ -76,7 +76,8 @@ export class FunctionDocumentation {
 					params: [
 						['name', 'string', "The name of the value."],
 						['func', '() => {value?: string | number, description?: string, valueHover?: string | number} | void, opened = false)', "The function to call to parse/decode the data. The function can return an object which is used for the row's 'value' and 'description'."],
-						['opened', 'boolean', "true=the details are opened on initial parsing. false (default)=The details are initially closed."]
+						['opened', 'boolean', "true=the details are opened on initial parsing. false (default)=The details are initially closed."],
+						['hexOffset?', 'boolean', "(Optional) Display Offset with hex. false (default)=The Offset initially uses decimal."]
 					]
 				},
 				{
@@ -116,6 +117,7 @@ export class FunctionDocumentation {
 						['value?', 'string|number', "(Optional) The value to display."],
 						['description?', 'string', "(Optional) A description of the entry"],
 						['valueHover?', 'string|number', "(Optional) Is displayed on hovering over the 'value'."],
+						['hexOffset?', 'boolean', "(Optional) Display Offset with hex."]
 					]
 				},
 				{
