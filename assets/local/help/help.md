@@ -494,10 +494,13 @@ These functions can also work with global variables.
 Not all js builtins are accessible for the binary file viewer.
 These have been made available:
 - Math
+- Date
 - String
 - Number
 - BigInt
 - Array
+- ArrayBuffer
+- DataView
 - Object
 - JSON
 - atob, btoa

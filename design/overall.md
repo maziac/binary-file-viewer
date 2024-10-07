@@ -148,10 +148,13 @@ As context all file-parser functions are passed and a few global namespaces and 
   - endOfFile
 - global:
   - Math
+  - Date
   - String
   - Number
   - BigInt
   - Array
+  - ArrayBuffer
+	- DataView
 	- Object
 	- JSON
 	- atob(), btoa()

@@ -130,7 +130,7 @@ function addStandardHeader() {
 			i = k;
 		i++;
 		usedParser = parser.substring(i);
-	
+
 		if (selected === idx) {
 			html += '	<option selected value="' + idx + '">' + usedParser +  '</option>'
 		} else {
@@ -719,11 +719,14 @@ globalThis.parseStart = function () {
 
 			// Standard
 			Math,
+			Date,
 			String,
 			Number,
 			BigInt,
 			Object,
 			Array,
+			ArrayBuffer,
+			DataView,
 			Map,
 			JSON,
 
