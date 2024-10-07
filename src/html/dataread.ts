@@ -123,7 +123,7 @@ export function readBits(bitSize: number) {
 	}
 
 	// Check
-	if(lastOffset + (lastBitOffset+lastBitSize)/8 > dataBuffer.length)
+	if(lastOffset + bitSize/8 > dataBuffer.length)
 		throw new Error("readBits: Reading past end of file.");
 
 	// Sizes

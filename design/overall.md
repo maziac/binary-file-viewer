@@ -150,6 +150,7 @@ As context all file-parser functions are passed and a few global namespaces and 
   - Math
   - String
   - Number
+  - BigInt
   - Array
 	- Object
 	- JSON

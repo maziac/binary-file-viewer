@@ -416,6 +416,10 @@ With ```dbgOverrideDetailsOpen``` you can control/override the open/close state 
 The path(s) to your parser file(s) can be changed in the settings:
 ![](help_settings.jpg)
 
+## Change parser
+
+If multiple parsers are in the parser path, we will use the first parser by default, you can change the parser by dropdown then press ```Reload``` to parse the file by the parser.
+![](help_dropdown.jpg)
 
 ## Navigation
 
@@ -492,6 +496,7 @@ These have been made available:
 - Math
 - String
 - Number
+- BigInt
 - Array
 - Object
 - JSON
