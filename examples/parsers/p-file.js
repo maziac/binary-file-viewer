@@ -108,8 +108,8 @@ const BASIC = [
 	// 0x6
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	// 0x7
-	//"UP", "DOWN", "LEFT", "RIGHT", "GRAPHICS", "EDIT", "\n", "RUBOUT", "K/L", "MODE", "FUNCTION", "", "", "", "NUMBER", "CURSOR",
-	"", "", "", "", "", "", "\n", "", "", "", "", "", "", "", "", "",
+	//"UP", "DOWN", "LEFT", "RIGHT", "GRAPHICS", "EDIT", "NEWLINE", "RUBOUT", "K/L", "MODE", "FUNCTION", "", "", "", "NUMBER", "CURSOR",
+	"", "", "", "", "", "", ""/*NL*/, "", "", "", "", "", "", "", "", "",
 	// 0x8 Inverse graphics
 	"\\::", "\\.:", "\\:.", "\\..", "\\':", "\\ :", "\\'.", "\\ .", "\@@", "\\;;", "\\!!", "\"", "#", "$", ":", "?",
 	// 0x9 Inverse
@@ -484,13 +484,13 @@ function getZx81BasicText(progLength) {
 		// Read tokens
 		let rem = false;
 		let quoted = false;
-		for(let i = 0; i < length; i++) {
+		for(let i = 0; i < length - 1; i++) {
 			read(1);
 			token = getNumberValue();
 			//dbgLog('i=' + i.toString().padStart(3) + ', token: ' + token + ', BASIC: ' + BASIC[token]);
 
 			// Number?
-			if (token === 0x7E) {	// Number (is hidden)
+			if (!rem && !quoted && token === 0x7E) {	// Number (is hidden)
 				read(5);	// Skip floating point representation
 				i += 5;
 			}
@@ -498,8 +498,8 @@ function getZx81BasicText(progLength) {
 				// Get token
 				let cvt = convertToken(token);
 				// If REM or quoted then add brackets to commands
-				if ((rem || quoted) && token >= 0xC1 && token !== 0xC3)
-					cvt = '[' + cvt.trim() + ']';
+				if ((rem || quoted) && ((token >= 0xC1 && token !== 0xC3) || (token >= 0x40 && token <= 0x42)))
+					cvt = '[' + cvt + ']';
 				txt += cvt;
 			}
 
@@ -512,8 +512,11 @@ function getZx81BasicText(progLength) {
 				quoted = !quoted;
 			}
 		}
+		// Read newline
+		read(1);
 		// Next
 		remaining -= 4 + length;
+		txt += '\n';
 	}
 	return txt;
 }
