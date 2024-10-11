@@ -476,7 +476,7 @@ function getZx81BasicText(progLength) {
 		//dbgLog('-----------------------');
 		//dbgLog('Line: ' + lineNumber);
 		setEndianness('little');
-		txt += lineNumber.toString().padStart(4);
+		txt += lineNumber.toString().padStart(4) + ' ';
 		read(2);	// Length
 		length = getNumberValue();
 		if (length > remaining)
@@ -497,9 +497,12 @@ function getZx81BasicText(progLength) {
 			else {
 				// Get token
 				let cvt = convertToken(token);
+				// For commands skip left space
+				if (token >= 0xE1)
+					cvt = cvt.trimStart();
 				// If REM or quoted then add brackets to commands
 				if ((rem || quoted) && ((token >= 0xC1 && token !== 0xC3) || (token >= 0x40 && token <= 0x42)))
-					cvt = '[' + cvt + ']';
+					cvt = '[' + cvt.trim() + ']';
 				txt += cvt;
 			}
 
