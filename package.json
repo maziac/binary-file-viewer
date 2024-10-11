@@ -2,7 +2,7 @@
     "name": "binary-file-viewer",
     "displayName": "Binary File Viewer",
     "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file.",
-    "version": "1.10.0",
+    "version": "1.11.0",
     "publisher": "maziac",
     "author": {
         "name": "Thomas Busse"
@@ -130,6 +130,15 @@
                         "completionEvents": [
                             "onSettingChanged:binary-file-viewer.parserFolders"
                         ]
+                    },
+                    {
+                        "id": "changeParser",
+                        "title": "Use other Parser",
+                        "description": "When multiple parsers are in the folder, click the dropdown and choose the parser you want then press 'Reload' to use it to decode the binary file.",
+                        "media": {
+                            "image": "assets/local/walkthroughs/change_parser.gif",
+                            "altText": ""
+                        }
                     },
                     {
                         "id": "createParserFile",

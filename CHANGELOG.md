@@ -1,5 +1,11 @@
 # Changelog
 
+# 1.11.0
+- addRow: Parameter added to show the offset in decimal or hex. (lee)
+- Added dropdown for user to select the parser in case there is more than one (lee)
+- readBits fixed at end of file (lee)
+- Added BigInt (lee), Date, ArrayBuffer and DataView objects.
+
 # 1.10.0
 - registerParser: the parser you register now has as parameter the file path of the file to be decoded.
 

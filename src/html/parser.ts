@@ -18,8 +18,11 @@ import {addTextBox} from './textbox';
 // The custom parser (js program as a string).
 let customParser: string;
 
-// The file path of the custom parser.
-let filePathParser: string;
+// The file path of all custom parser.
+let filePathParsers: string[] = [];
+
+// The parser file selected
+let selected = 0;
 
 // Contains the file path of the binary file to parse.
 let binFilePath: string;
@@ -68,6 +71,18 @@ const contextMenuItemSaveAs = document.getElementById('context-menu-item-saveas'
 
 
 /**
+ * Sends a command to the extension to change parser file.
+ */
+globalThis.changeParser = function (cell: HTMLSelectElement) {
+	selected = Number(cell.value);
+	vscode.postMessage({
+		command: 'changeParser',
+		selected: cell.value
+	});
+}
+
+
+/**
  * Sends a command to the extension to open or focus the used parser file.
  */
 globalThis.openCustomParser = function () {
@@ -110,15 +125,28 @@ function addStandardHeader() {
 
 	// Add file size
 	let html = '<span>File size: ' + fileSize + ' Bytes' + humanString + ', </span>';
+	let usedParser;
 
-	// Used parser
-	let i = filePathParser.lastIndexOf('/');
-	const k = filePathParser.lastIndexOf('\\');
-	if (k > i)
-		i = k;
-	i++;
-	const usedParser = filePathParser.substring(i);
-	html += '<span>Parser used: <a href="#" onclick="openCustomParser()">' + usedParser + '</a></span>';
+	html += '<span>Parser used: </span>';
+	html += '<select id="dropdown" onchange="changeParser(this)">'
+	filePathParsers.forEach((parser, idx) => {
+		let i = parser.lastIndexOf('/');
+		const k = parser.lastIndexOf('\\');
+		if (k > i)
+			i = k;
+		i++;
+		usedParser = parser.substring(i);
+
+		if (selected === idx) {
+			html += '	<option selected value="' + idx + '">' + usedParser +  '</option>'
+		} else {
+			html += '	<option value="' + idx + '">' + usedParser +  '</option>'
+		}
+	});
+	html += '</select>'
+
+	// Open used parser
+	html += '<button href="#" onclick="openCustomParser()"> Open </button>';
 
 	standardHeaderNode.innerHTML = html;
 }
@@ -165,15 +193,16 @@ function setRowValue(value: String | string | number, valueHover?: string | numb
  * Adds an (almost) empty row. Value and size have to be added later.
  * This is a function used by addRow and readRowWithDetails.
  * @param name The name of the value (the row).
+ * @param hexOffset Display Offset with hex.
  * @returns The created cells.
  */
-function addEmptyRow(name: string): RowNodes {
+function addEmptyRow(name: string, hexOffset: boolean): RowNodes {
 	// Create new node
 	const node = document.createElement("TR") as HTMLTableRowElement;
 	const relOffset = getRelOffset();
-	const relOffsetHex = convertToHexString(relOffset, 4);
+	const relOffsetHex = '0x' + convertToHexString(relOffset, 4);
 	const prefix = (startOffset) ? '+' : '';	// '+' for relative index
-	let hoverOffset = `Offset:\nHex: ${relOffsetHex}`;
+	let hoverOffset = `Offset:\n${(hexOffset) ? 'Dec:' + relOffset : 'Hex:' + relOffsetHex}`;
 	if (startOffset) {
 		// Is a relative index, so show also the absolute index as hover.
 		const lastOffsetHex = convertToHexString(lastOffset, 4);
@@ -182,7 +211,7 @@ function addEmptyRow(name: string): RowNodes {
 
 	const html = `
 	<td class="collapse"></td>
-	<td class="offset" title="${hoverOffset}">${prefix}${relOffset}</td>
+	<td class="offset" title="${hoverOffset}">${prefix}${(hexOffset) ? relOffsetHex : relOffset}</td>
 	<td class="size"></td>
 	<td class="name">${name}</td>
 	<td class="value"></td>
@@ -285,9 +314,10 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
  * @param value (Optional) The value to display.
  * @param description (Optional) A short description of the entry.
  * @param valueHover (Optional) Is displayed on hovering over the 'value'.
+ * @param hexOffset (Optional) Display Offset with hex.
  */
-function addRow(name: string, value: String | string | number = '', description = '', valueHover?: string | number) { // NOSONAR
-	const row = addEmptyRow(name);
+function addRow(name: string, value: String | string | number = '', description = '', valueHover?: string | number, hexOffset?: boolean) { // NOSONAR
+	const row = addEmptyRow(name, hexOffset ?? false);
 	makeRowComplete(row, value, description, valueHover);
 }
 
@@ -298,8 +328,10 @@ function addRow(name: string, value: String | string | number = '', description 
  * @param name The name of the value.
  * @param opened true=the details are opened on initial parsing.
  * false (default)=The details are initially closed.
+ * @param hexOffset (Optional) Display Offset with hex.
+ * false (default)=The Offset initially uses decimal.
  */
-function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false) {	// NOSONAR
+function readRowWithDetails(name: string, func: () => {value: String | string | number, description: string, valueHover: string | number}, opened = false, hexOffset?: boolean) {	// NOSONAR
 	// Check if overridden
 	if (overrideDetailsOpen != undefined) {
 		opened = overrideDetailsOpen;
@@ -309,7 +341,7 @@ function readRowWithDetails(name: string, func: () => {value: String | string | 
 	correctBitByteOffsets();
 
 	// Add row
-	const row = addEmptyRow(name);
+	const row = addEmptyRow(name, hexOffset ?? false);
 
 	// Save
 	const beginOffset = lastOffset;
@@ -694,10 +726,14 @@ globalThis.parseStart = function () {
 
 			// Standard
 			Math,
+			Date,
 			String,
 			Number,
+			BigInt,
 			Object,
 			Array,
+			ArrayBuffer,
+			DataView,
 			Map,
 			JSON,
 
@@ -885,8 +921,11 @@ window.addEventListener('message', event => {	// NOSONAR
 			break;
 		case 'setParser':
 			// Store in global variable
-			customParser = message.parser.contents;
-			filePathParser = message.parser.filePath;
+			customParser = message.parsers[selected].contents;
+			filePathParsers = [];
+			message.parsers.forEach((parser) => {
+				filePathParsers.push(parser.filePath);
+			});
 			binFilePath = message.binFilePath;
 
 			// Parse

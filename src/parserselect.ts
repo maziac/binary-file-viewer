@@ -332,12 +332,11 @@ export class ParserSelect {
 
 
 	/**
-	 * Select the right parser file and returns it.
-	 * If several parsers are found a warning is shown and the first one is selected.
+	 * Get all right parser file and returns it.
 	 * @param filePath The full (absolute) file path.
-	 * @returns the parser contents and its file path on success. Otherwise undefined.
+	 * @returns All parser contents and its file path on success. Otherwise undefined.
 	 */
-	public static selectParserFile(filePath: string): ParserInfo|undefined {
+	public static getAllParserFile(filePath: string): ParserInfo[]|undefined {
 		this.testedParserFilePaths = [];
 
 		// Get the file extension
@@ -377,21 +376,8 @@ export class ParserSelect {
 		if (len == 0)
 			return undefined;
 
-		// Check for multiple selections
-		if (len > 1) {
-			// Show warning
-			let msg = "Multiple parsers found for '" + filePath + "': ";
-			let sep = '';
-			for (const parser of foundParsers) {
-				msg += sep + parser.filePath;
-				sep = ', ';
-			}
-			msg += '. Choosing the first one.';
-			vscode.window.showWarningMessage(msg);
-		}
-
 		// Returning the first one.
-		return foundParsers[0];
+		return foundParsers;
 	}
 
 
@@ -440,8 +426,8 @@ export class ParserSelect {
 		const docs = EditorDocument.getDocuments();
 		for (const doc of docs) {
 			const filePath = doc.uri.fsPath;
-			const parser = this.selectParserFile(filePath);
-			doc.updateParser(parser);
+			const parsers = this.getAllParserFile(filePath);
+			doc.updateParser((parsers) ? parsers[doc.selected] : parsers);
 		}
 	}
 
