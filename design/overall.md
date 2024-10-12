@@ -28,10 +28,10 @@ The files contain 2 major sections.
 
 ## registerFileType
 
-'registerFileType' allows the user to install his own function to chek if the file is the right file to be parsed.
+'registerFileType' allows the user to install his own function to check if the file is the right file to be parsed.
 Whenever the user selects a binary file in vscode's file explorer this function is called and should return 'true' if the file can be parsed.
 
-If more than 1 registered function returns true an error is reproted and the first one is used.
+If more than 1 registered functions return true the user can select the wanted parser.
 
 The function registered by registerFileType is executed by the extension.
 
@@ -70,7 +70,7 @@ The file view also has a 'reload' button to manually initiate a reload.
 
 # Use of the VM
 The user's code is executed in a vm.
-In js there are several option to exeute code:
+In js there are several option to execute code:
 - eval
 - new Function
 - vm.runInThisContext()
@@ -148,13 +148,9 @@ As context all file-parser functions are passed and a few global namespaces and 
   - endOfFile
 - global:
   - Math
-  - Date
   - String
   - Number
-  - BigInt
   - Array
-  - ArrayBuffer
-	- DataView
 	- Object
 	- JSON
 	- atob(), btoa()
