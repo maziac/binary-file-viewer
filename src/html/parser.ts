@@ -852,7 +852,7 @@ contextMenuItemSaveAs.addEventListener('click', async function () {
 });
 
 
-/** Copies the selected text, or the wwhole text if nothing selected
+/** Copies the selected text, or the whole text if nothing selected
  * any selected canvas as image.
  * @returns The copied data. string | Blob | null
  */
