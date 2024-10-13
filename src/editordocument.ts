@@ -76,7 +76,7 @@ export class EditorDocument implements vscode.CustomDocument {
 							const dataFs = fs.readFileSync(filePath);
 							const data = Uint8Array.from(dataFs);
 							// Send data and parser
-							this.sendDataToWebView(data, webviewPanel);
+							this.sendDataToWebView(data);
 							this.sendParserToWebView();
 						}
 						break;
@@ -175,15 +175,14 @@ export class EditorDocument implements vscode.CustomDocument {
 	/**
 	 * Reads the file and sends the data to the webview.
 	 * @param data The file data to decode
-	 * @param webviewPanel The webview to send the data to.
 	 */
-	protected sendDataToWebView(data: Uint8Array, webviewPanel: vscode.WebviewPanel) {
+	protected sendDataToWebView(data: Uint8Array) {
 		// Send file data to webview
 		const message = {
 			command: 'setData',
 			data
 		};
-		webviewPanel.webview.postMessage(message);
+		this.webviewPanel.webview.postMessage(message);
 	}
 
 
