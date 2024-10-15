@@ -277,14 +277,14 @@ registerParser(() => {
 		addRow('PRBUFF (0x403C)', '', 'Printer buffer (33 bytes).');
 		addDetails(() => {
 			read(33);
-			addMemDump();
+			addMemDump(false);
 		});
 
 		read(30);
 		addRow('MEMBOT (0x405D)', '', 'Calculator\'s memory area; used to store numbers that cannot conveniently be put on the calculator stack. (30 bytes)');
 		addDetails(() => {
 			read(30);
-			addMemDump();
+			addMemDump(false);
 		});
 
 		read(2);
@@ -343,7 +343,7 @@ registerParser(() => {
 	addRow('VARS $' + toHex(vars_ptr) + ' - $' + toHex(eline_ptr), '', 'ZX81 BASIC variables.');
 	addDetails(() => {
 		read(varsSize);
-		addMemDump();
+		addMemDump(false);
 	}, false);
 });
 

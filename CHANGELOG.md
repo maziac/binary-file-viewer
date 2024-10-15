@@ -1,5 +1,9 @@
 # Changelog
 
+# 1.12.0
+- addTextBox added.
+- addMemDump: Additional parameter to disable the ASCII decoding.
+
 # 1.11.0
 - addRow: Parameter added to show the offset in decimal or hex. (lee)
 - Added dropdown for user to select the parser in case there is more than one (lee)

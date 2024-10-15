@@ -172,7 +172,10 @@ export class FunctionDocumentation {
 					return: ['string', "E.g. '0x7FA0'"]
 				},
 				{
-					func: ['addMemDump', 'Adds a memory dump (hex and ASCII) for the data from the dataBuffer.']
+					func: ['addMemDump', 'Adds a memory dump (hex and ASCII) for the data from the dataBuffer.'],
+					params: [
+						['enableAscii', 'boolean', "true (default)=ASCII decoding enabled. false=no ASCII decoding."]
+					]
 				},
 				{
 					func: ['addChart', 'Creates a chart. E.g. a line chart or a bar chart.\nUse this to visualize series data.'],

@@ -552,10 +552,10 @@ globalThis.createDescription = function (descr: string) {
 }
 
 
-/**
- * Adds a memory dump (hex and ASCII) for the data from the dataBuffer.
+/** Adds a memory dump (hex and ASCII) for the data from the dataBuffer.
+ * @param enableAscii true (default)=show ASCII representation, false=only hex.
  */
-function addMemDump() {
+function addMemDump(enableAscii = true) {
 	let html = '';
 	let asciiHtml = '';
 	let prevNode;
@@ -615,8 +615,10 @@ function addMemDump() {
 			html += '<span class="mem_byte" title="' + hoverText + '">' + valHexString + '</span>';
 
 			// Convert to ASCII
-			const txt = (val < 32) ? '.' : String.fromCharCode(val);
-			asciiHtml += '<span class="description mem_ascii" title="' + hoverText + '">' + txt + '</span>';
+			if (enableAscii) {
+				const txt = (val < 32) ? '.' : String.fromCharCode(val);
+				asciiHtml += '<span class="description mem_ascii" title="' + hoverText + '">' + txt + '</span>';
+			}
 
 			// Next
 			relOffset++;
