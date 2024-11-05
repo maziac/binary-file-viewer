@@ -170,6 +170,8 @@ export class ParserSelect {
 		const range = new vscode.Range(line, columnStart, line, columnStart + columnWidth);
 		const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
 		this.diagnosticsCollection.set(uri, [diagnostic]);
+		// Bring the PROBLEMS pane to the front
+		vscode.commands.executeCommand('workbench.actions.view.problems');
 	}
 
 
