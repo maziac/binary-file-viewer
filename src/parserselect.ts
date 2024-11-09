@@ -171,7 +171,7 @@ export class ParserSelect {
 		const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
 		this.diagnosticsCollection.set(uri, [diagnostic]);
 		// Bring the PROBLEMS pane to the front
-		vscode.commands.executeCommand('workbench.actions.view.problems');
+		vscode.commands.executeCommand('workbench.panel.markers.view.focus');
 	}
 
 
