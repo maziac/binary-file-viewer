@@ -58,6 +58,19 @@ const contextMenuItemCopy = document.getElementById('context-menu-item-copy') as
 const contextMenuItemSaveAs = document.getElementById('context-menu-item-saveas') as HTMLDivElement;
 
 
+// Define SVG icons for collapse and expand
+const expandedIcon = `
+<svg width="16" height="16" viewBox="0 0 16 16">
+  <path d="M3.646 4.646a.5.5 0 0 1 .708 0L8 8.293l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708z" fill="currentColor" stroke="currentColor" stroke-width="0.75"/>
+</svg>
+`;
+const collapsedIcon = `
+<svg width="16" height="16" viewBox="0 0 16 16">
+<path d="M5.646 4.646a.5.5 0 0 1 .708 0L11 8.293l-4.646 4.647a.5.5 0 0 1-.708-.708L10.293 8 5.646 4.354a.5.5 0 0 1 0-.708z" fill="currentColor" stroke="currentColor" stroke-width="0.75"/>
+</svg>
+`;
+
+
 // /**
 //  * Call to check a value.
 //  * Does nothing.
@@ -391,14 +404,24 @@ function convertLineBreaks(s: string) {
  * Collapses and expands all rows in '_expandRows'.
  */
 function collapse(cell: HTMLTableCellElement) {
-	const expandRows = (cell as any)['_expandRows'] as HTMLTableRowElement[];
+	// Find _expandRows in parents
+	let expandRows;
+	do {
+		expandRows = (cell as any)['_expandRows'] as HTMLTableRowElement[];
+		if (expandRows)
+			break;
+		cell = cell.parentElement as HTMLTableCellElement;
+	} while (true);
+
+	// Loop over all rows
 	for (const targetRow of expandRows) {
 		if (targetRow.style.display == 'table-row') {
-			cell.innerHTML = '+';
+
+			cell.innerHTML = collapsedIcon;
 			targetRow.style.display = 'none';
 		}
 		else {
-			cell.innerHTML = '-';
+			cell.innerHTML = expandedIcon;
 			targetRow.style.display = 'table-row';
 			const event = new CustomEvent('expand');
 			cell.dispatchEvent(event);
@@ -428,8 +451,9 @@ function beginDetails(opened: boolean) {
 
 	// Check if there is a row to expand
 	if (lastCollapsibleNode) {
-		// Add collapsible icon (+)
-		lastCollapsibleNode.innerHTML = (opened) ? '-' : '+';
+		// Add collapsible icon (SVG)
+		lastCollapsibleNode.innerHTML = (opened) ? expandedIcon : collapsedIcon;
+
 		// Add function
 		lastCollapsibleNode.onclick = (event) => {
 			collapse(event.target as HTMLTableCellElement);
