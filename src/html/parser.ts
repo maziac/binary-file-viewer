@@ -1,6 +1,7 @@
 import {vscode} from './vscode-import';
 import {dataBuffer, lastOffset, lastSize, lastBitOffset, lastBitSize, startOffset, getDataBufferSize, getRelOffset, convertToHexString, correctBitByteOffsets, setLastOffset, setLastSize, setLastBitOffset, setLastBitSize, setStartOffset, setLittleEndian, read, readUntil, setOffset, getOffset, readBits, setEndianness, getNumberValue, getSignedNumberValue, getFloatNumberValue, getBitsValue, getHexValue, getHex0xValue, getDecimalValue, getSignedDecimalValue, getStringValue, getData, endOfFile, getRemainingSize, setDataBuffer} from './dataread';
-import {lastNode, setLastNode, addChart, createSeries} from './showcharts';
+import {lastNode, setLastNode} from './lastnode';
+import {addChart, createSeries} from './showcharts';
 import {addCanvas} from './canvas';
 import {addTextBox} from './textbox';
 

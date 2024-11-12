@@ -1,15 +1,10 @@
 import Chart from 'chart.js/auto';
 import ChartPluginZoom from 'chartjs-plugin-zoom/dist/chartjs-plugin-zoom.esm';
+import {lastNode} from './lastnode';
 
 // Register zoom/pan plugin
 Chart.register(ChartPluginZoom);
 
-
-// The root node for parsing. New objects are appended here.
-export let lastNode: any;
-export function setLastNode(val: any) {
-	lastNode = val;
-}
 
 
 /**

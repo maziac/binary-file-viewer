@@ -1,4 +1,5 @@
-import {lastNode} from "./showcharts";
+import {lastNode} from './lastnode';
+
 
 /**
  * Creates a text box object inside a table row.

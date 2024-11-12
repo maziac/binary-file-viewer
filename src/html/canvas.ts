@@ -1,4 +1,4 @@
-import {lastNode} from "./showcharts";
+import {lastNode} from "./lastnode";
 
 
 /**
