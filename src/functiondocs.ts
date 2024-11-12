@@ -121,7 +121,7 @@ export class FunctionDocumentation {
 					]
 				},
 				{
-					func: ['addDetails', "Parses the details of an object.\nParsing starts where the last 'read' started.\nParsing is done either immediately or delayed, i.e.on opening the section."],
+					func: ['addDetails', "Parses the details of an object.\nParsing starts where the last 'read' started.\nParsing is done either immediately or delayed, i.e.on opening the section. You can use 'opened' to control the behavior."],
 					params: [
 						['func', '() => void', "The function to call to parse/decode the data."],
 						['opened', 'boolean', "true=the details are opened on initial parsing. false (default)=The parsing is not done immediately but is postponed until the section is expanded."]

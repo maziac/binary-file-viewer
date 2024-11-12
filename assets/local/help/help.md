@@ -234,6 +234,10 @@ I.e. the next row can be decoded just like before with:
 ![](help2c.jpg)
 
 The offset shown in an ```addDetails``` section is always the offset from the beginning of the ```addDetails``` section.
+<br>
+Notes:
+- addDetails has a second parameter 'opened': default is true, so the details will start expanded, if you set it to false the details will be shown collapsed.
+- Beginning with version 1.12.0 a chevron is shown instead of a '+' or '-' sign to indicate the expanded/collapsed state.
 
 ### addMemDump
 
