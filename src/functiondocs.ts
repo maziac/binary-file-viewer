@@ -174,7 +174,7 @@ export class FunctionDocumentation {
 				{
 					func: ['addMemDump', 'Adds a memory dump (hex and ASCII) for the data from the dataBuffer.'],
 					params: [
-						['enableAscii', 'boolean', "true (default)=ASCII decoding enabled. false=no ASCII decoding."]
+						['enableAscii', 'boolean', "(Optional) true (default)=ASCII decoding enabled. false=no ASCII decoding."]
 					]
 				},
 				{
@@ -182,6 +182,14 @@ export class FunctionDocumentation {
 					params: [
 						['config', "{type?:'line'|'bar', series:(number[]|Series)[]}", "type: A line or bar chart. Defaults to 'line'.\n'series': An array which contains either number arrays(obtained by 'getData') or 'Series' structures if you need more control.\nA Series structure contains:\n- samples: The data number array.\n- label: A name for the data series.\n- color: The color of the data series, e.g. 'green'."],
 						['name', 'string', "The name of the chart."]
+					]
+				},
+				{
+					func: ['addTextBox', "Creates a text box with a multiline text. Lines are separated with a '\\n'."],
+					params: [
+						['text', 'string', "The text to display inside the text box."],
+						['minHeight', 'number', "(Optional) The minimum height of the text box in pixels. Defaults to 100."],
+						['initialMaxHeight', 'number', "(Optional) The initial (maximum) height of the text box in pixels. If the text does not fill the complete height, the height is adjusted to fit the content. But will stay > minHeight. Defaults to 300."]
 					]
 				},
 				{

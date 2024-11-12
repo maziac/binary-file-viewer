@@ -13,7 +13,7 @@ import {lastNode} from './lastnode';
  * content. But will stay > minHeight.
  * @returns The text box element.
  */
-export function addTextBox(text: string, minHeight: number, initialMaxHeight: number): HTMLDivElement {	// TODO: add to documentation
+export function addTextBox(text: string, minHeight: number, initialMaxHeight: number): HTMLDivElement {
 	// Check parameters
 	if (typeof text !== 'string')
 		throw new Error("addTextBox: 'text' is not a string.");

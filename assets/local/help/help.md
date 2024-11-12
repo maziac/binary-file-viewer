@@ -359,7 +359,7 @@ E.g.:
 
 ### addCanvas
 
-For visualizing r.g. of embedded pictures there exists a canvas object that you can draw to.
+For visualizing e.g. of embedded pictures there exists a canvas object that you can draw to.
 You create one with
 ~~~js
 	const ctx = addCanvas(1000, 300, 'My Canvas');
@@ -381,6 +381,23 @@ The example here creates a canvas object and draws a red rectangle inside:
 
 ![](help5.jpg)
 
+
+### addTextBox
+
+The text box is a simple box with multiline text.
+Lines are separated with a '\\n'.
+
+Here is an example:
+~~~js
+	read(160);
+	addRow('Text');
+	addDetails(() => {
+		read(160);
+		addTextBox(getStringValue(), 100, 200);
+	}, true);
+~~~
+
+![](help_addtextbox.jpg)
 
 ### Accuracy
 
@@ -502,9 +519,10 @@ These have been made available:
 - String
 - Number
 - BigInt
+- Object
 - Array
 - ArrayBuffer
 - DataView
-- Object
+- Map
 - JSON
 - atob, btoa
