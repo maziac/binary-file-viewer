@@ -99,9 +99,16 @@ export class EditorDocument implements vscode.CustomDocument {
 						this.openCustomParser();
 						break;
 					case 'reload':
-						// Reload/re-parse the file
-						const parsers = ParserSelect.getAllParserFile(filePath);
-						this.updateParser((parsers) ? parsers[this.selected] : parsers);
+						{
+							// Reload data
+							const dataFs = fs.readFileSync(filePath);
+							const data = Uint8Array.from(dataFs);
+							// Send data and parser
+							this.sendDataToWebView(data);
+							// Reload/re-parse the file
+							ParserSelect.clearDiagnostics();
+							this.sendParserToWebView();
+						}
 						break;
 					case 'dbgLog':
 						// Print log into OUTPUT pane

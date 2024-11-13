@@ -3,6 +3,7 @@
 # 1.12.0
 - addTextBox added.
 - addMemDump: Additional parameter to disable the ASCII decoding.
+- 'Reload' fixed.
 
 # 1.11.0
 - addRow: Parameter added to show the offset in decimal or hex. (lee)
