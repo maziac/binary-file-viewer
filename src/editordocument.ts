@@ -16,6 +16,9 @@ export class EditorDocument implements vscode.CustomDocument {
 	// The used parser file.
 	public parser: ParserInfo | undefined;
 
+	// The available parser paths.
+	public parserPaths: string[] = [];
+
 	// The parser file selected
 	public selected = 0;
 
@@ -145,8 +148,9 @@ export class EditorDocument implements vscode.CustomDocument {
 			});
 
 			// Set the html
-			const parsers = ParserSelect.getAllParserFile(filePath);
-			this.setHtml((parsers) ? parsers[this.selected] : parsers);
+			this.selected = 0;
+			const [parser, parserPaths] = this.getParserAndPaths(filePath);
+			this.setHtml(parser, parserPaths);
 		}
 		catch (e) {
 			console.error('Error: ', e);
@@ -154,11 +158,32 @@ export class EditorDocument implements vscode.CustomDocument {
 	}
 
 
+	/** Returns a parser for a given file.
+	 * Selects parser according 'selected'. But
+	 * also sets 'selected' if out of range.
+	 * @param filePath The file path.
+	 * @returns The parser contents and the available parsers.
+	 */
+	public getParserAndPaths(filePath: string): [ParserInfo | undefined, string[]] {
+		const parserPaths = ParserSelect.getAvailableParsers(filePath);
+		if (this.selected >= parserPaths.length)
+			this.selected = 0;
+
+		const parserPath = parserPaths[this.selected];
+		let parser;
+		if (parserPath)
+			parser = ParserSelect.getParserInfo(parserPath);
+
+		return [parser, parserPaths];
+	}
+
+
 	/**
 	 * Selects the right parser and sets the html.
 	 */
-	protected setHtml(parser: ParserInfo|undefined) {
+	protected setHtml(parser: ParserInfo|undefined, parserPaths: string[]) {
 		this.parser = parser;
+		this.parserPaths = parserPaths;
 		let html;
 		if (this.parser) {
 			// Create html code
@@ -201,8 +226,10 @@ export class EditorDocument implements vscode.CustomDocument {
 		const filePath = this.uri.fsPath;
 		const message = {
 			command: 'setParser',
-			parsers: ParserSelect.getAllParserFile(filePath),
-			binFilePath: this.uri.fsPath
+			availableParsers: this.parserPaths,
+			selected: this.selected,
+			customParser: this.parser!.contents,
+			binFilePath: filePath
 		};
 		this.webviewPanel.webview.postMessage(message);
 	}
@@ -233,28 +260,30 @@ export class EditorDocument implements vscode.CustomDocument {
 	 * Checks beforehand if an update is necessary.
 	 * An update is done if the contents or the filepath (rename) is different.
 	 * @param parser The new ParserInfo.
+	 * @param parserPaths The available parser paths.
 	 */
-	public updateParser(parser: ParserInfo|undefined) {
+	public updateParser(parser: ParserInfo|undefined, parserPaths: string[]) {
 		// If this.parser is undefined there was no parser found in the past.
 		if (!this.parser) {
 			// No previous parser
 			if (parser) {
 				ParserSelect.clearDiagnostics();
-				this.setHtml(parser);
+				this.setHtml(parser, parserPaths);
 			}
 		}
 		// Previous parser exists
 		else if (!parser) {
 			// But not anymore
 			// ParserSelect.clearDiagnostics(); If cleared, if the js file contains an error the parser is undefined and errors would be cleaned here.
-			this.setHtml(parser);
+			this.setHtml(parser, parserPaths);
 		}
 		else {
 			// New parser might be different
-			if ((this.parser.contents != parser.contents) || (this.parser.filePath != parser.filePath)) {
+			if ((this.parser.contents !== parser.contents) || (this.parser.filePath !== parser.filePath) || (this.parserPaths.join() !== parserPaths.join())) {
 				// Yes it's different, use the new parser
 				ParserSelect.clearDiagnostics();
 				this.parser = parser;
+				this.parserPaths = parserPaths;
 				this.sendParserToWebView();
 			}
 		}
@@ -325,11 +354,15 @@ export class EditorDocument implements vscode.CustomDocument {
 		}
 	}
 
+
 	/**
 	 * Change the parser (js) file.
 	 * Called if user choose different option of the parsers dropdown.
 	 */
 	protected changeParser(selected) {
 		this.selected = selected;
+		const filePath = this.uri.fsPath;
+		const [parser, parserPaths] = this.getParserAndPaths(filePath);
+		this.updateParser(parser, parserPaths);
 	}
 }

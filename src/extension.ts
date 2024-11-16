@@ -65,15 +65,13 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('binary-file-viewer.open', uri => {
         // Select the parser
         const filePath = uri.fsPath;
-        const parser = ParserSelect.getAllParserFile(filePath);
-        if (!parser) {
+        const parserPaths = ParserSelect.getAvailableParsers(filePath);
+        if (parserPaths.length === 0) {
             // Get all tried parsers.
             let msg = "Binary-File-Viewer: No parser available for '" + path.basename(filePath) + "'.\n";
-            const parserPaths = ParserSelect.getTestedParserFilePaths();
-            if (parserPaths.length > 0) {
-                msg += "Tried parser(s): ";
-                for (const parserPath of parserPaths)
-                    msg += '\n' + parserPath;
+            const triedParserPaths = ParserSelect.getTestedParserFilePaths();
+            if (triedParserPaths.length > 0) {
+                msg += "Tried parser(s): \n" + triedParserPaths.join('\n');
             }
             vscode.window.showErrorMessage(msg);
             return;

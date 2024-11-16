@@ -948,12 +948,10 @@ window.addEventListener('message', event => {	// NOSONAR
 			break;
 		case 'setParser':
 			// Store in global variable
-			customParser = message.parsers[selected].contents;
-			filePathParsers = [];
-			message.parsers.forEach((parser) => {
-				filePathParsers.push(parser.filePath);
-			});
+			customParser = message.customParser;
+			filePathParsers = message.availableParsers;
 			binFilePath = message.binFilePath;
+			selected = message.selected;
 
 			// Parse
 			globalThis.parseStart();

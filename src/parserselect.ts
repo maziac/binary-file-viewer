@@ -333,12 +333,11 @@ export class ParserSelect {
 	}
 
 
-	/**
-	 * Get all right parser file and returns it.
-	 * @param filePath The full (absolute) file path.
-	 * @returns All parser contents and its file path on success. Otherwise undefined.
+	/** Get all right parser file (for an extension) and returns them
+	 * @param filePath The absolute file path of the file
+	 * @returns All parser file paths on success. Otherwise undefined.
 	 */
-	public static getAllParserFile(filePath: string): ParserInfo[]|undefined {
+	public static getAvailableParsers(filePath: string): string[] {
 		this.testedParserFilePaths = [];
 
 		// Get the file extension
@@ -350,7 +349,7 @@ export class ParserSelect {
 		const fileData = new FileData(filePath);
 
 		// Loop through all parsers and read them.
-		const foundParsers: ParserInfo[] = [];
+		const foundParsers: string[] = [];
 		for (const folder of this.parserFolders) {
 			// Read each parser file.
 			const parserMap = this.readAllFiles(folder);
@@ -360,7 +359,7 @@ export class ParserSelect {
 					this.testedParserFilePaths.push(parserFilePath);
 					const found = this.runRegisterFileType(parser, fileExt, filePath, fileData);
 					if (found) {
-						foundParsers.push({contents: parser, filePath: parserFilePath});
+						foundParsers.push(parserFilePath);
 					}
 				}
 				catch (e) {
@@ -373,13 +372,21 @@ export class ParserSelect {
 		// Close, in case it was opened.
 		fileData.close();
 
-		// Check for no selection
-		const len = foundParsers.length;
-		if (len == 0)
-			return undefined;
-
-		// Returning the first one.
+		// Returning the found parsers
 		return foundParsers;
+	}
+
+
+	/** Get ParserInfo for a parser. I.e. the file contents.
+	 * @param parserPath The full (absolute) path to the parser.
+	 * @returns All parser contents and its file path on success. Otherwise undefined.
+	 */
+	public static getParserInfo(parserPath: string): ParserInfo | undefined {
+		// Read parser file
+		const parser = this.readFile(parserPath);
+		if (parser === undefined)
+			return undefined;
+		return {contents: parser, filePath: parserPath};
 	}
 
 
@@ -428,8 +435,8 @@ export class ParserSelect {
 		const docs = EditorDocument.getDocuments();
 		for (const doc of docs) {
 			const filePath = doc.uri.fsPath;
-			const parsers = this.getAllParserFile(filePath);
-			doc.updateParser((parsers) ? parsers[doc.selected] : parsers);
+			const [parser, parserPaths] = doc.getParserAndPaths(filePath);
+			doc.updateParser(parser, parserPaths);
 		}
 	}
 

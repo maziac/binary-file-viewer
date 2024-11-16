@@ -1,0 +1,15 @@
+   1  ggRfvEM YAE#[RND]7:/[LN]%;[RND]W[RETURN]ZS\ 'YA$4[NEXT]/[FOR]\.'4[119]7([UNPLOT]7[TAN]
+  10 IF INKEY$<>"S" THEN GOTO VAL "10"
+  20 RAND USR VAL "16514" s
+
+
+
+
+
+
+
+
+
+
+
+
