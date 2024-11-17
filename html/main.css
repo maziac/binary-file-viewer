@@ -34,7 +34,8 @@ body.vscode-light {
 	--color-size: var(--light-color-size);
 	--color-name: var(--light-color-name);
 	--color-value: var(--light-color-value);
-	--color-description: var(--light-color-description);--color-row-header: var(--light-color-row-header);
+	--color-description: var(--light-color-description);
+	--color-row-header: var(--light-color-row-header);
 	--color-row-even: var(--light-color-row-even);
 	--color-row-odd: var(--light-color-row-odd);
 }
@@ -45,7 +46,8 @@ body.vscode-dark {
 	--color-size: var(--dark-color-size);
 	--color-name: var(--dark-color-name);
 	--color-value: var(--dark-color-value);
-	--color-description: var(--dark-color-description);--color-row-header: var(--dark-color-row-header);
+	--color-description: var(--dark-color-description);
+	--color-row-header: var(--dark-color-row-header);
 	--color-row-even: var(--dark-color-row-even);
 	--color-row-odd: var(--dark-color-row-odd);
 }
@@ -56,7 +58,8 @@ body.vscode-high-contrast {
 	--color-size: var(--light-color-size);
 	--color-name: var(--light-color-name);
 	--color-value: var(--light-color-value);
-	--color-description: var(--light-color-description);--color-row-header: var(--light-color-row-header);
+	--color-description: var(--light-color-description);
+	--color-row-header: var(--light-color-row-header);
 	--color-row-even: var(--light-color-row-even);
 	--color-row-odd: var(--light-color-row-odd);
 }

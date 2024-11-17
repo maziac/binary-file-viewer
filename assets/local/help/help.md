@@ -463,6 +463,57 @@ If the parser file is opened in another vscode window or in a completely differe
 For these case you can press the 'Reload' button in the binary file view.
 ![](help7b.jpg)
 
+## Color Customization
+
+You can change the colors used for the columns and rows.
+To do so use the `setDefaults(config)` function at the start of your `registerParser` function.
+In `config` you can define the `colors` object, which defines the colors for light and dark mode.
+You can optionally also define the `dark-colors` object for a different appearance in dark mode.
+Available properties for the colors are:
+- "collapse": The color of the collapse/expand icon (first column)
+- "offset": The text color of the 'offset' column (second column)
+- "size": The text color of the 'size' column (third column)
+- "name": The text color of the 'name' column (4th column)
+- "value": The text color of the 'value' column (5th column)
+- "description": The text color of the 'description' column (6th column)
+- "row-header": The background color of the header row.
+- "row-odd": The background color of all odd numbered rows.
+- "row-even": The background color of all even numbered rows.
+
+Here is an example:
+~~~js
+setDefaults({
+	"colors": {
+		"collapse": "blue",
+		"offset": "yellow",
+		"size": "yellow",
+		"name": "white",
+		"value": "magenta",
+		"description": "green",
+		"row-header": "cyan",
+		"row-odd": "gray",
+		"row-even": "lightgray",
+	},
+	"dark-colors": {
+		"collapse": "blue",
+		"offset": "red",
+		"size": "green",
+		"name": "yellow",
+		"value": "white",
+		"description": "magenta",
+		"row-header": "green",
+		"row-odd": "lightgray",
+		"row-even": "gray",
+	}
+});
+~~~
+
+Note: You can also use the vscode variables as color values.
+E.g. you could use:
+~~~js
+	"offset": "var(--vscode-button-background)"
+~~~
+
 
 ## Examples
 

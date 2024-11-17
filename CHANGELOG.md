@@ -1,6 +1,7 @@
 # Changelog
 
 # 1.12.0
+- 'setDefaults' added: Allows customization of the colors.
 - addTextBox added.
 - addMemDump: Additional parameter to disable the ASCII decoding.
 - 'Reload' fixed.

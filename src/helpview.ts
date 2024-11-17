@@ -39,7 +39,7 @@ export class HelpView {
 	 * Then the string is cached.
 	 * @returns Usage.md as html without the resource path substituted.
 	 */
-	protected static getHelpHtml() {
+	protected static getHelpHtml(): string {
 		if (!this.helpHtml) {
 			// Load Usage.md file
 			const extFolder = PackageInfo.extensionPath();

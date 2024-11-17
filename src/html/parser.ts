@@ -770,7 +770,7 @@ globalThis.parseStart = function () {
 
 			// API
 			addStandardHeader,
-			setDefaults, // TODO: Documentation required
+			setDefaults,
 			read,
 			readUntil,
 			readBits,

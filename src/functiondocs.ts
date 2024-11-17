@@ -60,6 +60,39 @@ export class FunctionDocumentation {
 					func: ['addStandardHeader', 'Adds a standard header. This includes the size of the file.']
 				},
 				{
+					func: ['setDefaults', 'Allows setting of default values for the colors.'],
+					params: [
+						['config', 'object', `An object containing a 'colors' and a 'dark-colors' object that hold the values for the colors of the columns and rows. Example:
+~~~js
+setDefaults({
+	"colors": {
+		"collapse": "blue",
+		"offset": "yellow",
+		"size": "yellow",
+		"name": "white",
+		"value": "magenta",
+		"description": "green",
+		"row-header": "cyan",
+		"row-odd": "gray",
+		"row-even": "lightgray",
+	},
+	"dark-colors": {
+		"collapse": "blue",
+		"offset": "red",
+		"size": "green",
+		"name": "yellow",
+		"value": "white",
+		"description": "magenta",
+		"row-header": "green",
+		"row-odd": "lightgray",
+		"row-even": "gray",
+	}
+});
+~~~
+`]
+					]
+				},
+				{
 					func: ['read', 'Advances the offset (from previous call) and stores the size for reading.'],
 					params: [
 						['size?', 'number', 'The number of bytes to read. If undefined, all remaining data is read. If negative the offset is moved backwards.']
