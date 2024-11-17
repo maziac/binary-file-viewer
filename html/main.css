@@ -4,6 +4,44 @@
     font-size: var(--vscode-editor-font-size);
 }
 
+:root {
+	/* The default colors */
+	--color-collapse: var(--light-color-collapse);
+	--color-offset: var(--light-color-offset);
+	--color-size: var(--light-color-size);
+	--color-name: var(--light-color-name);
+	--color-value: var(--light-color-value);
+	--color-description: var(--light-color-description);
+
+	/* User changeable light colors: */
+	--light-color-collapse: var(--vscode-terminal-ansiYellow);
+	--light-color-offset: var(--vscode-terminal-ansiYellow);
+	--light-color-size: var(--vscode-terminal-ansiMagenta);
+	--light-color-name: var(--vscode-terminal-ansiBrightBlue);
+	--light-color-value: var(--vscode-terminal-ansiGreen);
+	--light-color-description: var(--vscode-terminal-ansiWhite);
+
+	/* User changeable dark colors: */
+	--dark-color-collapse: var(--vscode-terminal-ansiYellow);
+	--dark-color-offset: var(--vscode-terminal-ansiYellow);
+	--dark-color-size: var(--vscode-terminal-ansiMagenta);
+	--dark-color-name: var(--vscode-terminal-ansiBrightBlue);
+	--dark-color-value: var(--vscode-terminal-ansiGreen);
+	--dark-color-description: var(--vscode-terminal-ansiWhite);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* The dark colors */
+		--color-collapse: var(--dark-color-collapse);--color-offset: var(--dark-color-offset);
+		--color-size: var(--dark-color-size);
+		--color-name: var(--dark-color-name);
+		--color-value: var(--dark-color-value);
+		--color-description: var(--dark-color-description);
+	}
+}
+
 title {
 	font-weight: bold;
 }
@@ -47,7 +85,7 @@ td {
 .collapse {
 	min-width: 1em;
 	text-align: right;
-	color: var(--vscode-terminal-ansiYellow);
+	color: var(--color-collapse);
 	cursor: pointer;
 }
 
@@ -56,7 +94,7 @@ td {
 	min-width: 4em;
 	max-width: 10vw;
 	text-align: right;
-	color: var(--vscode-terminal-ansiYellow);
+	color: var(--color-offset);
 }
 
 /* Class for the size */
@@ -64,7 +102,7 @@ td {
 	min-width: 3em;
 	max-width: 10vw;
 	text-align: right;
-	color: var(--vscode-terminal-ansiMagenta);
+	color: var(--color-size);
 }
 
 /* Class for the name */
@@ -72,8 +110,7 @@ td {
 	min-width: 3em;
 	max-width: 20vw;
 	font-weight: bold;
-	/* color: var(--vscode-terminal-ansiBrightWhite) */
-	color: var(--vscode-terminal-ansiBrightBlue);
+	color: var(--color-name);
 }
 
 /* Class for the value */
@@ -81,7 +118,7 @@ td {
 	min-width: 4em;
 	max-width: 20vw;
 	font-weight: bold;
-	color: var(--vscode-terminal-ansiGreen);
+	color: var(--color-value);
 }
 
 /* Class for the description */
@@ -90,7 +127,7 @@ td {
 	max-width: 50vw;*/
 	/*width: 50vw;*/
 	/* padding-left: 1.5em; */
-	color: var(--vscode-terminal-ansiWhite);
+	color: var(--color-description);
 }
 
 
