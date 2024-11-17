@@ -175,40 +175,38 @@ function setDefaults(config: Object) {
 		// Check if property is configurable
 		for (const key in config) {
 			// Check if property exists
-			if (key.startsWith('color-') || key === 'dark')
+			if (key === 'colors' || key === 'dark-colors')
 				continue;	// Skip colors
 			// For the remaining properties, check availability
 			const property = '--' + key;
 			if (getComputedStyle(elem).getPropertyValue(property) === '') {
 				// Not available, throw an error
-				throw Error('Property unknown: ' + key);
+				throw Error("Property unknown: '" + key + "'");
 			}
 		}
 		// Light colors
-		for (const key in config) {
-			// (Light) color
-			if (key.startsWith('color-')) {
-				// Check if color exists
-				const property = '--light-' + key;
-				if (getComputedStyle(elem).getPropertyValue(property) === '') {
-					// Not available, throw an error
-					throw Error('Color property unknown: ' + key);
-				}
-				const value = config[key];
-				style.setProperty(property, value);
-				// Also use for dark (if not overridden)
-				style.setProperty('--dark-' + key, value);
+		const colors = config['colors'];
+		for (const key in colors) {
+			// Check if color exists
+			const property = '--light-color-' + key;
+			if (getComputedStyle(elem).getPropertyValue(property) === '') {
+				// Not available, throw an error
+				throw Error("Color property unknown: '" + key + "'");
 			}
+			const value = config[key];
+			style.setProperty(property, value);
+			// Also use for dark (if not overridden)
+			style.setProperty('--dark-color-' + key, value);
 		}
 		// Dark colors
-		const darkColors = config['dark'];
+		const darkColors = config['dark-colors'];
 		if(darkColors) {
 			for (const key in darkColors) {
 				// Check if property exists
-				const property = '--dark-' + key;
+				const property = '--dark-color-' + key;
 				if (getComputedStyle(elem).getPropertyValue(property) === '') {
 					// Not available, throw an error
-					throw Error('(Dark) color property unknown: ' + key);
+					throw Error("(Dark) color property unknown: '" + key + "'");
 				}
 				// (Dark) color
 				const value = darkColors[key];
