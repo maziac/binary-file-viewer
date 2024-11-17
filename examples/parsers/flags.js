@@ -14,31 +14,6 @@ registerFileType((fileExt, filePath, data) => {
  */
 registerParser(() => {
 
-	setDefaults({
-		"colors": {
-			"collapse": "blue",
-			"offset": "yellow",
-			"size": "yellow",
-			"name": "white",
-			"value": "magenta",
-			"description": "green",
-			"row-header": "cyan",
-			"row-odd": "gray",
-			"row-even": "lightgray",
-		},
-		"dark-colors": {
-			"collapse": "blue",
-			"offset": "var(--vscode-button-background)",
-			"size": "green",
-			"name": "yellow",
-			"value": "white",
-			"description": "magenta",
-			"row-header": "var(--vscode-button-background)",
-			"row-odd": "lightgray",
-			"row-even": "gray",
-		}
-	});
-
 	addStandardHeader();
 
 	read(2);
