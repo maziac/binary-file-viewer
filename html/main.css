@@ -12,6 +12,9 @@
 	--light-color-name: var(--vscode-terminal-ansiBrightBlue);
 	--light-color-value: var(--vscode-terminal-ansiGreen);
 	--light-color-description: var(--vscode-terminal-ansiWhite);
+	--light-color-row-header: var(--vscode-badge-background);
+	--light-color-row-even: var(--vscode-editorIndentGuide-background);
+	--light-color-row-odd: var(--vscode-badge-background);
 
 	/* User changeable dark colors: */
 	--dark-color-collapse: var(--vscode-terminal-ansiYellow);
@@ -19,16 +22,21 @@
 	--dark-color-size: var(--vscode-terminal-ansiMagenta);
 	--dark-color-name: var(--vscode-terminal-ansiBrightBlue);
 	--dark-color-value: var(--vscode-terminal-ansiGreen);
-	--dark-color-description: var(--vscode-terminal-ansiWhite);
+	--dark-color-description: var(--vscode-terminal-ansiWhite);--dark-color-row-header: var(--vscode-badge-background);
+	--dark-color-row-even: var(--vscode-editorIndentGuide-background);
+	--dark-color-row-odd: var(--vscode-badge-background);
 }
 
+/* Light and dark modes */
 body.vscode-light {
 	--color-collapse: var(--light-color-collapse);
 	--color-offset: var(--light-color-offset);
 	--color-size: var(--light-color-size);
 	--color-name: var(--light-color-name);
 	--color-value: var(--light-color-value);
-	--color-description: var(--light-color-description);
+	--color-description: var(--light-color-description);--color-row-header: var(--light-color-row-header);
+	--color-row-even: var(--light-color-row-even);
+	--color-row-odd: var(--light-color-row-odd);
 }
 
 body.vscode-dark {
@@ -37,7 +45,9 @@ body.vscode-dark {
 	--color-size: var(--dark-color-size);
 	--color-name: var(--dark-color-name);
 	--color-value: var(--dark-color-value);
-	--color-description: var(--dark-color-description);
+	--color-description: var(--dark-color-description);--color-row-header: var(--dark-color-row-header);
+	--color-row-even: var(--dark-color-row-even);
+	--color-row-odd: var(--dark-color-row-odd);
 }
 
 body.vscode-high-contrast {
@@ -46,7 +56,9 @@ body.vscode-high-contrast {
 	--color-size: var(--light-color-size);
 	--color-name: var(--light-color-name);
 	--color-value: var(--light-color-value);
-	--color-description: var(--light-color-description);
+	--color-description: var(--light-color-description);--color-row-header: var(--light-color-row-header);
+	--color-row-even: var(--light-color-row-even);
+	--color-row-odd: var(--light-color-row-odd);
 }
 
 title {
@@ -60,10 +72,10 @@ a.tip {
 
 /* Alternating colors for table rows. */
 tr:nth-child(even) {
-    background-color: var(--vscode-editorIndentGuide-background);
+	background-color: var(--color-row-even);
 }
 tr:nth-child(odd) {
-    background-color: var(--vscode-badge-background);
+	background-color: var(--color-row-odd);
 }
 
 /* Left align table headers. */
@@ -72,7 +84,7 @@ th {
 	vertical-align: top;
 	padding: 0.25em;
 	font-weight: bold;
-	background-color: var(--vscode-badge-background);
+	background-color: var(--color-row-header);
 }
 
 /* Table cells */

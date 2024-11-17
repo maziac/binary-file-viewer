@@ -4,6 +4,8 @@ import {lastNode, setLastNode} from './lastnode';
 import {addChart, createSeries} from './showcharts';
 import {addCanvas} from './canvas';
 import {addTextBox} from './textbox';
+
+
 /**
  * This js script parses a file, does all the decoding and presents the
  * data in the webview.
@@ -12,7 +14,6 @@ import {addTextBox} from './textbox';
  * Large blocks of data are skipped in the initial pass and decoded only
  * when needed. I.e. when the user expands an item.
  */
-
 
 
 // The custom parser (js program as a string).
