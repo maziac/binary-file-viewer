@@ -20,11 +20,26 @@ registerFileType((fileExt, filePath, fileData) => {
 registerParser((filePath) => {
 	dbgLog('Parsing pic file: ' + filePath);
 
+	setDefaults({
+		"color-collapse": "red",
+		"color-offset": "blue",
+		"color-size": "yellow",
+		"color-name": "white",
+		"color-value": "magenta",
+		"color-description": "green"
+	});
+
 	addStandardHeader();
 
 	read(2);
+	addDetails(() => {
+		read(2);
+		const width = getNumberValue();
+		addRow('Widsth', width, 'Picture width');
+	}, true);
+
 	const width = getNumberValue();
-	addRow('Width', width, 'Picture width');
+	addRow('Widsth', width, 'Picture width');
 
 	read(2);
 	const height = getNumberValue();

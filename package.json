@@ -132,15 +132,6 @@
                         ]
                     },
                     {
-                        "id": "changeParser",
-                        "title": "Use other Parser",
-                        "description": "When multiple parsers are in the folder, click the dropdown and choose the parser you want then press 'Reload' to use it to decode the binary file.",
-                        "media": {
-                            "image": "assets/local/walkthroughs/change_parser.gif",
-                            "altText": ""
-                        }
-                    },
-                    {
                         "id": "createParserFile",
                         "title": "Create a Parser File",
                         "description": "Open the parser folder (see previous step). Add a new empty file to it with a '.js' extension. E.g. 'wav.js'.",
