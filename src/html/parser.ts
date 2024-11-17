@@ -172,6 +172,18 @@ function setDefaults(config: Object) {
 	const elem = document.documentElement;
 	const style = elem.style;
 	if (config) {
+		// Check if property is configurable
+		for (const key in config) {
+			// Check if property exists
+			if (key.startsWith('color-') || key === 'dark')
+				continue;	// Skip colors
+			// For the remaining properties, check availability
+			const property = '--' + key;
+			if (getComputedStyle(elem).getPropertyValue(property) === '') {
+				// Not available, throw an error
+				throw Error('Property unknown: ' + key);
+			}
+		}
 		// Light colors
 		for (const key in config) {
 			// (Light) color
@@ -179,9 +191,8 @@ function setDefaults(config: Object) {
 				// Check if color exists
 				const property = '--light-' + key;
 				if (getComputedStyle(elem).getPropertyValue(property) === '') {
-					// Not set, send a warning and continue
-// TODO
-					continue;
+					// Not available, throw an error
+					throw Error('Color property unknown: ' + key);
 				}
 				const value = config[key];
 				style.setProperty(property, value);
@@ -193,17 +204,15 @@ function setDefaults(config: Object) {
 		const darkColors = config['dark'];
 		if(darkColors) {
 			for (const key in darkColors) {
-				// (Dark) color
-				if (key.startsWith('color-')) {
-					const property = '--dark-' + key;
-					if (getComputedStyle(elem).getPropertyValue(property) === '') {
-						// Not set, send a warning and continue
-						// TODO
-						continue;
-					}
-					const value = darkColors[key];
-					style.setProperty(property, value);
+				// Check if property exists
+				const property = '--dark-' + key;
+				if (getComputedStyle(elem).getPropertyValue(property) === '') {
+					// Not available, throw an error
+					throw Error('(Dark) color property unknown: ' + key);
 				}
+				// (Dark) color
+				const value = darkColors[key];
+				style.setProperty(property, value);
 			}
 		}
 	}
