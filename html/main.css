@@ -5,14 +5,6 @@
 }
 
 :root {
-	/* The default colors */
-	--color-collapse: var(--light-color-collapse);
-	--color-offset: var(--light-color-offset);
-	--color-size: var(--light-color-size);
-	--color-name: var(--light-color-name);
-	--color-value: var(--light-color-value);
-	--color-description: var(--light-color-description);
-
 	/* User changeable light colors: */
 	--light-color-collapse: var(--vscode-terminal-ansiYellow);
 	--light-color-offset: var(--vscode-terminal-ansiYellow);
@@ -30,16 +22,31 @@
 	--dark-color-description: var(--vscode-terminal-ansiWhite);
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-	:root {
-		/* The dark colors */
-		--color-collapse: var(--dark-color-collapse);--color-offset: var(--dark-color-offset);
-		--color-size: var(--dark-color-size);
-		--color-name: var(--dark-color-name);
-		--color-value: var(--dark-color-value);
-		--color-description: var(--dark-color-description);
-	}
+body.vscode-light {
+	--color-collapse: var(--light-color-collapse);
+	--color-offset: var(--light-color-offset);
+	--color-size: var(--light-color-size);
+	--color-name: var(--light-color-name);
+	--color-value: var(--light-color-value);
+	--color-description: var(--light-color-description);
+}
+
+body.vscode-dark {
+	--color-collapse: var(--dark-color-collapse);
+	--color-offset: var(--dark-color-offset);
+	--color-size: var(--dark-color-size);
+	--color-name: var(--dark-color-name);
+	--color-value: var(--dark-color-value);
+	--color-description: var(--dark-color-description);
+}
+
+body.vscode-high-contrast {
+	--color-collapse: var(--light-color-collapse);
+	--color-offset: var(--light-color-offset);
+	--color-size: var(--light-color-size);
+	--color-name: var(--light-color-name);
+	--color-value: var(--light-color-value);
+	--color-description: var(--light-color-description);
 }
 
 title {

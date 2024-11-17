@@ -4,7 +4,6 @@ import {lastNode, setLastNode} from './lastnode';
 import {addChart, createSeries} from './showcharts';
 import {addCanvas} from './canvas';
 import {addTextBox} from './textbox';
-
 /**
  * This js script parses a file, does all the decoding and presents the
  * data in the webview.
@@ -163,6 +162,50 @@ function addStandardHeader() {
 	html += '<button href="#" onclick="openCustomParser()"> Open </button>';
 
 	standardHeaderNode.innerHTML = html;
+}
+
+
+/** Sets the defaults, e.g. colors.
+ */
+function setDefaults(config: Object) {
+	const elem = document.documentElement;
+	const style = elem.style;
+	if (config) {
+		// Light colors
+		for (const key in config) {
+			// (Light) color
+			if (key.startsWith('color-')) {
+				// Check if color exists
+				const property = '--light-' + key;
+				if (getComputedStyle(elem).getPropertyValue(property) === '') {
+					// Not set, send a warning and continue
+// TODO
+					continue;
+				}
+				const value = config[key];
+				style.setProperty(property, value);
+				// Also use for dark (if not overridden)
+				style.setProperty('--dark-' + key, value);
+			}
+		}
+		// Dark colors
+		const darkColors = config['dark'];
+		if(darkColors) {
+			for (const key in darkColors) {
+				// (Dark) color
+				if (key.startsWith('color-')) {
+					const property = '--dark-' + key;
+					if (getComputedStyle(elem).getPropertyValue(property) === '') {
+						// Not set, send a warning and continue
+						// TODO
+						continue;
+					}
+					const value = darkColors[key];
+					style.setProperty(property, value);
+				}
+			}
+		}
+	}
 }
 
 
@@ -719,6 +762,7 @@ globalThis.parseStart = function () {
 
 			// API
 			addStandardHeader,
+			setDefaults, // TODO: Documentation required
 			read,
 			readUntil,
 			readBits,
@@ -1048,7 +1092,6 @@ function dbgLog() {
 function dbgOverrideDetailsOpen(open: boolean | undefined) {
 	overrideDetailsOpen = open;
 }
-
 
 
 //----------------------------------------------------------
