@@ -2,7 +2,7 @@
     "name": "binary-file-viewer",
     "displayName": "Binary File Viewer",
     "description": "A viewer for binary files. The viewer can be customized to parse the contents of any binary file.",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "publisher": "maziac",
     "author": {
         "name": "Thomas Busse"
