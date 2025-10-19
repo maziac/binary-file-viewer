@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.12.1
+- Packages updated.
+
 # 1.12.0
 - 'setDefaults' added: Allows customization of the colors.
 - addTextBox added.
