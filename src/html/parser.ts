@@ -152,9 +152,9 @@ function addStandardHeader() {
 		usedParser = parser.substring(i);
 
 		if (selected === idx) {
-			html += '	<option selected value="' + idx + '">' + usedParser +  '</option>'
+			html += '	<option selected value="' + idx + '">' + usedParser + '</option>'
 		} else {
-			html += '	<option value="' + idx + '">' + usedParser +  '</option>'
+			html += '	<option value="' + idx + '">' + usedParser + '</option>'
 		}
 	});
 	html += '</select>'
@@ -193,14 +193,14 @@ function setDefaults(config: Object) {
 				// Not available, throw an error
 				throw Error("Color property unknown: '" + key + "'");
 			}
-			const value = config[key];
+			const value = colors[key];
 			style.setProperty(property, value);
 			// Also use for dark (if not overridden)
 			style.setProperty('--dark-color-' + key, value);
 		}
 		// Dark colors
 		const darkColors = config['dark-colors'];
-		if(darkColors) {
+		if (darkColors) {
 			for (const key in darkColors) {
 				// Check if property exists
 				const property = '--dark-color-' + key;
@@ -320,10 +320,10 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
 	if (lastSize >= 0) {
 		// Bytes used
 		sizeString = lastSize.toString();
-		if(lastBitSize > 0)
+		if (lastBitSize > 0)
 			lastSizeHex = 'Hex: ' + convertToHexString(lastSize, 4);
 	}
-	if(lastBitSize > 0) {
+	if (lastBitSize > 0) {
 		// Yes, bits used
 		if (lastBitSize == 1) {
 			// Special case: only one bit
@@ -335,7 +335,7 @@ function makeRowComplete(row: RowNodes, value: String | string | number = '', de
 		}
 	}
 	row.sizeNode.innerHTML = sizeString;
-	if(lastSizeHex)
+	if (lastSizeHex)
 		row.sizeNode.title = lastSizeHex;
 
 	// Add value
@@ -656,7 +656,7 @@ function addMemDump(enableAscii = true) {
 			// Start of row?
 			if (k == 0) {
 				// Close previous
-				if(prevNode)
+				if (prevNode)
 					prevNode.innerHTML = html + asciiHtml + '</td>';
 
 				// Create new row
@@ -943,7 +943,7 @@ async function getCopyData() {
 		// Canvas/image copy
 		const canvas = contextMenuTarget as HTMLCanvasElement;
 		const dataUrl = canvas.toDataURL('image/png');
-		data = await(await fetch(dataUrl)).blob();
+		data = await (await fetch(dataUrl)).blob();
 	}
 	else {
 		// Text copy
