@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.12.2
+- Fix for #29: setDefaults(): “colors” values are read from the wrong object
+
 # 1.12.1
 - Packages updated.
 
